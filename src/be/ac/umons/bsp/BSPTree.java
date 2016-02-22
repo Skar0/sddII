@@ -10,6 +10,9 @@ public class BSPTree {
     private BSPTree rightSon;
     private BSPTree leftSon;
     private List<Segment> segments;
+    private double a;
+    private double b;
+    private double c;
 
     public BSPTree(BSPTree rightSon, BSPTree leftSon, List<Segment> segments) {
         this.rightSon = rightSon;
@@ -30,7 +33,7 @@ public class BSPTree {
     }
     public void printTree() {
         for(Segment temp : this.segments) {
-            System.out.println(temp.getC());
+            System.out.println(temp.getColor());
         }
         System.out.println("\n");
         if (!this.isLeaf()) {
@@ -71,6 +74,40 @@ public class BSPTree {
 
     public void setSegments(List<Segment> segments) {
         this.segments = segments;
+    }
+
+    public void addSegment(Segment s) {
+        this.segments.add(s);
+    }
+
+    public void computeLine() {
+        Segment basis = this.segments.get(0);
+        this.a = (basis.getY2() - basis.getY1()) / (basis.getX2()-basis.getX1());
+        this.b = basis.getY1()-a*basis.getX1();
+    }
+
+    public double getA() {
+        return a;
+    }
+
+    public void setA(int a) {
+        this.a = a;
+    }
+
+    public double getC() {
+        return c;
+    }
+
+    public void setC(int c) {
+        this.c = c;
+    }
+
+    public double getB() {
+        return b;
+    }
+
+    public void setB(int b) {
+        this.b = b;
     }
 
     public static void main(String [] args) {

@@ -20,6 +20,10 @@ public class SegmentLoader {
         this.path = path;
     }
 
+    /**
+     * Reads the file and adds all the segments in it to a list
+     * @return a list containing all the segments in the file
+     */
     public List<Segment> loadAsList() {
 
         LinkedList<Segment> segmentList = new LinkedList<Segment>();
@@ -34,7 +38,7 @@ public class SegmentLoader {
 
             while((line = br.readLine()) != null) {
                 String[] temp = line.split(" ");
-                segmentList.add(new Segment(Float.parseFloat(temp[0]), Float.parseFloat(temp[1]), Float.parseFloat(temp[2]), Float.parseFloat(temp[3]), temp[4]));
+                segmentList.add(new Segment(Double.parseDouble(temp[0]), Double.parseDouble(temp[1]), Double.parseDouble(temp[2]), Double.parseDouble(temp[3]), temp[4]));
             }
 
             in.close();
