@@ -91,7 +91,7 @@ public class Segment {
         this.y2 = y2;
     }
 
-    public boolean inLine(double a, double b) {
+    public boolean inLine(double a, double b, double c) {
         double slope = y2 - y1 / x2 -x2;
         double y_intercept = y1+slope*x1;
         return (slope == a) && (y_intercept == b);
