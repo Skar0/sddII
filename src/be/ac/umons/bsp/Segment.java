@@ -59,7 +59,7 @@ public class Segment {
      * @return the line in ax + by + c = 0 with a,b,c in a double array
      */
     public double[] computeLine() {
-        /*
+
         double[] line = new double[3];
 
         //If x2-x1 == 0 the line is vertical, its equation is 1*x + 0*y - x1
@@ -71,22 +71,57 @@ public class Segment {
         }
         else {
             line[0] = y2 - y1 / x2 - x1;
-            line[1] = y1+line[0]*x1;
+            line[1] = -1;
+            line[2] = y1+line[0]*x1;
+            return line;
         }
-        */
-        double[] line = new double[3];
-        line[0] = y1-y2;
-        line[1] = x2-x1;
-        line[2] = x1*y2 - x2*y1;
-        return line;
+
     }
 
-    public double[] computePosition(double[] line) {
-        //TODO calculer intersection de la droite (this.computeLine) de ce segment avec la droite "line"
-        //si dedans, retourne point, si gauche -inf, si droite +inf
-        double[] lineBis = this.computeLine();
+    public double[] computePosition(double[] line, Segment segment) {
 
-        return null;
+        double[] lineBis = this.computeLine();
+        double[] intersectionPoint = new double[2];
+
+        //If the slopes are equal, there is no intersection
+        if(line[0] == lineBis[0]) {
+            //If the point (x1,y1) from this segment is right of the line, return [+inf,+inf]
+            if((segment.getX2() - segment.getX1())*(y2 - segment.getY1()) - (segment.getY2() - segment.getY1())*(x1 - segment.getX1()) > 0) {
+                intersectionPoint[0] = Double.POSITIVE_INFINITY;
+                intersectionPoint[0] = Double.POSITIVE_INFINITY;
+                return intersectionPoint;
+            }
+            //If the point (x1,y1) from this segment is left of the line, return [-inf,-inf]
+            else {
+                intersectionPoint[0] = Double.NEGATIVE_INFINITY;
+                intersectionPoint[0] = Double.NEGATIVE_INFINITY;
+                return intersectionPoint;
+            }
+        }
+
+        //If the slopes are not equal, we compute the intersection between the two lines
+        else {
+            intersectionPoint[0] = (lineBis[2] - line[2]) / (line[0] - lineBis[0]);
+            intersectionPoint[1] = intersectionPoint[0]*line[0]+line[2];
+
+            //if point is inside this segment return the intersection
+            if( ((x1 <= intersectionPoint[0] && intersectionPoint[0]<= x2) || (x1 <= intersectionPoint[0] && intersectionPoint[0]<= x2)) && ((y1 <= intersectionPoint[1] && intersectionPoint[1]<= y2) || (y1 <= intersectionPoint[1] && intersectionPoint[1]<= y2))) {
+                return intersectionPoint;
+            }
+
+            //If the point (x1,y1) from this segment is right of the line, return [+inf,+inf]
+            if((segment.getX2() - segment.getX1())*(y2 - segment.getY1()) - (segment.getY2() - segment.getY1())*(x1 - segment.getX1()) > 0) {
+                intersectionPoint[0] = Double.POSITIVE_INFINITY;
+                intersectionPoint[0] = Double.POSITIVE_INFINITY;
+                return intersectionPoint;
+            }
+            //If the point (x1,y1) from this segment is left of the line, return [-inf,-inf]
+            else {
+                intersectionPoint[0] = Double.NEGATIVE_INFINITY;
+                intersectionPoint[0] = Double.NEGATIVE_INFINITY;
+                return intersectionPoint;
+            }
+        }
     }
 
     public double getX1() {

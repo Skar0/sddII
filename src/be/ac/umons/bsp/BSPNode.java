@@ -11,6 +11,11 @@ public class BSPNode {
     private BSPNode rightSon;
     private BSPNode leftSon;
     private List<Segment> segmentsInHyperplane;
+
+    public List<Segment> getSegmentsInLine() {
+        return segmentsInLine;
+    }
+
     private List<Segment> segmentsInLine = new LinkedList<>();
     private double[] line;
 

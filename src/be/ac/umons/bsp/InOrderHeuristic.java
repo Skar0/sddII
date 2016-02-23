@@ -34,7 +34,17 @@ public class InOrderHeuristic {
             }
 
             for (Segment seg : node.getSegmentsInHyperplane()) {
-                double[] intersection = seg.computePosition(node.getLine());
+                double[] intersection = seg.computePosition(node.getLine(), node.getSegmentsInLine().get(0));
+                if(intersection[0] == Double.POSITIVE_INFINITY) {
+                    //add right node
+                     //       delete from node list ?
+                }
+                else if(intersection[0] == Double.POSITIVE_INFINITY) {
+                    //add left node
+                }
+                else {
+
+                }
             }
 
             createRoot(node.getLeftSon());
