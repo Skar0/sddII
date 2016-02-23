@@ -1,5 +1,6 @@
 package be.ac.umons.bsp;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -9,25 +10,20 @@ public class BSPNode {
 
     private BSPNode rightSon;
     private BSPNode leftSon;
-    private List<Segment> segments;
-    private double a;
-    private double b;
-    private double c;
+    private List<Segment> segmentsInHyperplane;
+    private List<Segment> segmentsInLine = new LinkedList<>();
+    private double[] line;
 
-    public BSPNode(BSPNode rightSon, BSPNode leftSon, List<Segment> segments) {
+    public BSPNode(BSPNode rightSon, BSPNode leftSon, List<Segment> segmentsInHyperplane, Segment segment) {
         this.rightSon = rightSon;
         this.leftSon = leftSon;
-        this.segments = segments;
+        this.segmentsInHyperplane = segmentsInHyperplane;
+        this.segmentsInLine.add(segment);
+        this.line = segment.computeLine();
     }
 
-    /**
-     * Computes the line that is prolonged from the first segment in the segments list
-     */
-    public void computeLine() {
-        Segment basis = this.segments.get(0);
-        this.a = (basis.getY2() - basis.getY1()) / (basis.getX2()-basis.getX1());
-        this.b = basis.getY1()-a*basis.getX1();
-        this.c = -1;
+    public double[] getLine() {
+        return line;
     }
 
     /**
@@ -59,7 +55,7 @@ public class BSPNode {
      */
     public void printTree() {
 
-        for(Segment temp : this.segments) {
+        for(Segment temp : this.segmentsInHyperplane) {
             System.out.println(temp.getColor());
         }
 
@@ -98,44 +94,20 @@ public class BSPNode {
         this.leftSon = leftSon;
     }
 
-    public List<Segment> getSegments() {
-        return segments;
+    public List<Segment> getSegmentsInHyperplane() {
+        return segmentsInHyperplane;
     }
 
-    public void setSegments(List<Segment> segments) {
-        this.segments = segments;
+    public void setSegmentsInHyperplane(List<Segment> segmentsInHyperplane) {
+        this.segmentsInHyperplane = segmentsInHyperplane;
     }
 
     /**
-     * Adds a segment to the list of segments contained in the BSPNode
+     * Adds a segment to the list of segmentsInHyperplane contained in the BSPNode
      * @param s the segment to add
      */
     public void addSegment(Segment s) {
-        this.segments.add(s);
-    }
-
-    public double getA() {
-        return a;
-    }
-
-    public void setA(int a) {
-        this.a = a;
-    }
-
-    public double getC() {
-        return c;
-    }
-
-    public void setC(int c) {
-        this.c = c;
-    }
-
-    public double getB() {
-        return b;
-    }
-
-    public void setB(int b) {
-        this.b = b;
+        this.segmentsInLine.add(s);
     }
 
     public static void main(String [] args) {

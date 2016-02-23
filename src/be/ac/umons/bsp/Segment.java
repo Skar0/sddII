@@ -1,11 +1,13 @@
 package be.ac.umons.bsp;
 
 import java.awt.*;
+import java.awt.geom.Arc2D;
 
 /**
  * Created by clement on 2/20/16.
  */
 public class Segment {
+
     private double x1;
     private double y1;
     private double x2;
@@ -17,6 +19,7 @@ public class Segment {
         this.y1 = y1;
         this.x2 = x2;
         this.y2 = y2;
+
         switch (color) {
             case "Bleu" :
                 this.c = Color.blue;
@@ -49,6 +52,41 @@ public class Segment {
                 this.c = Color.pink;
                 break;
         }
+    }
+
+    /**
+     * Computes the line joining the two points
+     * @return the line in ax + by + c = 0 with a,b,c in a double array
+     */
+    public double[] computeLine() {
+        /*
+        double[] line = new double[3];
+
+        //If x2-x1 == 0 the line is vertical, its equation is 1*x + 0*y - x1
+        if(x2-x1 == 0) {
+            line[0] = 1;
+            line[1] = 0;
+            line[2] = -x1;
+            return line;
+        }
+        else {
+            line[0] = y2 - y1 / x2 - x1;
+            line[1] = y1+line[0]*x1;
+        }
+        */
+        double[] line = new double[3];
+        line[0] = y1-y2;
+        line[1] = x2-x1;
+        line[2] = x1*y2 - x2*y1;
+        return line;
+    }
+
+    public double[] computePosition(double[] line) {
+        //TODO calculer intersection de la droite (this.computeLine) de ce segment avec la droite "line"
+        //si dedans, retourne point, si gauche -inf, si droite +inf
+        double[] lineBis = this.computeLine();
+
+        return null;
     }
 
     public double getX1() {
@@ -91,16 +129,4 @@ public class Segment {
         this.y2 = y2;
     }
 
-    public boolean inLine(double a, double b, double c) {
-        double slope = y2 - y1 / x2 -x2;
-        double y_intercept = y1+slope*x1;
-        return (slope == a) && (y_intercept == b);
-    }
-
-    public double computePosition(double a, double b) {
-        double slope = y2 - y1 / x2 -x2;
-        double y_intercept = y1+slope*x1;
-
-        return 42;
-    }
 }
