@@ -60,10 +60,12 @@ public class BSPNode {
      */
     public void printTree() {
 
-        for(Segment temp : this.segmentsInHyperplane) {
+        for(Segment temp : this.segmentsInLine) {
             System.out.println(temp.getColor());
         }
 
+        System.out.println("\n");
+        System.out.println(this.isLeaf());
         System.out.println("\n");
 
         if (!this.isLeaf()) {
@@ -72,7 +74,7 @@ public class BSPNode {
                 this.rightSon.printTree();
             }
 
-            if (this.hasNoRightSon()) {
+            else if (this.hasNoRightSon()) {
                 this.leftSon.printTree();
             }
 
@@ -117,5 +119,9 @@ public class BSPNode {
 
     public static void main(String [] args) {
 
+    }
+
+    public void addSegmentInHyperplane(Segment seg) {
+        this.segmentsInHyperplane.add(seg);
     }
 }

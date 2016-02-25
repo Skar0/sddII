@@ -7,19 +7,24 @@ import java.awt.geom.Arc2D;
  * Created by clement on 2/20/16.
  */
 public class Segment {
-
+//TODO retirer la couleur string et choper le switch au chargement et pas a la création
     private double x1;
     private double y1;
     private double x2;
     private double y2;
     private Color c;
+    //
+    private String color;
+    //
 
     public Segment(double x1, double y1, double x2, double y2, String color) {
         this.x1 = x1;
         this.y1 = y1;
         this.x2 = x2;
         this.y2 = y2;
-
+        //
+        this.color = color;
+        //
         switch (color) {
             case "Bleu" :
                 this.c = Color.blue;
@@ -70,7 +75,7 @@ public class Segment {
             return line;
         }
         else {
-            line[0] = y2 - y1 / x2 - x1;
+            line[0] = (y2 - y1) / (x2 - x1);
             line[1] = -1;
             line[2] = y1+line[0]*x1;
             return line;
@@ -88,13 +93,15 @@ public class Segment {
             //If the point (x1,y1) from this segment is right of the line, return [+inf,+inf]
             if((segment.getX2() - segment.getX1())*(y2 - segment.getY1()) - (segment.getY2() - segment.getY1())*(x1 - segment.getX1()) > 0) {
                 intersectionPoint[0] = Double.POSITIVE_INFINITY;
-                intersectionPoint[0] = Double.POSITIVE_INFINITY;
+                intersectionPoint[1] = Double.POSITIVE_INFINITY;
+                System.out.println("neg inf 1");
                 return intersectionPoint;
             }
             //If the point (x1,y1) from this segment is left of the line, return [-inf,-inf]
             else {
-                intersectionPoint[0] = Double.NEGATIVE_INFINITY;
-                intersectionPoint[0] = Double.NEGATIVE_INFINITY;
+                intersectionPoint[0] = Double.NaN;
+                intersectionPoint[1] = Double.NaN;
+                System.out.println("neg inf 1");
                 return intersectionPoint;
             }
         }
@@ -105,20 +112,23 @@ public class Segment {
             intersectionPoint[1] = intersectionPoint[0]*line[0]+line[2];
 
             //if point is inside this segment return the intersection
-            if( ((x1 <= intersectionPoint[0] && intersectionPoint[0]<= x2) || (x1 <= intersectionPoint[0] && intersectionPoint[0]<= x2)) && ((y1 <= intersectionPoint[1] && intersectionPoint[1]<= y2) || (y1 <= intersectionPoint[1] && intersectionPoint[1]<= y2))) {
+            if( ((x1 < intersectionPoint[0] && intersectionPoint[0]< x2) || (x1 < intersectionPoint[0] && intersectionPoint[0]< x2)) && ((y1 < intersectionPoint[1] && intersectionPoint[1]< y2) || (y1 < intersectionPoint[1] && intersectionPoint[1]< y2))) {
+                System.out.println("intersec");
                 return intersectionPoint;
             }
 
             //If the point (x1,y1) from this segment is right of the line, return [+inf,+inf]
             if((segment.getX2() - segment.getX1())*(y2 - segment.getY1()) - (segment.getY2() - segment.getY1())*(x1 - segment.getX1()) > 0) {
                 intersectionPoint[0] = Double.POSITIVE_INFINITY;
-                intersectionPoint[0] = Double.POSITIVE_INFINITY;
+                intersectionPoint[1] = Double.POSITIVE_INFINITY;
+                System.out.println("pos inf 2");
                 return intersectionPoint;
             }
             //If the point (x1,y1) from this segment is left of the line, return [-inf,-inf]
             else {
-                intersectionPoint[0] = Double.NEGATIVE_INFINITY;
-                intersectionPoint[0] = Double.NEGATIVE_INFINITY;
+                System.out.println("neg inf 2");
+                intersectionPoint[0] = Double.NaN;
+                intersectionPoint[1] = Double.NaN;
                 return intersectionPoint;
             }
         }
@@ -159,7 +169,11 @@ public class Segment {
     public double getY2() {
         return y2;
     }
-
+    //
+    public String getStringColor() {
+        return color;
+    }
+    //
     public void setY2(double y2) {
         this.y2 = y2;
     }
