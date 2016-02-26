@@ -25,11 +25,15 @@ public class InOrderHeuristic {
     }
 
     public void createRoot(BSPNode node) {
+
+
         if(node !=  null) {
+            System.out.println("Segment actuel : "+node+" "+node.getSegmentsInLine().get(0).getX1()+" "+node.getSegmentsInLine().get(0).getY1());
             List<Segment> toRemove = new LinkedList<>();
             for (Segment seg : node.getSegmentsInHyperplane()) {
                 //if lines are equals, seg is contained in the cutting line of the node
                 if( (seg.computeLine()[0] == node.getLine()[0]) && (seg.computeLine()[1] == node.getLine()[1]) && (seg.computeLine()[2] == node.getLine()[2]) ) {
+                    System.out.println("Segment "+seg+" "+seg.getX1()+" "+seg.getY1()+" dans la ligne du segment actuel");
                     node.addSegment(seg);
                     toRemove.add(seg);
 
@@ -47,28 +51,31 @@ public class InOrderHeuristic {
                 //System.out.println("-----------"+intersection[0]);
                 if(Double.isInfinite(intersection[0])) {
                     rightNodeSegments.add(seg);
-                    //System.out.println("droite ");
+                    System.out.println("Segment "+seg+" "+seg.getX1()+" "+seg.getY1()+" a droite du segment actuel");
                 }
                 //old line : else if(intersection[0] == Double.POSITIVE_INFINITY) {
                 //can return + or - inf, only a general inf so i cant differenciate
                 else if(Double.isNaN(intersection[0])) {
                    leftNodeSegments.add(seg);
-                    //System.out.println("gauche");
+                    System.out.println("Segment "+seg+" "+seg.getX1()+" "+seg.getY1()+" a gauche du segment actuel");
                 }
                 else {
-                    System.out.println("coupe");
-                    Segment leftSegment = new Segment(seg.getX1(), seg.getY1(),intersection[0], intersection[1], seg.getStringColor());
-                    Segment rightSegment = new Segment(seg.getX2(), seg.getY2(),intersection[0], intersection[1], seg.getStringColor());
+                    System.out.println("Segment "+seg+" "+seg.getX1()+" "+seg.getY1()+" est coupé");
+                    Segment leftSegment = new Segment(intersection[0], intersection[1],seg.getX1(), seg.getY1(), seg.getStringColor());
+                    Segment rightSegment = new Segment(intersection[0], intersection[1],seg.getX2(), seg.getY2(), seg.getStringColor());
                     newSegments.add(leftSegment);
                     newSegments.add(rightSegment);
                 }
             }
             for (Segment seg : newSegments) {
-                double[] intersection = seg.computePosition(node.getLine(), node.getSegmentsInLine().get(0));
+
+                double[] intersection = seg.computeTest(node.getLine(), node.getSegmentsInLine().get(0));
                 if (Double.isInfinite(intersection[0])) {
+                    System.out.println("Segment "+seg+" "+seg.getX1()+" "+seg.getY1()+" a droite");
                     rightNodeSegments.add(seg);
 
                 } else if (Double.isNaN(intersection[0])) {
+                    System.out.println("Segment "+seg+" "+seg.getX1()+" "+seg.getY1()+" a gauche");
                     leftNodeSegments.add(seg);
                 }
             }

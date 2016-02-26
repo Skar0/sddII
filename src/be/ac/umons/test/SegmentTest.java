@@ -52,6 +52,15 @@ public class SegmentTest {
 
     @org.junit.Test
     public void testComputePosition() throws Exception {
+        SegmentLoader loader2 = new SegmentLoader("assets/other/wikipediaExample.txt");
+        List<Segment> segmentList2 = loader.loadAsList();
+
+        double[] line1 = segmentList2.get(0).computeLine();
+        double[] intersection = segmentList2.get(1).computePosition(line1, segmentList2.get(0));
+        System.out.println(intersection[0]+" "+intersection[1]);
+        double[] actual = {7,9};
+        assertArrayEquals(intersection,actual,0.0001);
+
 
     }
 }

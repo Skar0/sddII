@@ -12,10 +12,6 @@ public class BSPNode {
     private BSPNode leftSon;
     private List<Segment> segmentsInHyperplane;
 
-    public List<Segment> getSegmentsInLine() {
-        return segmentsInLine;
-    }
-
     private List<Segment> segmentsInLine = new LinkedList<>();
     private double[] line;
 
@@ -27,6 +23,9 @@ public class BSPNode {
         this.line = segment.computeLine();
     }
 
+    public List<Segment> getSegmentsInLine() {
+        return segmentsInLine;
+    }
     public double[] getLine() {
         return line;
     }
