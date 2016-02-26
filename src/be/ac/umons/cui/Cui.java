@@ -14,7 +14,7 @@ public class Cui {
 
     public static void main(String [] args) {
         System.out.println("test");
-        SegmentLoader loader = new SegmentLoader("assets/first/octogone.txt");
+        SegmentLoader loader = new SegmentLoader("assets/other/wikipediaExample.txt");
         List<Segment> segmentList = loader.loadAsList();
 
         InOrderHeuristic heuristicBuilder = new InOrderHeuristic();

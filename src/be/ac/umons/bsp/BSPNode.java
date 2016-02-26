@@ -61,12 +61,18 @@ public class BSPNode {
     public void printTree() {
 
         for(Segment temp : this.segmentsInLine) {
-            System.out.println(temp.getColor());
-        }
+          //  System.out.println(temp);
 
+        }
+        System.out.println("-------");
+        System.out.println(this);
+        System.out.println("-------");
+        System.out.println("left " +leftSon);
+        System.out.println("right "+rightSon);
+        System.out.println("-------");
         System.out.println("\n");
-        System.out.println(this.isLeaf());
-        System.out.println("\n");
+       // System.out.println(this.isLeaf());
+        //System.out.println("\n");
 
         if (!this.isLeaf()) {
 

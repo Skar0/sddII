@@ -77,7 +77,7 @@ public class Segment {
         else {
             line[0] = (y2 - y1) / (x2 - x1);
             line[1] = -1;
-            line[2] = y1+line[0]*x1;
+            line[2] = y1-(line[0]*x1);
             return line;
         }
 
@@ -94,14 +94,14 @@ public class Segment {
             if((segment.getX2() - segment.getX1())*(y2 - segment.getY1()) - (segment.getY2() - segment.getY1())*(x1 - segment.getX1()) > 0) {
                 intersectionPoint[0] = Double.POSITIVE_INFINITY;
                 intersectionPoint[1] = Double.POSITIVE_INFINITY;
-                System.out.println("neg inf 1");
+                //System.out.println("neg inf 1");
                 return intersectionPoint;
             }
             //If the point (x1,y1) from this segment is left of the line, return [-inf,-inf]
             else {
                 intersectionPoint[0] = Double.NaN;
                 intersectionPoint[1] = Double.NaN;
-                System.out.println("neg inf 1");
+               // System.out.println("neg inf 1");
                 return intersectionPoint;
             }
         }
@@ -109,24 +109,26 @@ public class Segment {
         //If the slopes are not equal, we compute the intersection between the two lines
         else {
             intersectionPoint[0] = (lineBis[2] - line[2]) / (line[0] - lineBis[0]);
-            intersectionPoint[1] = intersectionPoint[0]*line[0]+line[2];
-
+            intersectionPoint[1] = (intersectionPoint[0]*line[0])+line[2];
+            System.out.println("intersection point "+intersectionPoint[0]+ " "+intersectionPoint[1]);
+            System.out.println("points ["+x1+" "+x2+"] "+y1+" "+y2+"]");
+            System.out.println("segment "+x1+" "+y1+ " "+x2+" "+y2+" droite "+lineBis[0]+" "+lineBis[1]+" "+lineBis[2]);
             //if point is inside this segment return the intersection
-            if( ((x1 < intersectionPoint[0] && intersectionPoint[0]< x2) || (x1 < intersectionPoint[0] && intersectionPoint[0]< x2)) && ((y1 < intersectionPoint[1] && intersectionPoint[1]< y2) || (y1 < intersectionPoint[1] && intersectionPoint[1]< y2))) {
-                System.out.println("intersec");
+            if( (((x1 < intersectionPoint[0]) && (intersectionPoint[0]< x2)) || ((x2 < intersectionPoint[0]) && (intersectionPoint[0]< x1))) && (((y1 < intersectionPoint[1]) && (intersectionPoint[1]< y2)) || ((y2 < intersectionPoint[1]) && (intersectionPoint[1]< y1)))) {
+                System.out.println("intersecte seg");
                 return intersectionPoint;
             }
 
             //If the point (x1,y1) from this segment is right of the line, return [+inf,+inf]
-            if((segment.getX2() - segment.getX1())*(y2 - segment.getY1()) - (segment.getY2() - segment.getY1())*(x1 - segment.getX1()) > 0) {
+            else if ((segment.getX2() - segment.getX1())*(y2 - segment.getY1()) - (segment.getY2() - segment.getY1())*(x1 - segment.getX1()) > 0) {
                 intersectionPoint[0] = Double.POSITIVE_INFINITY;
                 intersectionPoint[1] = Double.POSITIVE_INFINITY;
-                System.out.println("pos inf 2");
+                System.out.println("droite seg");
                 return intersectionPoint;
             }
             //If the point (x1,y1) from this segment is left of the line, return [-inf,-inf]
             else {
-                System.out.println("neg inf 2");
+                System.out.println("gauche seg");
                 intersectionPoint[0] = Double.NaN;
                 intersectionPoint[1] = Double.NaN;
                 return intersectionPoint;

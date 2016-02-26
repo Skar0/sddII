@@ -44,16 +44,16 @@ public class InOrderHeuristic {
             //
             for (Segment seg : node.getSegmentsInHyperplane()) {
                 double[] intersection = seg.computePosition(node.getLine(), node.getSegmentsInLine().get(0));
-                System.out.println("-----------"+intersection[0]);
+                //System.out.println("-----------"+intersection[0]);
                 if(Double.isInfinite(intersection[0])) {
                     rightNodeSegments.add(seg);
-                    System.out.println("droite ");
+                    //System.out.println("droite ");
                 }
                 //old line : else if(intersection[0] == Double.POSITIVE_INFINITY) {
                 //can return + or - inf, only a general inf so i cant differenciate
                 else if(Double.isNaN(intersection[0])) {
                    leftNodeSegments.add(seg);
-                    System.out.println("gauche");
+                    //System.out.println("gauche");
                 }
                 else {
                     System.out.println("coupe");
@@ -65,10 +65,10 @@ public class InOrderHeuristic {
             }
             for (Segment seg : newSegments) {
                 double[] intersection = seg.computePosition(node.getLine(), node.getSegmentsInLine().get(0));
-                if (intersection[0] == Double.POSITIVE_INFINITY) {
+                if (Double.isInfinite(intersection[0])) {
                     rightNodeSegments.add(seg);
 
-                } else if (intersection[0] == Double.POSITIVE_INFINITY) {
+                } else if (Double.isNaN(intersection[0])) {
                     leftNodeSegments.add(seg);
                 }
             }
