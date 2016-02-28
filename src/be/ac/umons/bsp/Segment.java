@@ -156,16 +156,19 @@ public class Segment {
            System.out.println("Point d'intersection"+intersectionPoint[0]+ ";"+intersectionPoint[1]);
             //System.out.println("Intervalle du segment ["+x1+";"+x2+"] ["+y1+";"+y2+"]");
             //if point is inside this segment return the intersection
-            if( (((x1 <= intersectionPoint[0]) && (intersectionPoint[0]<= x2)) || ((x2 <= intersectionPoint[0]) && (intersectionPoint[0]<= x1))) && (((y1 <= intersectionPoint[1]) && (intersectionPoint[1]<= y2)) || ((y2 <= intersectionPoint[1]) && (intersectionPoint[1]<= y1)))) {
+            if( ((((x1 <= intersectionPoint[0]) && (intersectionPoint[0]<= x2)) || ((x2 <= intersectionPoint[0]) && (intersectionPoint[0]<= x1))) && (((y1 <= intersectionPoint[1]) && (intersectionPoint[1]<= y2)) || ((y2 <= intersectionPoint[1]) && (intersectionPoint[1]<= y1))))
+                    && !(intersectionPoint[0] == x1 && intersectionPoint[1]==y1) && !(intersectionPoint[0] == x2 && intersectionPoint[1]==y2) ) {
                // System.out.println("Intersection dans segment");
+                //doit pas être this.gauche oou this.poitndroite
                 return intersectionPoint;
             }
             else if((segment.getX2() - segment.getX1())*(y2 - segment.getY1()) - (segment.getY2() - segment.getY1())*(x2 - segment.getX1()) == 0) {
                 System.out.println("FATAL ERROR FAILURE BOUM3");
-                return intersectionPoint;
+                //tester this.gauche ou this.droite car egalité si point sur segment
+                return null;
             }
             //If the point (x1,y1) from this segment is right of the line, return [+inf,+inf]
-            else if ((segment.getX2() - segment.getX1())*(y2 - segment.getY1()) - (segment.getY2() - segment.getY1())*(x2 - segment.getX1()) < 0) {
+            else if (((segment.getX2() - segment.getX1())*(y2 - segment.getY1()) - (segment.getY2() - segment.getY1())*(x2 - segment.getX1()) < 0) || ((segment.getX2() - segment.getX1())*(y1 - segment.getY1()) - (segment.getY2() - segment.getY1())*(x1 - segment.getX1()) < 0)) {
                 intersectionPoint[0] = Double.POSITIVE_INFINITY;
                 intersectionPoint[1] = Double.POSITIVE_INFINITY;
                 //System.out.println("Droite de la droite");
