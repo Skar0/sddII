@@ -52,6 +52,69 @@ public class SegmentTest {
 
     @org.junit.Test
     public void testComputePosition() throws Exception {
+    /*
+        // -------- 1
+        // -------- 2
+        List<Segment> situation1 = {};
+
+        // -------- 2
+        // -------- 1
+        List<Segment> situation2 = {};
+
+        // |
+        // |------- 1
+        // |
+        List<Segment> situation3 = {};
+
+        // |
+        // |_________ 1
+        List<Segment> situation4 = {};
+
+        //  _____ 1
+        // |
+        List<Segment> situation5 = {};
+
+        //             |
+        // 1 ----------|
+        //             |
+        List<Segment> situation6 = {};
+
+        //              |
+        // 1 -----------|
+        List<Segment> situation7 = {};
+
+        // 1 -----------|
+        //              |
+        List<Segment> situation8 = {};
+
+        //           |
+        // 1 --------|-----
+        List<Segment> situation9 = {};
+
+        // 1 --------|-----
+        //           |
+        List<Segment> situation10 = {};
+
+        //           |
+        // 1 --------|----
+        //           |
+        List<Segment> situation11 = {};
+
+        // 1 --------  |
+        //             |
+        List<Segment> situation12 = {};
+
+        //             |
+        // 1 --------  |
+        //             |
+        List<Segment> situation13 = {};
+
+        //             |
+        // ----------  |
+        List<Segment> situation14 = {};
+
+*/
+
         SegmentLoader loader2 = new SegmentLoader("assets/other/wikipediaExample.txt");
         List<Segment> segmentList2 = loader.loadAsList();
 
