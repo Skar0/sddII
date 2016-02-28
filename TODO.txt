@@ -1,0 +1,3 @@
+-Make the computePosition() method work regardless of the order the points in the line are
+-Test computePosition() with points in inverse order (big cc of what has been done)
+-Clean the Segment and InOrderHeuristic classes from redundances and prints
