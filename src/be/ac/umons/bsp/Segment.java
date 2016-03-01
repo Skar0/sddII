@@ -72,8 +72,13 @@ public class Segment {
             }
         }
 
-    public double behind(double[] line) {
-       return 5.0;
+    public double getSide(double[] line, double x, double y) {
+
+        if((line[0] == 1) && (line[1] == 0)) {
+            return -(line[0]*x + line[1]*y +line[2]);
+        }
+
+        return (line[0]*x + line[1]*y +line[2]);
     }
 
     public double[] computePosition(double[] line, Segment segment) {
@@ -84,13 +89,13 @@ public class Segment {
         //If the slopes are equal, there is no intersection
         if(line[0] == lineBis[0]) {
             //If the point (x1,y1) from this segment is right of the line, return [+inf,+inf]
-            if((line[0]*x2 + line[1]*y2 +line[2]) > 0) {
+            if(getSide(line, x2, y2) > 0) {
                 intersectionPoint[0] = Double.POSITIVE_INFINITY;
                 intersectionPoint[1] = Double.POSITIVE_INFINITY;
                // System.out.println("Droite de la droite");
                 return intersectionPoint;
             }
-            else if((line[0]*x2 + line[1]*y2 +line[2]) == 0) {
+            else if(getSide(line, x2, y2) == 0) {
                 System.out.println("FATAL ERROR FAILURE BOUM2");
                 return intersectionPoint;
             }
@@ -136,7 +141,7 @@ public class Segment {
                 return null;
             }
             //If the point (x1,y1) from this segment is right of the line, return [+inf,+inf]
-            else if ((((line[0]*x2 + line[1]*y2 +line[2]) > 0) || (line[0]*x1 + line[1]*y1 +line[2]) > 0)) {
+            else if (((getSide(line, x2, y2)> 0) || (getSide(line, x1, y1) > 0))) {
                 intersectionPoint[0] = Double.POSITIVE_INFINITY;
                 intersectionPoint[1] = Double.POSITIVE_INFINITY;
                 //System.out.println("Droite de la droite");
