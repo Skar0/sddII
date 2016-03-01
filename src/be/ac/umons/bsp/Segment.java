@@ -78,6 +78,9 @@ public class Segment {
             return -(line[0]*x + line[1]*y +line[2]);
         }
 
+        if( line[0] > 0 ) {
+            return -(line[0]*x + line[1]*y +line[2]);
+        }
         return (line[0]*x + line[1]*y +line[2]);
     }
 

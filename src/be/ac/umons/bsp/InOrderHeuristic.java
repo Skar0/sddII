@@ -69,7 +69,7 @@ public class InOrderHeuristic {
             }
             for (Segment seg : newSegments) {
 
-                double[] intersection = seg.computeTest(node.getLine(), node.getSegmentsInLine().get(0));
+                double[] intersection = seg.computePosition(node.getLine(), node.getSegmentsInLine().get(0));
                 if (Double.isInfinite(intersection[0])) {
                     System.out.println("Segment "+seg+" "+seg.getX1()+" "+seg.getY1()+" a droite");
                     rightNodeSegments.add(seg);

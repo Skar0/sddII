@@ -58,20 +58,15 @@ public class BSPNode {
      * Prints the tree in the command line
      */
     public void printTree() {
-
+        System.out.println("---------------------");
+        System.out.println("Node : "+this);
         for(Segment temp : this.segmentsInLine) {
-          //  System.out.println(temp);
-
+            System.out.print("[ ("+temp.getX1()+","+temp.getY1()+") ("+temp.getX2()+","+temp.getY2()+") ] ");
         }
-        System.out.println("-------");
-        System.out.println(this);
-        System.out.println("-------");
-        System.out.println("left " +leftSon);
-        System.out.println("right "+rightSon);
-        System.out.println("-------");
-        System.out.println("\n");
-       // System.out.println(this.isLeaf());
-        //System.out.println("\n");
+        System.out.println();
+        System.out.println("Left son : " +leftSon);
+        System.out.println("Right son : "+rightSon);
+        System.out.println("---------------------\n");
 
         if (!this.isLeaf()) {
 
@@ -88,6 +83,19 @@ public class BSPNode {
                 this.rightSon.printTree();
             }
         }
+    }
+
+    public int getHeight() {
+        if(this.isLeaf()) {
+            return 0;
+        }
+        if(this.hasNoRightSon()) {
+            return 1 + this.leftSon.getHeight();
+        }
+        else if (this.hasNoLeftSon()) {
+            return 1 + this.rightSon.getHeight();
+        }
+        else return Math.max( (1+this.leftSon.getHeight()), (1+this.rightSon.getHeight()) );
     }
 
     public BSPNode getRightSon() {
