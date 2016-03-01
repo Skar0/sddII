@@ -61,8 +61,8 @@ public class InOrderHeuristic {
                 }
                 else {
                     System.out.println("Segment "+seg+" "+seg.getX1()+" "+seg.getY1()+" est coupé");
-                    Segment leftSegment = new Segment(intersection[0], intersection[1],seg.getX1(), seg.getY1(), seg.getStringColor());
-                    Segment rightSegment = new Segment(intersection[0], intersection[1],seg.getX2(), seg.getY2(), seg.getStringColor());
+                    Segment leftSegment = new Segment(intersection[0], intersection[1],seg.getX1(), seg.getY1(), seg.getColor());
+                    Segment rightSegment = new Segment(intersection[0], intersection[1],seg.getX2(), seg.getY2(), seg.getColor());
                     newSegments.add(leftSegment);
                     newSegments.add(rightSegment);
                 }

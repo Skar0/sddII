@@ -12,51 +12,15 @@ public class Segment {
     private double y1;
     private double x2;
     private double y2;
-    private Color c;
-    //
-    private String color;
-    //
+    private Color color;
 
-    public Segment(double x1, double y1, double x2, double y2, String color) {
+
+    public Segment(double x1, double y1, double x2, double y2, Color color) {
         this.x1 = x1;
         this.y1 = y1;
         this.x2 = x2;
         this.y2 = y2;
-        //
         this.color = color;
-        //
-        switch (color) {
-            case "Bleu":
-                this.c = Color.blue;
-                break;
-            case "Rouge":
-                this.c = Color.red;
-                break;
-            case "Orange":
-                this.c = Color.orange;
-                break;
-            case "Jaune":
-                this.c = Color.yellow;
-                break;
-            case "Noir":
-                this.c = Color.black;
-                break;
-            case "Violet":
-                this.c = new Color(255, 0, 255);
-                break;
-            case "Marron":
-                this.c = new Color(102, 51, 0);
-                break;
-            case "Vert":
-                this.c = Color.green;
-                break;
-            case "Gris":
-                this.c = new Color(128, 128, 128);
-                break;
-            case "Rose":
-                this.c = Color.pink;
-                break;
-        }
     }
 
     /**
@@ -197,11 +161,11 @@ public class Segment {
     }
 
     public Color getColor() {
-        return c;
+        return color;
     }
 
     public void setColor(Color c) {
-        this.c = c;
+        this.color = c;
     }
 
     public double getX2() {
@@ -223,11 +187,7 @@ public class Segment {
     public double getY2() {
         return y2;
     }
-    //
-    public String getStringColor() {
-        return color;
-    }
-    //
+
     public void setY2(double y2) {
         this.y2 = y2;
     }

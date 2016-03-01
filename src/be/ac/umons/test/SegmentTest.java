@@ -3,6 +3,7 @@ package be.ac.umons.test;
 import be.ac.umons.bsp.Segment;
 import be.ac.umons.bsp.SegmentLoader;
 
+import java.awt.*;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -16,7 +17,7 @@ public class SegmentTest {
 
     @org.junit.Test
     public void testComputeLine() throws Exception {
-        /*
+
         double[] line1 = segmentList.get(0).computeLine();
         double[] line2 = segmentList.get(1).computeLine();
         double[] line3 = segmentList.get(2).computeLine();
@@ -48,99 +49,99 @@ public class SegmentTest {
         System.out.println("COMPUTED ="+line4[0]+" "+line4[1]+" "+line4[2]);
         System.out.println("ACTUAL ="+manuallyComputedLine4[0]+" "+manuallyComputedLine4[1]+" "+manuallyComputedLine4[2]);
         assertArrayEquals(manuallyComputedLine4,line4,0.0001);
-*/
+
     }
 
     @org.junit.Test
     public void testComputePosition() throws Exception {
-        Segment segment1 = new Segment(2,3,6,3,"Rouge");
+        Segment segment1 = new Segment(2,3,6,3, Color.red);
         double[] line1 = segment1.computeLine();
 
         // -------- 1
         // -------- 2
-        Segment segmentTest1 = new Segment(2,2,6,2, "Bleu");
+        Segment segmentTest1 = new Segment(2,2,6,2, Color.blue);
         double[] expectedAnswerTest1 = {Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY};
         assertArrayEquals(expectedAnswerTest1, segmentTest1.computePosition(line1, segment1), 0.0001);
 
         // -------- 2
         // -------- 1
-        Segment segmentTest2 = new Segment(2,4,6,4, "Bleu");
+        Segment segmentTest2 = new Segment(2,4,6,4, Color.blue);
         double[] expectedAnswerTest2 = {Double.NaN,Double.NaN};
         assertArrayEquals(expectedAnswerTest2, segmentTest2.computePosition(line1, segment1), 0.0001);
 
         // |
         // |------- 1
         // |
-        Segment segmentTest3 = new Segment(2,1,2,5, "Bleu");
+        Segment segmentTest3 = new Segment(2,1,2,5, Color.blue);
         double[] expectedAnswerTest3 = {2,3};
         assertArrayEquals(expectedAnswerTest3, segmentTest3.computePosition(line1, segment1), 0.0001);
 
         // |
         // |_________ 1
-        Segment segmentTest4 = new Segment(2,3,2,5, "Bleu");
+        Segment segmentTest4 = new Segment(2,3,2,5, Color.blue);
         double[] expectedAnswerTest4 = {Double.NaN,Double.NaN};
         assertArrayEquals(expectedAnswerTest4, segmentTest4.computePosition(line1, segment1), 0.0001);
 
         //  _____ 1
         // |
-        Segment segmentTest5 = new Segment(2,3,2,1, "Bleu");
+        Segment segmentTest5 = new Segment(2,3,2,1, Color.blue);
         double[] expectedAnswerTest5 = {Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY};
         assertArrayEquals(expectedAnswerTest5, segmentTest5.computePosition(line1, segment1), 0.0001);
 
         //             |
         // 1 ----------|
         //             |
-        Segment segmentTest6 = new Segment(6,1,6,5, "Bleu");
+        Segment segmentTest6 = new Segment(6,1,6,5, Color.blue);
         double[] expectedAnswerTest6 = {6,3};
         assertArrayEquals(expectedAnswerTest6, segmentTest6.computePosition(line1, segment1), 0.0001);
 
         //              |
         // 1 -----------|
-        Segment segmentTest7 = new Segment(6,3,6,6, "Bleu");
+        Segment segmentTest7 = new Segment(6,3,6,6, Color.blue);
         double[] expectedAnswerTest7 = {Double.NaN,Double.NaN};
         assertArrayEquals(expectedAnswerTest7, segmentTest7.computePosition(line1, segment1), 0.0001);
 
         // 1 -----------|
         //              |
-        Segment segmentTest8 = new Segment(6,3,6,1, "Bleu");
+        Segment segmentTest8 = new Segment(6,3,6,1, Color.blue);
         double[] expectedAnswerTest8 = {Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY};
         assertArrayEquals(expectedAnswerTest8, segmentTest8.computePosition(line1, segment1), 0.0001);
 
         //           |
         // 1 --------|-----
-        Segment segmentTest9 = new Segment(4,3,4,6, "Bleu");
+        Segment segmentTest9 = new Segment(4,3,4,6, Color.blue);
         double[] expectedAnswerTest9 = {Double.NaN,Double.NaN};
         assertArrayEquals(expectedAnswerTest9, segmentTest9.computePosition(line1, segment1), 0.0001);
 
         // 1 --------|-----
         //           |
-        Segment segmentTest10 = new Segment(4,3,4,2, "Bleu");
+        Segment segmentTest10 = new Segment(4,3,4,2, Color.blue);
         double[] expectedAnswerTest10 = {Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY};
         assertArrayEquals(expectedAnswerTest10, segmentTest10.computePosition(line1, segment1), 0.0001);
 
         //           |
         // 1 --------|----
         //           |
-        Segment segmentTest11 = new Segment(4,5,4,1, "Bleu");
+        Segment segmentTest11 = new Segment(4,5,4,1, Color.blue);
         double[] expectedAnswerTest11 = {4,3};
         assertArrayEquals(expectedAnswerTest11, segmentTest11.computePosition(line1, segment1), 0.0001);
 
         // 1 --------  |
         //             |
-        Segment segmentTest12 = new Segment(8,3,8,1, "Bleu");
+        Segment segmentTest12 = new Segment(8,3,8,1, Color.blue);
         double[] expectedAnswerTest12 = {Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY};
         assertArrayEquals(expectedAnswerTest12, segmentTest12.computePosition(line1, segment1), 0.0001);
 
         //             |
         // 1 --------  |
         //             |
-        Segment segmentTest13 = new Segment(8,1,8,6, "Bleu");
+        Segment segmentTest13 = new Segment(8,1,8,6, Color.blue);
         double[] expectedAnswerTest13 = {8,3};
         assertArrayEquals(expectedAnswerTest13, segmentTest13.computePosition(line1, segment1), 0.0001);
 
         //             |
         // ----------  |
-        Segment segmentTest14 = new Segment(8,3,8,6, "Bleu");
+        Segment segmentTest14 = new Segment(8,3,8,6, Color.blue);
         double[] expectedAnswerTest14 = {Double.NaN,Double.NaN};
         assertArrayEquals(expectedAnswerTest14, segmentTest14.computePosition(line1, segment1), 0.0001);
 
@@ -148,7 +149,7 @@ public class SegmentTest {
         //    |
         //
         // 1 -------
-        Segment segmentTest15 = new Segment(4,4,4,6, "Bleu");
+        Segment segmentTest15 = new Segment(4,4,4,6, Color.blue);
         double[] expectedAnswerTest15 = {Double.NaN,Double.NaN};
         assertArrayEquals(expectedAnswerTest15, segmentTest15.computePosition(line1, segment1), 0.0001);
 
@@ -156,47 +157,35 @@ public class SegmentTest {
         //
         //     |
         //     |
-        Segment segmentTest16 = new Segment(5,1,5,2, "Bleu");
+        Segment segmentTest16 = new Segment(5,1,5,2, Color.blue);
         double[] expectedAnswerTest16 = {Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY};
         assertArrayEquals(expectedAnswerTest16, segmentTest16.computePosition(line1, segment1), 0.0001);
 
-        Segment segment2 = new Segment(4,5,6,3,"Rouge");
+        Segment segment2 = new Segment(4,5,6,3,Color.red);
         double[] line2 = segment2.computeLine();
 
-        Segment segmentTest17 = new Segment(6,5,7,6, "Bleu");
+        Segment segmentTest17 = new Segment(6,5,7,6, Color.blue);
         double[] expectedAnswerTest17 = {Double.NaN,Double.NaN};
         assertArrayEquals(expectedAnswerTest17, segmentTest17.computePosition(line2, segment2), 0.0001);
 
-        Segment segmentTest18 = new Segment(2,3,3,4, "Bleu");
+        Segment segmentTest18 = new Segment(2,3,3,4, Color.blue);
         double[] expectedAnswerTest18 = {Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY};
         assertArrayEquals(expectedAnswerTest18, segmentTest18.computePosition(line2, segment2), 0.0001);
 
-        Segment segment3 = new Segment(2,1,5,2,"Rouge");
+        Segment segment3 = new Segment(2,1,5,2,Color.red);
         double[] line3 = segment3.computeLine();
 
-        Segment segmentTest19 = new Segment(6,2,7,1, "Bleu");
+        Segment segmentTest19 = new Segment(6,2,7,1, Color.blue);
         double[] expectedAnswerTest19 = {Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY};
         assertArrayEquals(expectedAnswerTest19, segmentTest19.computePosition(line3, segment3), 0.0001);
 
-        Segment segmentTest20 = new Segment(3,2,4,3, "Bleu");
+        Segment segmentTest20 = new Segment(3,2,4,3, Color.blue);
         double[] expectedAnswerTest20 = {Double.NaN,Double.NaN};
         assertArrayEquals(expectedAnswerTest20, segmentTest20.computePosition(line3, segment3), 0.0001);
 
-        Segment segmentTest21 = new Segment(5,4,8,2, "Bleu");
+        Segment segmentTest21 = new Segment(5,4,8,2, Color.blue);
         double[] expectedAnswerTest21 = {7,(double) 2.67};
         assertArrayEquals(expectedAnswerTest21, segmentTest21.computePosition(line3, segment3), 0.01);
-
-
-/*
-        SegmentLoader loader2 = new SegmentLoader("assets/other/wikipediaExample.txt");
-        List<Segment> segmentList2 = loader.loadAsList();
-
-        double[] line1 = segmentList2.get(0).computeLine();
-        double[] intersection = segmentList2.get(1).computePosition(line1, segmentList2.get(0));
-        System.out.println(intersection[0]+" "+intersection[1]);
-        double[] actual = {7,9};
-        assertArrayEquals(intersection,actual,0.0001);*/
-
 
     }
 }
