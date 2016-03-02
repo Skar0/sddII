@@ -2,3 +2,4 @@
 -Test computePosition() with points in inverse order (big cc of what has been done)
 -Clean the Segment and InOrderHeuristic classes from redundances and prints
 -tester y = x
+-ajouter epsilon
