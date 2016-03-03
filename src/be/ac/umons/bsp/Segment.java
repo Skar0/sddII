@@ -12,6 +12,8 @@ public class Segment {
     private double y1;
     private double x2;
     private double y2;
+    private int cutCount;
+    private boolean isFreeSplit;
     private Color color;
 
 
@@ -20,7 +22,10 @@ public class Segment {
         this.y1 = y1;
         this.x2 = x2;
         this.y2 = y2;
+        this.cutCount = 0;
+        this.isFreeSplit = false;
         this.color = color;
+
     }
 
     /**
@@ -160,6 +165,15 @@ public class Segment {
         }
     }
 
+    /**
+     * Increment the number of times
+     */
+    public void incrementCutCount(){
+        cutCount++;
+        if (cutCount >= 2)
+            isFreeSplit = true;
+    }
+
     public double getX1() {
         return x1;
     }
@@ -196,8 +210,10 @@ public class Segment {
         return y2;
     }
 
-    public void setY2(double y2) {
-        this.y2 = y2;
-    }
+    public void setY2(double y2) { this.y2 = y2; }
+
+    public int getCutCount() {return cutCount; }
+
+    public boolean isFreeSplit() { return isFreeSplit; }
 
 }
