@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by clement on 2/22/16.
  */
-public class InOrderHeuristic {
+public class InOrderHeuristic implements Heuristic {
 
     /**
      * Creates a BSP tree using the in-order heuristic
@@ -109,5 +109,8 @@ public class InOrderHeuristic {
             createRoot(node.getLeftSon());
             createRoot(node.getRightSon());
         }
+    }
+    @Override public String toString() {
+        return "In order";
     }
 }
