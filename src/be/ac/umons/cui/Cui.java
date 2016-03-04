@@ -13,7 +13,6 @@ import java.util.List;
 public class Cui {
 
     public static void main(String [] args) {
-        System.out.println("test");
         SegmentLoader loader = new SegmentLoader("assets/other/wikipediaExample.txt");
         List<Segment> segmentList = loader.loadAsList();
 
@@ -21,8 +20,6 @@ public class Cui {
 
        BSPNode root = heuristicBuilder.createTree(segmentList);
         root.printTree();
-        System.out.println(root.getLine()[0]);
+
     }
-
-
 }
