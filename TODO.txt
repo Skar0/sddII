@@ -3,3 +3,4 @@
 -Clean the Segment and InOrderHeuristic classes from redundances and prints
 -tester y = x
 -ajouter epsilon
+-tester un point sur la ligne (dont le x2,y2) est sur la ligne avec computeposition
