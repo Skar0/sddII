@@ -46,8 +46,16 @@ public class SegmentsPainter extends JPanel {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                double x=e.getX()- (panel.getWidth()/2);
-                double y=-(e.getY()-(panel.getHeight()/2));
+
+                //double x= e.getX();//Math.floor ((double) e.getX()-( (double) panel.getWidth()/2.0) );
+                //double y= -e.getY();//Math.floor ((double) -1.0*(e.getY()-( (double) panel.getHeight()/2.0)) );
+               // double x = (double) e.getPoint().getX() + ( (double) panel.getWidth()/2.0);
+             //   double y = (double) -1.0D*(e.getPoint().getY() -( (double) panel.getHeight()/2.0));
+
+                Point point = e.getPoint();
+                point.translate((int) Math.floor(panel.getWidth()/2.0),(int) Math.floor(panel.getHeight()/2.0));
+                double x = (double) point.getX();
+                double y = (double) point.getY();
 
                 switch (clickCounter % 3) {
                     case 0 :
@@ -106,10 +114,9 @@ public class SegmentsPainter extends JPanel {
         double scalex = (double) panel.getHeight()/maxWidth;
         double scaley = (double) panel.getWidth()/maxHeight;
         min = Math.min(scalex,scaley);
-        g2.translate(this.getWidth()/2,this.getHeight()/2);
+        g2.translate((double) panel.getWidth()/2, (double) panel.getHeight()/2);
         g2.scale(min,-min);
         this.paintSegments(g2, this.root);
-
         if(lineToDraw1 != null) {
             g2.draw(lineToDraw1);
         }
