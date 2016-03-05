@@ -15,11 +15,12 @@ public class FreeSplitsHeuristic implements Heuristic {
      * @return The root of the created BSP tree
      */
     public BSPNode createTree(List<Segment> segmentList){
-        Collections.shuffle(segmentList);
+        //Collections.shuffle(segmentList);
         Segment firstSegment = segmentList.get(0);
         segmentList.remove(0);
-        BSPNode root = new BSPNode(null, null,segmentList, firstSegment);
+        BSPNode root = new BSPNode(null, null, segmentList, firstSegment);
         treeConstruction(root);
+        root.printTree();
         return root;
     }
 
@@ -28,14 +29,16 @@ public class FreeSplitsHeuristic implements Heuristic {
      *                    defining the new line we use to create the new hyperplane
      */
     public void treeConstruction(BSPNode currentNode){
+        System.out.println("Beginning  algo : " + currentNode);
         //We have at least a segment which determines two new hyperplanes
-        if(currentNode.getSegmentsInLine().size() != 0) {
+        if(currentNode.getSegmentsInLine() != null) {
             //If lines are equals, seg is contained in the splitting line of the node
             List<Segment> toRemove = new LinkedList<>();
             for (Segment seg : currentNode.getSegmentsInHyperplane()) {
                 if ((seg.computeLine()[0] == currentNode.getLine()[0])
                         && (seg.computeLine()[1] == currentNode.getLine()[1])
                         && (seg.computeLine()[2] == currentNode.getLine()[2])) {
+                    System.out.println("Segment Same");
                     currentNode.addSegment(seg);
                     toRemove.add(seg);
                 }
@@ -78,6 +81,8 @@ public class FreeSplitsHeuristic implements Heuristic {
             //Free splits strategy
             BSPNode leftNode;
             BSPNode rightNode;
+            boolean leftIsLeaf = false;
+            boolean rightIsLeaf = false;
             boolean freeSplitLeftOk = false;
             boolean freeSplitRightOk = false;
             //Useless method if only one segment in the list
@@ -104,43 +109,32 @@ public class FreeSplitsHeuristic implements Heuristic {
                 }
             }
 
-            //TODO: Modifier les conditions liées au free splits
-            if (!freeSplitLeftOk || !freeSplitRightOk) {
-                //Random choice of the new splitting segment if free splits strategy failed
-                Segment splittingSegment;
-                //Each new hyperplane contains at least one element
-                if (!leftNodeSegments.isEmpty() && !rightNodeSegments.isEmpty()) {
-                    splittingSegment = leftNodeSegments.get(0);
-                    leftNodeSegments.remove(0);
-                    leftNode = new BSPNode(null, null, leftNodeSegments, splittingSegment);
-                    splittingSegment = rightNodeSegments.get(0);
-                    rightNodeSegments.remove(0);
-                    rightNode = new BSPNode(null, null, rightNodeSegments, splittingSegment);
-
-                    currentNode.setLeftSon(leftNode);
-                    currentNode.setRightSon(rightNode);
-                }
-                //Only new left hyperplane contains at least one element
-                else if (!leftNodeSegments.isEmpty() && rightNodeSegments.isEmpty()) {
-                    //Only one element, no new definition of hyperplane, just one element inside the older one
-                    if (leftNodeSegments.size() == 1) {
-                        leftNode = new BSPNode(null, null, leftNodeSegments, null);
-                        currentNode.setLeftSon(leftNode);
-                    } else {
+            //Random choice of the new splitting segment if free splits strategy failed
+            Segment splittingSegment;
+            //Left part
+            if (!freeSplitLeftOk){
+                if (!leftNodeSegments.isEmpty()){
+                    if (leftNodeSegments.size() == 1){
+                        leftNode = new BSPNode(null, null, leftNodeSegments);
+                        leftIsLeaf = true;
+                    }
+                    else {
                         splittingSegment = leftNodeSegments.get(0);
                         leftNodeSegments.remove(0);
                         leftNode = new BSPNode(null, null, leftNodeSegments, splittingSegment);
-                        currentNode.setLeftSon(leftNode);
                     }
+                    System.out.println("setleft  :"  + leftNode);
                     currentNode.setLeftSon(leftNode);
                 }
-                //Only new right hyperplane contains at least one element
-                else if (leftNodeSegments.isEmpty() && !rightNodeSegments.isEmpty()) {
-                    //Only one element, no new definition of hyperplane, just one element inside the older one
-                    if (rightNodeSegments.size() == 1) {
-                        rightNode = new BSPNode(null, null, rightNodeSegments, null);
-                        currentNode.setRightSon(rightNode);
-                    } else {
+            }
+            //Right part
+            if (!freeSplitRightOk){
+                if (!rightNodeSegments.isEmpty()){
+                    if (rightNodeSegments.size() == 1){
+                        rightNode = new BSPNode(null, null, rightNodeSegments);
+                        rightIsLeaf = true;
+                    }
+                    else {
                         splittingSegment = rightNodeSegments.get(0);
                         rightNodeSegments.remove(0);
                         rightNode = new BSPNode(null, null, rightNodeSegments, splittingSegment);
@@ -148,8 +142,11 @@ public class FreeSplitsHeuristic implements Heuristic {
                     currentNode.setRightSon(rightNode);
                 }
             }
-            treeConstruction(currentNode.getLeftSon());
-            treeConstruction(currentNode.getRightSon());
+            //Maybe there is no left or right son or it is a leaf, then the work is done
+            if (!leftIsLeaf && currentNode.getLeftSon() != null)
+                treeConstruction(currentNode.getLeftSon());
+            if (!rightIsLeaf && currentNode.getRightSon() != null)
+                treeConstruction(currentNode.getRightSon());
         }
     }
 
@@ -158,11 +155,9 @@ public class FreeSplitsHeuristic implements Heuristic {
     }
 
     public static void main (String [] args){
-        /*
-        SegmentLoader loader = new SegmentLoader("assets/random/randomSmall.txt");
+        SegmentLoader loader = new SegmentLoader("assets/other/wikipediaExample.txt");
         List<Segment>myList = loader.loadAsList();
         FreeSplitsHeuristic test = new FreeSplitsHeuristic();
         test.createTree(myList);
-        */
     }
 }

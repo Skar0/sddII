@@ -23,6 +23,13 @@ public class BSPNode {
         this.line = segment.computeLine();
     }
 
+    public BSPNode(BSPNode rightSon, BSPNode leftSon, List<Segment> segmentsInHyperplane){
+        this.rightSon = rightSon;
+        this.leftSon = leftSon;
+        this.segmentsInHyperplane = segmentsInHyperplane;
+        this.line = null;
+    }
+
     public List<Segment> getSegmentsInLine() {
         return segmentsInLine;
     }
@@ -65,8 +72,22 @@ public class BSPNode {
         }
         System.out.println();
         System.out.println("Left son : " +leftSon);
-        System.out.println("Right son : "+rightSon);
-        System.out.println("---------------------\n");
+        if (leftSon != null) {
+            /*if (leftSon.isLeaf())
+                System.out.print("[ (" + leftSon.getSegmentsInHyperplane().get(0).getX1() +
+                        "," + leftSon.getSegmentsInHyperplane().get(0).getY1() +
+                        ") (" + leftSon.getSegmentsInHyperplane().get(0).getX2() +
+                        "," + leftSon.getSegmentsInHyperplane().get(0).getY2() + ") ] \n");*/
+            System.out.println("Right son : " + rightSon);
+        }
+        if (rightSon != null) {
+            /*if (rightSon.isLeaf())
+                System.out.print("[ (" + rightSon.getSegmentsInHyperplane().get(0).getX1() +
+                        "," + rightSon.getSegmentsInHyperplane().get(0).getY1() +
+                        ") (" + rightSon.getSegmentsInHyperplane().get(0).getX2() +
+                        "," + rightSon.getSegmentsInHyperplane().get(0).getY2() + ") ] \n" );*/
+            System.out.println("---------------------\n");
+        }
 
         if (!this.isLeaf()) {
 
