@@ -143,7 +143,11 @@ public class Segment {
                 //doit pas être this.gauche oou this.poitndroite
                 return intersectionPoint;
             }
-            else if((line[0]*x2 + line[1]*y2 +line[2]) == 0 && (line[0]*x1 + line[1]*y1 +line[2]) == 0) {
+            else if(getSide(line, x2, y2) == 0 && getSide(line, x1, y1) == 0) {
+                System.out.println(x1+" "+y1+" "+x2+" "+y2);
+                System.out.println(line[0]+ " "+line[1]+" "+line[2]);
+                System.out.println(getSide(line, x2, y2));
+                System.out.println(getSide(line, x1, y1));
                 System.out.println("FATAL ERROR FAILURE BOUM3");
                 //tester this.gauche ou this.droite car egalité si point sur segment
                 return null;

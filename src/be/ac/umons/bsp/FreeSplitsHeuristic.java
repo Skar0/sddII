@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by jeremy on 2/26/16.
  */
-public class FreeSplitsHeuristic {
+public class FreeSplitsHeuristic implements Heuristic {
     /**
      * Creates a BSP tree using the random heuristic with free splits optimisation
      * @param segmentList List of segments to make a BSP tree out of
@@ -151,6 +151,10 @@ public class FreeSplitsHeuristic {
             treeConstruction(currentNode.getLeftSon());
             treeConstruction(currentNode.getRightSon());
         }
+    }
+
+    @Override public String toString() {
+        return "Free splits";
     }
 
     public static void main (String [] args){
