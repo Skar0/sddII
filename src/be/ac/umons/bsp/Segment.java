@@ -79,7 +79,7 @@ public class Segment {
 
     public double getSide(double[] line, double x, double y) {
 
-        if((line[0] == 1) && (line[1] == 0)) {
+        if(Math.abs(line[0]-1)<Heuristic.EPSILON && Math.abs(line[0]-1)<Heuristic.EPSILON) {
             return -(line[0]*x + line[1]*y +line[2]);
         }
 
@@ -95,17 +95,21 @@ public class Segment {
         double[] intersectionPoint = new double[2];
 
         //If the slopes are equal, there is no intersection
-        if(line[0] == lineBis[0]) {
+        if(Math.abs(line[0]-lineBis[0]) < Heuristic.EPSILON) {
             //If the point (x1,y1) from this segment is right of the line, return [+inf,+inf]
-            if(getSide(line, x2, y2) > 0) {
+            if(Math.abs(getSide(line, x2, y2)) > Heuristic.EPSILON) {
                 intersectionPoint[0] = Double.POSITIVE_INFINITY;
                 intersectionPoint[1] = Double.POSITIVE_INFINITY;
                // System.out.println("Droite de la droite");
                 return intersectionPoint;
             }
-            else if(getSide(line, x2, y2) == 0) {
+            else if(Math.abs(getSide(line, x2, y2)) < Heuristic.EPSILON && Math.abs(getSide(line, x1, y1))<Heuristic.EPSILON) {
+                System.out.println(x1+" "+y1+" "+x2+" "+y2);
+                System.out.println(line[0]+ " "+line[1]+" "+line[2]);
+                System.out.println(getSide(line, x2, y2));
+                System.out.println(getSide(line, x1, y1));
                 System.out.println("FATAL ERROR FAILURE BOUM2");
-                return intersectionPoint;
+                return null;
             }
             //If the point (x1,y1) from this segment is left of the line, return [-inf,-inf]
             else {
@@ -120,12 +124,12 @@ public class Segment {
         else {
            // System.out.println("debug "+line[0]+" "+line[1]+" "+line[2]);
            // System.out.println("debug "+lineBis[0]+" "+lineBis[1]+" "+lineBis[2]);
-            if((line[0]==1 || line[0]==-1)) {
+            if(Math.abs(line[0]-1)<Heuristic.EPSILON || Math.abs(line[0]+1)<Heuristic.EPSILON ) {
 
                 intersectionPoint[0] = line[2]/(-line[0]);
                 intersectionPoint[1] = (intersectionPoint[0] * lineBis[0]) + lineBis[2];
             }
-            else if ((lineBis[0]==1 || lineBis[0]==-1)){
+            else if (Math.abs(lineBis[0]-1)<Heuristic.EPSILON || Math.abs(lineBis[0]+1)<Heuristic.EPSILON){
                 intersectionPoint[0] = lineBis[2]/(-lineBis[0]);
                 intersectionPoint[1] = (intersectionPoint[0] * line[0]) + line[2];
 
@@ -134,16 +138,16 @@ public class Segment {
                 intersectionPoint[0] = (double) ((lineBis[2] - line[2]) / (line[0] - lineBis[0]));
                 intersectionPoint[1] = (intersectionPoint[0] * line[0]) + line[2];
             }
-           System.out.println("Point d'intersection"+intersectionPoint[0]+ ";"+intersectionPoint[1]);
+           //System.out.println("Point d'intersection"+intersectionPoint[0]+ ";"+intersectionPoint[1]);
             //System.out.println("Intervalle du segment ["+x1+";"+x2+"] ["+y1+";"+y2+"]");
             //if point is inside this segment return the intersection
-            if( ((((x1 <= intersectionPoint[0]) && (intersectionPoint[0]<= x2)) || ((x2 <= intersectionPoint[0]) && (intersectionPoint[0]<= x1))) && (((y1 <= intersectionPoint[1]) && (intersectionPoint[1]<= y2)) || ((y2 <= intersectionPoint[1]) && (intersectionPoint[1]<= y1))))
-                    && !(intersectionPoint[0] == x1 && intersectionPoint[1]==y1) && !(intersectionPoint[0] == x2 && intersectionPoint[1]==y2) ) {
+            if( ((((x1 <= intersectionPoint[0]+Heuristic.EPSILON) && (intersectionPoint[0]<= x2+Heuristic.EPSILON)) || ((x2 <= intersectionPoint[0]+Heuristic.EPSILON) && (intersectionPoint[0]<= x1+Heuristic.EPSILON))) && (((y1 <= intersectionPoint[1]+Heuristic.EPSILON) && (intersectionPoint[1]<= y2+Heuristic.EPSILON)) || ((y2 <= intersectionPoint[1]+Heuristic.EPSILON) && (intersectionPoint[1]<= y1+Heuristic.EPSILON))))
+                    && !(Math.abs(intersectionPoint[0]-x1)<Heuristic.EPSILON && Math.abs(intersectionPoint[1]-y1)<Heuristic.EPSILON) && !(Math.abs(intersectionPoint[0]-x2)<Heuristic.EPSILON && Math.abs(intersectionPoint[1]-y2)<Heuristic.EPSILON) ) {
                // System.out.println("Intersection dans segment");
                 //doit pas être this.gauche oou this.poitndroite
                 return intersectionPoint;
             }
-            else if(getSide(line, x2, y2) == 0 && getSide(line, x1, y1) == 0) {
+            else if( Math.abs(getSide(line, x2, y2))<Heuristic.EPSILON && Math.abs(getSide(line, x1, y1))<Heuristic.EPSILON)  {
                 System.out.println(x1+" "+y1+" "+x2+" "+y2);
                 System.out.println(line[0]+ " "+line[1]+" "+line[2]);
                 System.out.println(getSide(line, x2, y2));
@@ -153,7 +157,7 @@ public class Segment {
                 return null;
             }
             //If the point (x1,y1) from this segment is right of the line, return [+inf,+inf]
-            else if (((getSide(line, x2, y2)> 0) || (getSide(line, x1, y1) > 0))) {
+            else if (((getSide(line, x2, y2)> -Heuristic.EPSILON) || (getSide(line, x1, y1) > -Heuristic.EPSILON))) {
                 intersectionPoint[0] = Double.POSITIVE_INFINITY;
                 intersectionPoint[1] = Double.POSITIVE_INFINITY;
                 //System.out.println("Droite de la droite");
