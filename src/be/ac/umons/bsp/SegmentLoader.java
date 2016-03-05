@@ -16,6 +16,8 @@ import java.util.List;
 public class SegmentLoader {
 
     private String path;
+    private double maxWidth;
+    private double maxHeight;
 
     public SegmentLoader(String path) {
         this.path = path;
@@ -36,6 +38,10 @@ public class SegmentLoader {
             String line;
 
             line = br.readLine(); //First line contains information about the file
+            String[] infoLine = line.split(" ");
+            maxWidth = (double) 2*Double.parseDouble(infoLine[1]);
+            maxHeight = (double) 2*Double.parseDouble(infoLine[2]);
+
 
             while((line = br.readLine()) != null) {
 
@@ -98,5 +104,13 @@ public class SegmentLoader {
             System.out.println(temp.getX1()+" "+temp.getY1()+" "+temp.getX2()+" "+temp.getY2()+" "+temp.getC());
         }
         */
+    }
+
+    public double getMaxWidth() {
+        return maxWidth;
+    }
+
+    public double getMaxHeight() {
+        return maxHeight;
     }
 }
