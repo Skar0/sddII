@@ -33,7 +33,7 @@ public class MainMenu extends JFrame {
         mainBox.add(title);
 
         final JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")+ System.getProperty("file.separator")+"Documents"));
         JButton chooseFile = new JButton("Open file");
         chooseFile.addActionListener(new ActionListener() {
             @Override
@@ -68,7 +68,7 @@ public class MainMenu extends JFrame {
                 if(selectedFile != "" && heuristic != null) {
                     SegmentLoader loader = new SegmentLoader(selectedFile);
 
-                    frame.setContentPane(  new SegmentsPainter(heuristic.createTree(loader.loadAsList())));
+                    frame.setContentPane(  new SegmentsPainter(heuristic.createTree(loader.loadAsList()), loader.getMaxWidth(), loader.getMaxHeight()));
                     frame.revalidate();
                     frame.repaint();
                    // PovChooser povChooser= new PovChooser(heuristic.createTree(loader.loadAsList()));
