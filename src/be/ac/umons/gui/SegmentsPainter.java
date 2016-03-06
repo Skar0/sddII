@@ -30,6 +30,7 @@ public class SegmentsPainter extends JPanel {
     private Line2D lineToDraw2 = null;
 
     private double angle = Double.POSITIVE_INFINITY; //angle infini de base
+    private double[] povScaledPosition = null;
     private double[] povPosition = null;
 
     //TODO manière dégeulasse
@@ -47,33 +48,37 @@ public class SegmentsPainter extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
 
-                //double x= e.getX();//Math.floor ((double) e.getX()-( (double) panel.getWidth()/2.0) );
-                //double y= -e.getY();//Math.floor ((double) -1.0*(e.getY()-( (double) panel.getHeight()/2.0)) );
-               // double x = (double) e.getPoint().getX() + ( (double) panel.getWidth()/2.0);
-             //   double y = (double) -1.0D*(e.getPoint().getY() -( (double) panel.getHeight()/2.0));
+                double x = e.getX();
+                double y = e.getY();
 
-                Point point = e.getPoint();
-                point.translate((int) Math.floor(panel.getWidth()/2.0),(int) Math.floor(panel.getHeight()/2.0));
-                double x = (double) point.getX();
-                double y = (double) point.getY();
+                double x_scaled = ( e.getPoint().getX() - ( (double) panel.getWidth()/2.0) )/min;
+                double y_scaled = ( -(e.getPoint().getY() - ( (double) panel.getHeight()/2.0)) )/min;
 
                 switch (clickCounter % 3) {
                     case 0 :
+                            povScaledPosition = new double[2];
+                            povScaledPosition[0] = x_scaled;
+                            povScaledPosition[1] = y_scaled;
+
                             povPosition = new double[2];
                             povPosition[0] = x;
                             povPosition[1] = y;
                             clickCounter+=1;
+
+                            panel.revalidate();
+                            panel.repaint();
+
                             break;
                     case 1 :
-                            line1 = new Line2D.Double(povPosition[0]*min, povPosition[1]*min, x*min ,y*min);
-                            lineToDraw1 = new Line2D.Double(povPosition[0], povPosition[1], x, y);
+                            line1 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], x_scaled ,y_scaled);
+                            lineToDraw1 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], x_scaled ,y_scaled);
                             panel.revalidate();
                             panel.repaint();
                             clickCounter+=1;
                             break;
                     case 2 :
-                            line2 = new Line2D.Double(povPosition[0]*min, povPosition[1]*min, x*min ,y*min);
-                            lineToDraw2 = new Line2D.Double(povPosition[0], povPosition[1], x, y);
+                            line2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], x_scaled ,y_scaled);
+                            lineToDraw2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], x_scaled ,y_scaled);
                             panel.revalidate();
                             panel.repaint();
                             clickCounter+=1;
@@ -84,6 +89,7 @@ public class SegmentsPainter extends JPanel {
 
 
                 System.out.println(x+","+y);//these co-ords are relative to the component
+                System.out.println(panel.getWidth()+","+panel.getHeight());
             }
 
             @Override
@@ -117,6 +123,10 @@ public class SegmentsPainter extends JPanel {
         g2.translate((double) panel.getWidth()/2, (double) panel.getHeight()/2);
         g2.scale(min,-min);
         this.paintSegments(g2, this.root);
+            g2.setColor(Color.BLACK);
+        if(povScaledPosition != null) {
+            g2.fillOval((int) povScaledPosition[0]-4,(int) povScaledPosition[1]-4,8,8);
+        }
         if(lineToDraw1 != null) {
             g2.draw(lineToDraw1);
         }
