@@ -29,6 +29,8 @@ public class SegmentsPainter extends JPanel {
     private Line2D lineToDraw1 = null;
     private Line2D lineToDraw2 = null;
 
+    double norm;
+
     private double angle = Double.POSITIVE_INFINITY; //angle infini de base
     private double[] povScaledPosition = null;
     private double[] povPosition = null;
@@ -72,18 +74,24 @@ public class SegmentsPainter extends JPanel {
                     case 1 :
                             line1 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], x_scaled ,y_scaled);
                             lineToDraw1 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], x_scaled ,y_scaled);
+                            norm = Math.sqrt( Math.pow(x_scaled-povScaledPosition[0],2) + Math.pow(y_scaled-povScaledPosition[1],2));
+
                             panel.revalidate();
                             panel.repaint();
                             clickCounter+=1;
                             break;
                     case 2 :
-                            line2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], x_scaled ,y_scaled);
-                            lineToDraw2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], x_scaled ,y_scaled);
+
+                            //TODO ici on crée le pov, on dessine le panel
+                            double vectorNorm = Math.sqrt( Math.pow(x_scaled-povScaledPosition[0],2) + Math.pow(y_scaled-povScaledPosition[1],2));
+                            double[] vector = {(x_scaled-povScaledPosition[0])/vectorNorm , (y_scaled-povScaledPosition[1])/vectorNorm};
+                            double[] secondPoint = {povScaledPosition[0]+(vector[0]*norm), povScaledPosition[1]+(vector[1]*norm)};
+
+                            line2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], secondPoint[0] ,secondPoint[1]);
+                            lineToDraw2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], secondPoint[0] ,secondPoint[1]);
                             panel.revalidate();
                             panel.repaint();
                             clickCounter+=1;
-
-                            //TODO ici on crée le pov, on dessine le panel
                              break;
                 }
 
