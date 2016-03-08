@@ -6,6 +6,7 @@ import java.awt.geom.Line2D;
  * Created by mr_robot on 3/3/16.
  */
 public class Pov {
+    private Line2D projectionLine;
     private double[] position = new double[2];
     private double angle;
     private Line2D line1 = null;
@@ -19,6 +20,7 @@ public class Pov {
         this.angle = this.computeAngle(line1,line2);
         this.position[0] = line1.getX1();
         this.position[1] = line1.getY1();
+        this.projectionLine = new Line2D.Double(line1.getX2(),line1.getY2(),line2.getX2(),line2.getY2());
     }
 
     private double computeAngle(Line2D line1, Line2D line2) {
@@ -58,4 +60,8 @@ public class Pov {
     public void setLine2(Line2D line2) {
         this.line2 = line2;
     }
+
+    public Line2D getProjectionLine() { return this.projectionLine; }
+
+    public void setProjectionLine(Line2D projectionLine) { this.projectionLine = projectionLine; }
 }
