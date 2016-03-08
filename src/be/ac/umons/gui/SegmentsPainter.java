@@ -58,6 +58,11 @@ public class SegmentsPainter extends JPanel {
 
                 switch (clickCounter % 3) {
                     case 0 :
+
+                            lineToDraw1 =null;
+                            lineToDraw2 = null;
+                            pov.setProjectionLine(null);
+
                             povScaledPosition = new double[2];
                             povScaledPosition[0] = x_scaled;
                             povScaledPosition[1] = y_scaled;
@@ -92,6 +97,7 @@ public class SegmentsPainter extends JPanel {
                             panel.revalidate();
                             panel.repaint();
                             clickCounter+=1;
+                            pov = new Pov(line1,line2);
                              break;
                 }
 
@@ -140,6 +146,9 @@ public class SegmentsPainter extends JPanel {
         }
         if(lineToDraw2 != null) {
             g2.draw(lineToDraw2);
+        }
+        if(pov.getProjectionLine() != null) {
+            g2.draw(pov.getProjectionLine());
         }
     }
 
