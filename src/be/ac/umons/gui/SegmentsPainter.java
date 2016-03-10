@@ -38,7 +38,7 @@ public class SegmentsPainter extends JPanel {
     //TODO manière dégeulasse
     private int clickCounter = 0;
 
-    public SegmentsPainter(BSPNode root, double maxWidth, double maxHeight) {
+    public SegmentsPainter(final BSPNode root, final double maxWidth, final double maxHeight) {
         this.root = root;
         this.maxHeight = maxHeight;
         this.maxWidth = maxWidth;
@@ -98,12 +98,17 @@ public class SegmentsPainter extends JPanel {
                             panel.repaint();
                             clickCounter+=1;
                             pov = new Pov(line1,line2);
+                        //TOREMOVE
+                        JFrame testFrame = new JFrame();
+                        testFrame.setSize(600,600);
+                        testFrame.setContentPane(new PaintersAlgorithm(pov,root));
+                        testFrame.setVisible(true);
+
+                        //
                              break;
                 }
 
 
-                System.out.println(x+","+y);//these co-ords are relative to the component
-                System.out.println(panel.getWidth()+","+panel.getHeight());
             }
 
             @Override
@@ -149,6 +154,9 @@ public class SegmentsPainter extends JPanel {
         }
         if(pov.getProjectionLine() != null) {
             g2.draw(pov.getProjectionLine());
+        }
+        if(pov.getDirectorVector() != null) {
+            g2.draw(pov.getDirectorVector());
         }
     }
 
