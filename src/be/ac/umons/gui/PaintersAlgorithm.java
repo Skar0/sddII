@@ -35,6 +35,7 @@ public class PaintersAlgorithm extends JPanel {
         g2.scale(scaley, 1);
 
         paintersAlgorithm(rootOfTree, g2);
+        toRemove = 1;
     }
 
     public void paintersAlgorithm(BSPNode root, Graphics2D g2 ) {
@@ -89,6 +90,8 @@ public class PaintersAlgorithm extends JPanel {
         Line2D povLine1 = pov.getLine1();
         Line2D povLine2 = pov.getLine2();
         double[] povPosition = pov.getPosition();
+        double semiAngle = pov.computeAngle(pov.getDirectorVector(), pov.getLine2());
+
 
         double[] projectionLine = this.computeLine(pov.getProjectionLine().getX1(), pov.getProjectionLine().getY1(),pov.getProjectionLine().getX2(),pov.getProjectionLine().getY2());
 
@@ -98,31 +101,80 @@ public class PaintersAlgorithm extends JPanel {
         for(Segment seg : segments) {
             double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
             double angle1 = computeAngle(pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(), pov.getDirectorVector().getX2(),pov.getDirectorVector().getY2(), povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
+            //double angle1 = pov.computeAngle(pov.getDirectorVector(), new Line2D.Double(povPosition[0], povPosition[1],seg.getX1(), seg.getY1()));
             double[] povToSegmentExtremity2 = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
             double angle2 = computeAngle(pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(), pov.getDirectorVector().getX2(),pov.getDirectorVector().getY2(),povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
+            //double angle2 = pov.computeAngle(pov.getDirectorVector(), new Line2D.Double(povPosition[0], povPosition[1],seg.getX2(), seg.getY2()));
 
             double[] intersection1 = new double[2];
             double[] intersection2 = new double[2];
-            System.out.println(toRemove+" "+seg.getColor().toString()+" "+Math.toDegrees(angle1)+" "+Math.toDegrees(angle2));
+            System.out.println(toRemove+" "+seg.getColor().toString()+" "+Math.toDegrees(angle1)+" "+Math.toDegrees(angle2)+" "+Math.toDegrees(semiAngle));
             //Segment completly in front of point of view
           //if(-Heuristic.EPSILON<Math.abs(Math.toDegrees(angle1)) && Math.abs(Math.abs(Math.toDegrees(angle1))-90)<Heuristic.EPSILON && -Heuristic.EPSILON<Math.abs(Math.toDegrees(angle2)) && Math.abs(Math.abs(Math.toDegrees(angle2))-90)<Heuristic.EPSILON) {
             if(Math.toDegrees(angle1) < 90 && Math.toDegrees(angle1) > -90 && Math.toDegrees(angle2) < 90 && Math.toDegrees(angle2) > -90){
                 intersection1 = this.computeIntersection(povToSegmentExtremity1, projectionLine);
                 intersection2 = this.computeIntersection(povToSegmentExtremity2, projectionLine);
-                g2.setColor(seg.getColor());
-                g2.draw(new Line2D.Double(intersection1[0],toRemove,intersection2[0],toRemove));
-                g2.draw(new Line2D.Double(intersection1[0],0,intersection2[0],0));
+/*
+                si angle plus grand que demis angle mêe coté on fai rien
 
+                        cas sym pour autre coté
+                si deux dans le bon,
+                si un des deux dans le bon, on coupe
+*/
 
+            
+                //Segment contained in projection
+                if( toAbsDeg(angle1) <= toAbsDeg(semiAngle) && toAbsDeg(angle2) <= toAbsDeg(semiAngle) ) {
+                    g2.setColor(seg.getColor());
+                    g2.draw(new Line2D.Double(intersection1[0],toRemove,intersection2[0],toRemove));
+                    g2.draw(new Line2D.Double(intersection1[0],0,intersection2[0],0));
+                }
+                //not in projection
+                else if( toAbsDeg(angle1) > toAbsDeg(semiAngle) && toAbsDeg(angle2) > toAbsDeg(semiAngle) && ( (toDeg(angle1) >= 0 && toDeg(angle2) >= 0) | (toDeg(angle1) < 0 && toDeg(angle2) < 0)) ) {
+                    /*
+                    System.out.println("------");
+                    System.out.println("cas hors");
+                    System.out.println(seg.getColor());
+                    System.out.println(toDeg(angle1)+" "+toDeg(angle2)+" "+toAbsDeg(semiAngle));
+                    */
+                }
+                //segment completely crosses both projectionlines
+                else if( toAbsDeg(angle1) > toAbsDeg(semiAngle) && toAbsDeg(angle2) > toAbsDeg(semiAngle) && ( (toDeg(angle1) >= 0 && toDeg(angle2) < 0) | (toDeg(angle1) < 0 && toDeg(angle2) >= 0)) ) {
+                    g2.setColor(seg.getColor());
+                    g2.draw(new Line2D.Double(bound1[0],toRemove,bound2[0],toRemove));
+                    g2.draw(new Line2D.Double(bound1[0],0,bound2[0],0));
+                    /*
+                    System.out.println("------");
+                    System.out.println("cas coupe completement");
+                    System.out.println(seg.getColor());
+                    System.out.println(toDeg(angle1)+" "+toDeg(angle2)+" "+toAbsDeg(semiAngle));
+                    */
+                }
+                //on prend une des deux intersections, et l'autre sera le bound
+                else if( toAbsDeg(angle1) > toAbsDeg(semiAngle) && toAbsDeg(angle2) <= toAbsDeg(semiAngle) ) {
+                    g2.setColor(seg.getColor());
+                    g2.draw(new Line2D.Double(bound1[0],toRemove,intersection2[0],toRemove));
+                    g2.draw(new Line2D.Double(bound1[0],0,intersection2[0],0));
+                }
+
+                //on prend une des deux intersections, et l'autre sera le bound
+                else if( toAbsDeg(angle2) > toAbsDeg(semiAngle) && toAbsDeg(angle1) <= toAbsDeg(semiAngle) ) {
+                    g2.setColor(seg.getColor());
+                    g2.draw(new Line2D.Double(bound2[0],toRemove,intersection1[0],toRemove));
+                    g2.draw(new Line2D.Double(bound2[0],0,intersection1[0],0));
+                }
             }
-            //intersection of povTosegmentExtremity1 with projection line
-
-
-
         }
         toRemove++;
     }
 
+    private double toDeg(double x) {
+        return Math.toDegrees(x);
+    }
+
+    private double toAbsDeg(double x) {
+        return Math.abs(Math.toDegrees(x));
+    }
     public double computeAngle(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) {
         double[] vector1 = {x2-x1,y2-y1};
         double[] vector2 = {x4-x3,y4-y3};
@@ -130,7 +182,9 @@ public class PaintersAlgorithm extends JPanel {
         double v1Norm = Math.sqrt( Math.pow(x1-x2,2) + Math.pow(y1-y2,2));
         double v2Norm = Math.sqrt( Math.pow(x3-x4,2) + Math.pow(y3-y4,2));
         double cos = (double) crossProd/(v1Norm*v2Norm);
-        return  Math.acos(cos);
+        //return  Math.acos(cos);
+        double dotProd = (vector1[0]*vector2[1])-(vector1[1]*vector2[0]);
+        return  Math.atan2(dotProd,crossProd);
     }
 
     public double[] computeLine(double x1, double y1, double x2, double y2) {
