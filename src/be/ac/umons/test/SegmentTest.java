@@ -250,5 +250,31 @@ public class SegmentTest {
         double[] expectedAnswerTest35 = {Double.NaN, Double.NaN};
         assertArrayEquals(expectedAnswerTest35, segmentTest35.computePosition(line6, segment6), 0.01);
 
+        /** Tests about the octogon **/
+
+        //Grey segment
+        Segment segment7 = new Segment(0.000000 ,200.000000 ,-141.421356 ,141.421356, Color.gray);
+        double[] line7 = segment7.computeLine();
+
+        //Orange segment
+        Segment segmentTest36 = new Segment(-200.000000 ,0.000000 ,-141.421356 ,-141.421356 ,Color.orange);
+        double[] expectedAnswerTest36 = {Double.NaN, Double.NaN};
+        assertArrayEquals(expectedAnswerTest36 , segmentTest36.computePosition(line7, segment7), 0.01);
+
+        //Violet segment
+        Segment segmentTest37 = new Segment(-141.421356 ,-141.421356 ,-0.000000 ,-200.000000 ,Color.pink);
+        double[] expectedAnswerTest37 = {Double.NaN, Double.NaN};
+        assertArrayEquals(expectedAnswerTest37, segmentTest37.computePosition(line7, segment7), 0.01);
+
+        //black segment
+        Segment segmentTest38 = new Segment(141.421356 ,-141.421356 ,200.000000 ,-0.000000 ,Color.black);
+        double[] expectedAnswerTest38 = {Double.NaN, Double.NaN};
+        assertArrayEquals(expectedAnswerTest38, segmentTest38.computePosition(line7, segment7), 0.01);
+
+        //yellow segment
+        Segment segmentTest39 = new Segment(-0.000000 ,-200.000000, 141.421356 ,-141.421356, Color.yellow);
+        double[] expectedAnswerTest39 = {Double.NaN, Double.NaN};
+        assertArrayEquals(expectedAnswerTest39, segmentTest39.computePosition(line7, segment7), 0.01);
+
     }
 }
