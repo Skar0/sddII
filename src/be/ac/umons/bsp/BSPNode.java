@@ -113,7 +113,7 @@ public class BSPNode {
 
     public int getHeight() {
         if(this.isLeaf()) {
-            return 0;
+            return 1;
         }
         if(this.hasNoRightSon()) {
             return 1 + this.leftSon.getHeight();
@@ -162,5 +162,19 @@ public class BSPNode {
 
     public void addSegmentInHyperplane(Segment seg) {
         this.segmentsInHyperplane.add(seg);
+    }
+
+    public int getSize() {
+
+        if(this.isLeaf()) {
+            return 1;
+        }
+        if(this.hasNoRightSon()) {
+            return 1 + this.leftSon.getSize();
+        }
+        else if (this.hasNoLeftSon()) {
+            return 1 + this.rightSon.getSize();
+        }
+        else return (1+this.leftSon.getSize()+this.rightSon.getSize());
     }
 }
