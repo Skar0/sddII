@@ -4,3 +4,6 @@
 -tester y = x
 -ajouter epsilon
 -tester un point sur la ligne (dont le x2,y2) est sur la ligne avec computeposition
+-sometimes semi angle is too big (> 180)
+changed angles to use https://stackoverflow.com/questions/21483999/using-atan2-to-find-angle-between-two-vectors
+-Still check angles
