@@ -7,6 +7,7 @@ import be.ac.umons.bsp.Segment;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Line2D;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ public class PaintersAlgorithm extends JPanel {
     private Pov pov;
     private BSPNode rootOfTree;
 
-    int toRemove = 1;
+    int toRemove = 10;
 
     public PaintersAlgorithm(Pov pov, BSPNode rootOfTree) {
         this.pov = pov;
@@ -151,21 +152,32 @@ public class PaintersAlgorithm extends JPanel {
                     */
                 }
                 //on prend une des deux intersections, et l'autre sera le bound
-                else if( toAbsDeg(angle1) > toAbsDeg(semiAngle) && toAbsDeg(angle2) <= toAbsDeg(semiAngle) ) {
-                    g2.setColor(seg.getColor());
-                    g2.draw(new Line2D.Double(bound1[0],toRemove,intersection2[0],toRemove));
-                    g2.draw(new Line2D.Double(bound1[0],0,intersection2[0],0));
+                else if( (toAbsDeg(angle1) > toAbsDeg(semiAngle) && toAbsDeg(angle2) <= toAbsDeg(semiAngle)) | (toAbsDeg(angle2) > toAbsDeg(semiAngle) && toAbsDeg(angle1) <= toAbsDeg(semiAngle)) ) {
+
+                    //double[] intersection = computeIntersection(this.computeLine(povLine1.getX1(),povLine1.getY1(),povLine1.getX2(),povLine1.getY2()), seg.computeLine());
+                    double[] position = seg.computePosition(this.computeLine(povLine1.getX1(),povLine1.getY1(),povLine1.getX2(),povLine1.getY2()), new Segment(povLine1.getX1(),povLine1.getY1(),povLine1.getX2(),povLine1.getY2(), Color.black));
+
+                    if(!Double.isNaN(position[0]) && ! Double.isInfinite(position[0])) {
+                        LinkedList<Segment> segmentList = new LinkedList<Segment>();
+                        segmentList.add(new Segment(seg.getX1(),seg.getY1(),bound1[0],bound1[1],seg.getColor()));
+                        segmentList.add(new Segment(seg.getX2(),seg.getY2(),bound1[0],bound1[1],seg.getColor()));
+                        this.drawSegments(segmentList,g2);
+                    }
+                    else {
+                        LinkedList<Segment> segmentList = new LinkedList<Segment>();
+                        segmentList.add(new Segment(seg.getX1(),seg.getY1(),bound2[0],bound2[1],seg.getColor()));
+                        segmentList.add(new Segment(seg.getX2(),seg.getY2(),bound2[0],bound2[1],seg.getColor()));
+                        this.drawSegments(segmentList,g2);
+                    }
+
+                    //g2.setColor(seg.getColor());
+                    //g2.draw(new Line2D.Double(bound1[0],toRemove,intersection2[0],toRemove));
+                    //g2.draw(new Line2D.Double(bound1[0],0,intersection2[0],0));
                 }
 
-                //on prend une des deux intersections, et l'autre sera le bound
-                else if( toAbsDeg(angle2) > toAbsDeg(semiAngle) && toAbsDeg(angle1) <= toAbsDeg(semiAngle) ) {
-                    g2.setColor(seg.getColor());
-                    g2.draw(new Line2D.Double(bound2[0],toRemove,intersection1[0],toRemove));
-                    g2.draw(new Line2D.Double(bound2[0],0,intersection1[0],0));
-                }
             }
         }
-        toRemove++;
+        toRemove+=10;
     }
 
     private double toDeg(double x) {
