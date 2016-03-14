@@ -109,7 +109,7 @@ public class PaintersAlgorithm extends JPanel {
 
             double[] intersection1 = new double[2];
             double[] intersection2 = new double[2];
-            System.out.println(toRemove+" "+seg.getColor().toString()+" "+Math.toDegrees(angle1)+" "+Math.toDegrees(angle2)+" "+Math.toDegrees(semiAngle));
+            //System.out.println(toRemove+" "+seg.getColor().toString()+" "+Math.toDegrees(angle1)+" "+Math.toDegrees(angle2)+" "+Math.toDegrees(semiAngle));
             //Segment completly in front of point of view
           //if(-Heuristic.EPSILON<Math.abs(Math.toDegrees(angle1)) && Math.abs(Math.abs(Math.toDegrees(angle1))-90)<Heuristic.EPSILON && -Heuristic.EPSILON<Math.abs(Math.toDegrees(angle2)) && Math.abs(Math.abs(Math.toDegrees(angle2))-90)<Heuristic.EPSILON) {
             if(Math.toDegrees(angle1) < 90 && Math.toDegrees(angle1) > -90 && Math.toDegrees(angle2) < 90 && Math.toDegrees(angle2) > -90){
@@ -145,10 +145,10 @@ public class PaintersAlgorithm extends JPanel {
                     g2.draw(new Line2D.Double(bound1[0],toRemove,bound2[0],toRemove));
                     g2.draw(new Line2D.Double(bound1[0],0,bound2[0],0));
                     /*
-                    System.out.println("------");
-                    System.out.println("cas coupe completement");
-                    System.out.println(seg.getColor());
-                    System.out.println(toDeg(angle1)+" "+toDeg(angle2)+" "+toAbsDeg(semiAngle));
+                        System.out.println("------");
+                        System.out.println("cas coupe completement");
+                        System.out.println(seg.getColor());
+                        System.out.println(toDeg(angle1)+" "+toDeg(angle2)+" "+toAbsDeg(semiAngle));
                     */
                 }
                 //on prend une des deux intersections, et l'autre sera le bound
@@ -158,15 +158,22 @@ public class PaintersAlgorithm extends JPanel {
                     double[] position = seg.computePosition(this.computeLine(povLine1.getX1(),povLine1.getY1(),povLine1.getX2(),povLine1.getY2()), new Segment(povLine1.getX1(),povLine1.getY1(),povLine1.getX2(),povLine1.getY2(), Color.black));
 
                     if(!Double.isNaN(position[0]) && ! Double.isInfinite(position[0])) {
+                        System.out.println("CAS 1");
                         LinkedList<Segment> segmentList = new LinkedList<Segment>();
-                        segmentList.add(new Segment(seg.getX1(),seg.getY1(),bound1[0],bound1[1],seg.getColor()));
-                        segmentList.add(new Segment(seg.getX2(),seg.getY2(),bound1[0],bound1[1],seg.getColor()));
+                        segmentList.add(new Segment(seg.getX1(),seg.getY1(),position[0],position[1],seg.getColor()));
+                        segmentList.add(new Segment(seg.getX2(),seg.getY2(),position[0],position[1],seg.getColor()));
                         this.drawSegments(segmentList,g2);
+
+
                     }
                     else {
+                        position = seg.computePosition(this.computeLine(povLine2.getX1(),povLine2.getY1(),povLine2.getX2(),povLine2.getY2()), new Segment(povLine2.getX1(),povLine2.getY1(),povLine2.getX2(),povLine2.getY2(), Color.black));
+                        System.out.println("CAS 2");
+                        System.out.println(seg.getX1()+" "+seg.getY1()+" "+bound2[0]+" "+bound2[1]);
+                        System.out.println(seg.getX2()+" "+seg.getY2()+" "+bound2[0]+" "+bound2[1]);
                         LinkedList<Segment> segmentList = new LinkedList<Segment>();
-                        segmentList.add(new Segment(seg.getX1(),seg.getY1(),bound2[0],bound2[1],seg.getColor()));
-                        segmentList.add(new Segment(seg.getX2(),seg.getY2(),bound2[0],bound2[1],seg.getColor()));
+                        segmentList.add(new Segment(seg.getX1(),seg.getY1(),position[0],position[1],seg.getColor()));
+                        segmentList.add(new Segment(seg.getX2(),seg.getY2(),position[0],position[1],seg.getColor()));
                         this.drawSegments(segmentList,g2);
                     }
 
@@ -187,6 +194,7 @@ public class PaintersAlgorithm extends JPanel {
     private double toAbsDeg(double x) {
         return Math.abs(Math.toDegrees(x));
     }
+
     public double computeAngle(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) {
         double[] vector1 = {x2-x1,y2-y1};
         double[] vector2 = {x4-x3,y4-y3};
@@ -204,7 +212,7 @@ public class PaintersAlgorithm extends JPanel {
         double[] line = new double[3];
 
         //If x2-x1 == 0 the line is vertical, its equation is 1*x + 0*y - x1
-        if (x2 - x1 == 0) {
+        if (Math.abs(x2 - x1) <= Heuristic.EPSILON) {
             line[0] = 1;
             line[1] = 0;
             line[2] = -x1;
@@ -226,14 +234,12 @@ public class PaintersAlgorithm extends JPanel {
             return null; //droites parallèles
         }
         else {
-            // System.out.println("debug "+line[0]+" "+line[1]+" "+line[2]);
-            // System.out.println("debug "+lineBis[0]+" "+lineBis[1]+" "+lineBis[2]);
-            if(Math.abs(line1[0]-1)<Heuristic.EPSILON || Math.abs(line1[0]+1)<Heuristic.EPSILON ) {
+            if(Math.abs(line1[0]-1)<= Heuristic.EPSILON && line1[1]==0) {
 
                 intersectionPoint[0] = line1[2]/(-line1[0]);
                 intersectionPoint[1] = (intersectionPoint[0] * line2[0]) + line2[2];
             }
-            else if (Math.abs(line2[0]-1)<Heuristic.EPSILON || Math.abs(line2[0]+1)<Heuristic.EPSILON){
+            else if (Math.abs(line2[0]-1)<= Heuristic.EPSILON && line2[1]==0){
                 intersectionPoint[0] = line2[2]/(-line2[0]);
                 intersectionPoint[1] = (intersectionPoint[0] * line1[0]) + line1[2];
 

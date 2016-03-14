@@ -33,7 +33,7 @@ public class InOrderHeuristic implements Heuristic {
             for (Segment seg : node.getSegmentsInHyperplane()) {
                 //if lines are equals, seg is contained in the cutting line of the node
                 if( (Math.abs(seg.getSide(node.getLine(), seg.getX1(), seg.getY1()))<Heuristic.EPSILON) && (Math.abs(seg.getSide(node.getLine(), seg.getX2(), seg.getY2()))<Heuristic.EPSILON) ) {
-                    System.out.println("Segment "+seg+" "+seg.getX1()+" "+seg.getY1()+" dans la ligne du segment actuel");
+                    //System.out.println("Segment "+seg+" "+seg.getX1()+" "+seg.getY1()+" dans la ligne du segment actuel");
                     node.addSegment(seg);
                     toRemove.add(seg);
 

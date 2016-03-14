@@ -135,7 +135,7 @@ public class Segment {
                 intersectionPoint[1] = (intersectionPoint[0] * line[0]) + line[2];
             }
             //System.out.println("Point d'intersection"+intersectionPoint[0]+ ";"+intersectionPoint[1]);
-            System.out.println(line[0]+"x + "+line[1]+"y + "+line[2]+"---"+x1+";"+y1+" "+x2+";"+y2+"---"+(getSide(line, x1, y1))+" "+(getSide(line, x2, y2)));
+           // System.out.println(line[0]+"x + "+line[1]+"y + "+line[2]+"---"+x1+";"+y1+" "+x2+";"+y2+"---"+(getSide(line, x1, y1))+" "+(getSide(line, x2, y2)));
             //System.out.println("Intervalle du segment ["+x1+";"+x2+"] ["+y1+";"+y2+"]");
             //if point is inside this segment return the intersection
             if( ( ( ( (x1 <= intersectionPoint[0]+Heuristic.EPSILON) && (intersectionPoint[0]<= x2+Heuristic.EPSILON)) || ( (x2 <= intersectionPoint[0]+Heuristic.EPSILON) && (intersectionPoint[0]<= x1+Heuristic.EPSILON) ) ) &&
