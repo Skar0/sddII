@@ -13,6 +13,8 @@ public class Segment {
     private double x2;
     private double y2;
     private int cutCount;
+    private boolean intersected1; //Boolean to know if the vertex (x1, y1) is intersected with another segment
+    private boolean intersected2; //Boolean to know if the vertex (x2, y2) is intersected with another segment
     private boolean isFreeSplit;
     private Color color;
 
@@ -22,6 +24,8 @@ public class Segment {
         this.y1 = y1;
         this.x2 = x2;
         this.y2 = y2;
+        this.intersected1 = false;
+        this.intersected2 = false;
         this.cutCount = 0;
         this.isFreeSplit = false;
         this.color = color;
@@ -219,7 +223,17 @@ public class Segment {
 
     public void setY2(double y2) { this.y2 = y2; }
 
+    public boolean getIsIntersected1() { return intersected1; }
+
+    public void setIntersected1(boolean intersected1) { this.intersected1 = intersected1; }
+
+    public boolean getIsIntersected2() { return intersected2;}
+
+    public void setIntersected2(boolean intersected2) { this.intersected2 = intersected2; }
+
     public int getCutCount() {return cutCount; }
+
+    public void setCutCount(int cutCount) { this.cutCount = cutCount; }
 
     public boolean isFreeSplit() { return isFreeSplit; }
 
