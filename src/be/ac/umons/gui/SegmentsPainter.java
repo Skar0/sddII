@@ -136,8 +136,8 @@ public class SegmentsPainter extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-        double scalex = (double) panel.getHeight()/maxWidth;
-        double scaley = (double) panel.getWidth()/maxHeight;
+        double scalex = (double) panel.getHeight()/(maxHeight+50);
+        double scaley = (double) panel.getWidth()/(maxWidth+50);
         min = Math.min(scalex,scaley);
         g2.translate((double) panel.getWidth()/2, (double) panel.getHeight()/2);
         g2.scale(min,-min);
