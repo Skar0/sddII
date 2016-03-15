@@ -16,7 +16,7 @@ public class Cui {
 
         Console console = System.console();
         System.out.print("Please enter the path to a 2d scene:");
-        String path = "assets/first/octogone.txt";
+        String path = "assets/random/randomHuge.txt";
 
         SegmentLoader loader = new SegmentLoader(path);
         List<Segment> segmentList = loader.loadAsList();
@@ -34,7 +34,25 @@ public class Cui {
         System.out.println("Tree size :"+inOrderRoot.getSize());
         System.out.println("Tree height :"+inOrderRoot.getHeight());
 
-        inOrderRoot.printTree();
+        start = System.nanoTime();
+        BSPNode randomRoot = randomHeuristic.createTree(segmentList);
+        elapsedTimeInSec = (System.nanoTime() - start) * 1.0e-9;
+
+        System.out.println("-Random heuristic-");
+        System.out.println("Time to build tree : "+elapsedTimeInSec);
+        System.out.println("Tree size :"+randomRoot.getSize());
+        System.out.println("Tree height :"+randomRoot.getHeight());
+
+        start = System.nanoTime();
+        BSPNode freeSplitsRoot = freeSplitssHeuristic.createTree(segmentList);
+        elapsedTimeInSec = (System.nanoTime() - start) * 1.0e-9;
+
+        System.out.println("-Free splits heuristic-");
+        System.out.println("Time to build tree : "+elapsedTimeInSec);
+        System.out.println("Tree size :"+freeSplitsRoot.getSize());
+        System.out.println("Tree height :"+freeSplitsRoot.getHeight());
+
+       // inOrderRoot.printTree();
 
 
     }
