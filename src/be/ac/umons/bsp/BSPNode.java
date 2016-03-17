@@ -220,5 +220,5 @@ public class BSPNode {
     public void setLeftSon(BSPNode leftSon) {
         this.leftSon = leftSon;
     }
-    
+
 }
