@@ -4,17 +4,37 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by clement on 2/20/16.
+ * @author Clément Tamines
+ * This class represents a node of a BSP tree. We construct a BSP tree recursively by keeping a reference to a root node and adding to each node a left and/or right son.
+ * There is no empty node, a leaf is a node that doesn't have any son.
  */
 public class BSPNode {
 
     private BSPNode rightSon;
     private BSPNode leftSon;
+
+    /**
+     * This list contains Segment objects. They are the segments contained in the hyperplane formed by following the nodes from the root node until this one.
+     */
     private List<Segment> segmentsInHyperplane;
 
+    /**
+     * This list contains the segments that are on the same line as this node's line.
+     */
     private List<Segment> segmentsInLine = new LinkedList<>();
+
+    /**
+     * The line used to cut the space in two partitions.
+     */
     private double[] line;
 
+    /**
+     * BSPNode constructor
+     * @param rightSon
+     * @param leftSon
+     * @param segmentsInHyperplane
+     * @param segment The segment from which the line used to cut the space is created.
+     */
     public BSPNode(BSPNode rightSon, BSPNode leftSon, List<Segment> segmentsInHyperplane, Segment segment) {
         this.rightSon = rightSon;
         this.leftSon = leftSon;
@@ -30,12 +50,6 @@ public class BSPNode {
         this.line = null;
     }
 
-    public List<Segment> getSegmentsInLine() {
-        return segmentsInLine;
-    }
-    public double[] getLine() {
-        return line;
-    }
 
     /**
      * Determines if the BSPNode is a leaf
@@ -75,25 +89,6 @@ public class BSPNode {
         System.out.println("Right son : "+rightSon);
         System.out.println("---------------------\n");
 
-        /*
-        if (leftSon != null) {
-            if (leftSon.isLeaf())
-                System.out.print("[ (" + leftSon.getSegmentsInHyperplane().get(0).getX1() +
-                        "," + leftSon.getSegmentsInHyperplane().get(0).getY1() +
-                        ") (" + leftSon.getSegmentsInHyperplane().get(0).getX2() +
-                        "," + leftSon.getSegmentsInHyperplane().get(0).getY2() + ") ] \n");
-            System.out.println("Right son : " + rightSon);
-        }
-        if (rightSon != null) {
-            if (rightSon.isLeaf())
-                System.out.print("[ (" + rightSon.getSegmentsInHyperplane().get(0).getX1() +
-                        "," + rightSon.getSegmentsInHyperplane().get(0).getY1() +
-                        ") (" + rightSon.getSegmentsInHyperplane().get(0).getX2() +
-                        "," + rightSon.getSegmentsInHyperplane().get(0).getY2() + ") ] \n" );
-            System.out.println("---------------------\n");
-        }
-
-        */
         if (!this.isLeaf()) {
 
             if (this.hasNoLeftSon()) {
@@ -111,6 +106,10 @@ public class BSPNode {
         }
     }
 
+    /**
+     * Recursively computes the height of the tree this BSPNode is the root of.
+     * @return An integer giving the height of the tree.
+     */
     public int getHeight() {
         if(this.isLeaf()) {
             return 1;
@@ -121,49 +120,13 @@ public class BSPNode {
         else if (this.hasNoLeftSon()) {
             return 1 + this.rightSon.getHeight();
         }
-        else return Math.max( (1+this.leftSon.getHeight()), (1+this.rightSon.getHeight()) );
-    }
-
-    public BSPNode getRightSon() {
-        return rightSon;
-    }
-
-    public void setRightSon(BSPNode rightSon) {
-        this.rightSon = rightSon;
-    }
-
-    public BSPNode getLeftSon() {
-        return leftSon;
-    }
-
-    public void setLeftSon(BSPNode leftSon) {
-        this.leftSon = leftSon;
-    }
-
-    public List<Segment> getSegmentsInHyperplane() {
-        return segmentsInHyperplane;
-    }
-
-    public void setSegmentsInHyperplane(List<Segment> segmentsInHyperplane) {
-        this.segmentsInHyperplane = segmentsInHyperplane;
+        else return Math.max(( 1 + this.leftSon.getHeight() ), ( 1 + this.rightSon.getHeight() ));
     }
 
     /**
-     * Adds a segment to the list of segmentsInHyperplane contained in the BSPNode
-     * @param s the segment to add
+     * Recursively computes the number of nodes of the tree this BSPNode is the root of.
+     * @return An integer giving the size of the tree.
      */
-    public void addSegment(Segment s) {
-        this.segmentsInLine.add(s);
-    }
-
-    public static void main(String [] args) {
-
-    }
-
-    public void addSegmentInHyperplane(Segment seg) {
-        this.segmentsInHyperplane.add(seg);
-    }
-
     public int getSize() {
 
         if(this.isLeaf()) {
@@ -177,4 +140,85 @@ public class BSPNode {
         }
         else return (1+this.leftSon.getSize()+this.rightSon.getSize());
     }
+
+    /**
+     *
+     * @return the segments on the same line as the cutting line.
+     */
+    public List<Segment> getSegmentsInLine() {
+        return segmentsInLine;
+    }
+
+    /**
+     *
+     * @return the segments contained in the hyperplane formed by the successions of cuts from the root node up to this node.
+     */
+    public List<Segment> getSegmentsInHyperplane() {
+        return segmentsInHyperplane;
+    }
+
+    /**
+     * Replaces the segments contained in the hyperplane by new ones.
+     * @param segmentsInHyperplane the new segments in the hyperplane.
+     */
+    public void setSegmentsInHyperplane(List<Segment> segmentsInHyperplane) {
+        this.segmentsInHyperplane = segmentsInHyperplane;
+    }
+
+    /**
+     * Adds a new segment to this node's hyperplane.
+     * @param seg the new Segment object.
+     */
+    public void addSegmentInHyperplane(Segment seg) {
+        this.segmentsInHyperplane.add(seg);
+    }
+
+    /**
+     * Adds a segment to the list of segments contained in this node's cutting line.
+     * @param s the segment to add in the list.
+     */
+    public void addSegment(Segment s) {
+        this.segmentsInLine.add(s);
+    }
+
+    /**
+     *
+     * @return the coefficents a,b,c of equation of the cutting line ax + by + c = 0 in a 3 element array.
+     */
+    public double[] getLine() {
+        return line;
+    }
+
+    /**
+     *
+     * @return the BSPNode that is the right son of this node.
+     */
+    public BSPNode getRightSon() {
+        return rightSon;
+    }
+
+    /**
+     * Replaces the current right son of this BSPNode by a new one.
+     * @param rightSon the new BSPNode that will replace the current right son.
+     */
+    public void setRightSon(BSPNode rightSon) {
+        this.rightSon = rightSon;
+    }
+
+    /**
+     *
+     * @return the BSPNode that is the left son of this node.
+     */
+    public BSPNode getLeftSon() {
+        return leftSon;
+    }
+
+    /**
+     * Replaces the current left son of this BSPNode by a new one.
+     * @param leftSon the new BSPNode that will replace the current left son.
+     */
+    public void setLeftSon(BSPNode leftSon) {
+        this.leftSon = leftSon;
+    }
+    
 }
