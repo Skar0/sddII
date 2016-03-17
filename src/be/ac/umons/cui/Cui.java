@@ -6,7 +6,11 @@ import java.io.Console;
 import java.util.List;
 
 /**
- * Created by clement on 2/21/16.
+ * This class provides a user interface using the user's terminal. It allows to choose a file containing a scene and then
+ * comparing the heuristics applied on that file.
+ *
+ *
+ * @author Clément Tamines
  */
 public class Cui {
 
@@ -51,9 +55,6 @@ public class Cui {
         System.out.println("Time to build tree : "+elapsedTimeInSec);
         System.out.println("Tree size :"+freeSplitsRoot.getSize());
         System.out.println("Tree height :"+freeSplitsRoot.getHeight());
-
-       // inOrderRoot.printTree();
-
 
     }
 }
