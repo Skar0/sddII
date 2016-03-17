@@ -4,21 +4,52 @@ import java.awt.*;
 import java.awt.geom.Arc2D;
 
 /**
- * Created by clement on 2/20/16.
+ * This class represents a segment with its two points and its color. It is also used to compute the cutting line from a
+ * segment and determine the position of a segment relative to a line.
+ *
+ * @author Clément Tamines
+ * @author Jérémy Gheisen for everything regarding free splits.
  */
 public class Segment {
-    //TODO retirer la couleur string et choper le switch au chargement et pas a la création
+
+    /**
+     * the x coordinate of the first point.
+     */
     private double x1;
+
+    /**
+     * the y coordinate of the first point.
+     */
     private double y1;
+
+    /**
+     * the x coordinate of the second point.
+     */
     private double x2;
+
+    /**
+     * the y coordinate of the second point.
+     */
     private double y2;
+
     private int cutCount;
     private boolean intersected1; //Boolean to know if the vertex (x1, y1) is intersected with another segment
     private boolean intersected2; //Boolean to know if the vertex (x2, y2) is intersected with another segment
     private boolean isFreeSplit;
+
+    /**
+     * The segment's color.
+     */
     private Color color;
 
-
+    /**
+     *
+     * @param x1 the x coordinate of the first point.
+     * @param y1 the y coordinate of the first point.
+     * @param x2 the x coordinate of the second point.
+     * @param y2 the y coordinate of the second point.
+     * @param color the color of the segment.
+     */
     public Segment(double x1, double y1, double x2, double y2, Color color) {
         this.x1 = x1;
         this.y1 = y1;
@@ -29,13 +60,11 @@ public class Segment {
         this.cutCount = 0;
         this.isFreeSplit = false;
         this.color = color;
-
     }
 
     /**
-     * Computes the line joining the two points
-     *
-     * @return the line in ax + by + c = 0 with a,b,c in a double array
+     * Computes the that contains the two points of the segment.
+     * @return a 3-elements double array containg the a,b,c coeficient of the equation ax + by + c = 0 of the line.
      */
     public double[] computeLine() {
 
@@ -47,128 +76,121 @@ public class Segment {
             line[1] = 0;
             line[2] = -x1;
             return line;
-        } else {
+        }
+
+        else {
             line[0] = (y2 - y1) / (x2 - x1);
             line[1] = -1;
             line[2] = y1 - (line[0] * x1);
             return line;
         }
-
     }
 
-    public double[] computeTest(double[] line, Segment segment){
-        double[] lineBis = this.computeLine();
-        double[] intersectionPoint = new double[2];
-
-        //If the point (x1,y1) from this segment is right of the line, return [+inf,+inf]
-        if((segment.getX2() - segment.getX1())*(y2 - segment.getY1()) - (segment.getY2() - segment.getY1())*(x2 - segment.getX1()) < 0) {
-            intersectionPoint[0] = Double.POSITIVE_INFINITY;
-            intersectionPoint[1] = Double.POSITIVE_INFINITY;
-            // System.out.println("Droite de la droite");
-            return intersectionPoint;
-        }
-        else if((segment.getX2() - segment.getX1())*(y2 - segment.getY1()) - (segment.getY2() - segment.getY1())*(x2 - segment.getX1()) == 0) {
-            System.out.println("FATAL ERROR FAILURE BOUM1");
-            return intersectionPoint;
-        }
-
-        //If the point (x1,y1) from this segment is left of the line, return [-inf,-inf]
-        else {
-            intersectionPoint[0] = Double.NaN;
-            intersectionPoint[1] = Double.NaN;
-            //System.out.println("Gauche de la droite");
-            return intersectionPoint;
-        }
-    }
-
+    /**
+     * This method replaces the point (x,y) inside the equation of a line and returns the result.
+     * @param line double array containing the coeficents a,b,c of the line equation in the form ax + by + c = 0
+     * @param x x coordinate of the point.
+     * @param y y coordinate of the point.
+     * @return a double value resulting of the replacement of the point in the equation.
+     */
     public double getSide(double[] line, double x, double y) {
 
+        //If the equation is in the form x - c = 0 (vertical line)
         if(Math.abs(line[0]-1)<= Heuristic.EPSILON && (line[1] == 0)) {
             return -(line[0]*x + line[1]*y +line[2]);
         }
 
+        //Positive slope
         if( line[0] > 0 ) {
             return -(line[0]*x + line[1]*y +line[2]);
         }
+
         return (line[0]*x + line[1]*y +line[2]);
     }
 
+    /**
+     * Computes the position of the segment relative to the line given as parameter.
+     * @param line double array containing the coeficents a,b,c of the line equation in the form ax + by + c = 0
+     * @param segment the segment used to compute the line.
+     * @return [Infinity,Infinity] if segment is on the right, [NaN,NaN] if segment is on the left, the intersection point of the line and the segment otherwise.
+     */
     public double[] computePosition(double[] line, Segment segment) {
 
+        //The line containing this segment.
         double[] lineBis = this.computeLine();
+
+        //The array that will contain the intersection point.
         double[] intersectionPoint = new double[2];
 
-        //If the slopes are equal, there is no intersection
+        //If the slopes are equal, there is no intersection.
         if(Math.abs(line[0]-lineBis[0])<= Heuristic.EPSILON) {
-            //If the point (x1,y1) from this segment is right of the line, return [+inf,+inf]
+
+            //If the point (x1,y1) from this segment is to the right of the line, return [+inf,+inf]
             if(getSide(line, x2, y2) > Heuristic.EPSILON) {
+
                 intersectionPoint[0] = Double.POSITIVE_INFINITY;
                 intersectionPoint[1] = Double.POSITIVE_INFINITY;
-                // System.out.println("Droite de la droite");
                 return intersectionPoint;
             }
+
+            //If both points are on the same line as the cutting line, throw error (the segments contained inside the cutting line are supposed to be handled by the heuristic.
             else if(Math.abs(getSide(line, x2, y2)) <= Heuristic.EPSILON && Math.abs(getSide(line, x1, y1)) <= Heuristic.EPSILON) {
-                System.out.println("FATAL ERROR FAILURE BOUM2");
-                return intersectionPoint;
+                return null;
             }
-            //If the point (x1,y1) from this segment is left of the line, return [-inf,-inf]
+
+            //If the point (x1,y1) from this segment is left of the line, return [NaN,NaN]
             else {
                 intersectionPoint[0] = Double.NaN;
                 intersectionPoint[1] = Double.NaN;
-                //System.out.println("Gauche de la droite");
                 return intersectionPoint;
             }
         }
 
-        //If the slopes are not equal, we compute the intersection between the two lines
+        //If the slopes are not equal, we compute the intersection between the two lines.
         else {
-            // System.out.println("debug "+line[0]+" "+line[1]+" "+line[2]);
-            // System.out.println("debug "+lineBis[0]+" "+lineBis[1]+" "+lineBis[2]);
+
+            //If the cutting line is vertical, computing the intersection is handled in a different way.
             if(Math.abs(line[0]-1)<= Heuristic.EPSILON && line[1]==0) {
 
                 intersectionPoint[0] = line[2]/(-line[0]);
                 intersectionPoint[1] = (intersectionPoint[0] * lineBis[0]) + lineBis[2];
             }
+
+            //Same if the line computed from this segment is vertical
             else if (Math.abs(lineBis[0]-1)<= Heuristic.EPSILON && lineBis[1]==0){
                 intersectionPoint[0] = lineBis[2]/(-lineBis[0]);
                 intersectionPoint[1] = (intersectionPoint[0] * line[0]) + line[2];
 
             }
+
+            //Else we just use the simple method of equating both equations of lines to find the intersection point.
             else {
                 intersectionPoint[0] = (double) ((lineBis[2] - line[2]) / (line[0] - lineBis[0]));
                 intersectionPoint[1] = (intersectionPoint[0] * line[0]) + line[2];
             }
-            //System.out.println("Point d'intersection"+intersectionPoint[0]+ ";"+intersectionPoint[1]);
-           // System.out.println(line[0]+"x + "+line[1]+"y + "+line[2]+"---"+x1+";"+y1+" "+x2+";"+y2+"---"+(getSide(line, x1, y1))+" "+(getSide(line, x2, y2)));
-            //System.out.println("Intervalle du segment ["+x1+";"+x2+"] ["+y1+";"+y2+"]");
-            //if point is inside this segment return the intersection
+
+            //If the intersection point is contained in the segment, we return the intersection point because the segment is cut
             if( ( ( ( (x1 <= intersectionPoint[0]+Heuristic.EPSILON) && (intersectionPoint[0]<= x2+Heuristic.EPSILON)) || ( (x2 <= intersectionPoint[0]+Heuristic.EPSILON) && (intersectionPoint[0]<= x1+Heuristic.EPSILON) ) ) &&
                     ( ( (y1 <= intersectionPoint[1]+Heuristic.EPSILON) && (intersectionPoint[1]<= y2+Heuristic.EPSILON) ) || ( (y2 <= intersectionPoint[1]+Heuristic.EPSILON) && (intersectionPoint[1]<= y1+Heuristic.EPSILON) ) ) )
                     && !(Math.abs(intersectionPoint[0]-x1)<=Heuristic.EPSILON && Math.abs(intersectionPoint[1]-y1)<=Heuristic.EPSILON) && !(Math.abs(intersectionPoint[0]-x2)<=Heuristic.EPSILON && Math.abs(intersectionPoint[1]-y2)<=Heuristic.EPSILON ) ) {
-                // System.out.println("Intersection dans segment");
-                //doit pas être this.gauche oou this.poitndroite
+
                 return intersectionPoint;
             }
+
+            //If both points are on the same line as the cutting line, throw error (the segments contained inside the cutting line are supposed to be handled by the heuristic.
             else if(Math.abs(getSide(line, x2, y2))<=Heuristic.EPSILON && Math.abs(getSide(line, x1, y1))<=Heuristic.EPSILON) {
-                System.out.println(x1+" "+y1+" "+x2+" "+y2);
-                System.out.println(line[0]+ " "+line[1]+" "+line[2]);
-                System.out.println(getSide(line, x2, y2));
-                System.out.println(getSide(line, x1, y1));
-                System.out.println("FATAL ERROR FAILURE BOUM3");
-                //tester this.gauche ou this.droite car egalité si point sur segment
                 return null;
             }
-            //If the point (x1,y1) from this segment is right of the line, return [+inf,+inf]
 
+            //If the point (x1,y1) or (x2,y2) from this segment is right of the line, return [+inf,+inf] (one of them can be contained in the segment, so it is a or condition)
             else if (((getSide(line, x2, y2) > 0) || (getSide(line, x1, y1) > 0))) {
                 intersectionPoint[0] = Double.POSITIVE_INFINITY;
                 intersectionPoint[1] = Double.POSITIVE_INFINITY;
-                //System.out.println("Droite de la droite");
                 return intersectionPoint;
             }
-            //If the point (x1,y1) from this segment is left of the line, return [-inf,-inf]
+
+            //Else it it on the left of the line and we return [NaN,NaN]
             else {
-                // System.out.println("Gauche de la droite");
                 intersectionPoint[0] = Double.NaN;
                 intersectionPoint[1] = Double.NaN;
                 return intersectionPoint;

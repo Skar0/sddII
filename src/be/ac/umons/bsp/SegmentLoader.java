@@ -10,22 +10,38 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by clement on 2/20/16.
+ * This class is used to extract a list of segments from a file.
+ * @author Clément Tamines
  */
 
 public class SegmentLoader {
 
+    /**
+     * String is the path to the desired file
+     */
     private String path;
+
+    /**
+     * Maximum value used in the abscissa space.
+     */
     private double maxWidth;
+
+    /**
+     * Maximum value used in the y-intercept space.
+     */
     private double maxHeight;
 
+    /**
+     * Constructor
+     * @param path the path to the desired file.
+     */
     public SegmentLoader(String path) {
         this.path = path;
     }
 
     /**
-     * Reads the file and adds all the segments in it to a list
-     * @return a list containing all the segments in the file
+     * Reads the file and adds all the segments in it to a list, extracts the value of maxWidth and maxHeight.
+     * @return a list containing all the segments in the file in order.
      */
     public List<Segment> loadAsList() {
 
@@ -38,7 +54,9 @@ public class SegmentLoader {
             String line;
 
             line = br.readLine(); //First line contains information about the file
-            String[] infoLine = line.split(" ");
+            String[] infoLine = line.split(" "); //Separator is the space
+
+            //We multiply the value by two because the file contains the max value in the half space
             maxWidth = (double) 2*Double.parseDouble(infoLine[1]);
             maxHeight = (double) 2*Double.parseDouble(infoLine[2]);
 
@@ -94,22 +112,18 @@ public class SegmentLoader {
         return segmentList;
     }
 
-    public static void main(String [] args) {
-        //TODO remove || This is a test to make sure files are loaded properly in a list
-        /*
-        SegmentLoader test = new SegmentLoader("assets/first/octangle.txt");
-        List<Segment> test2 = test.loadAsList();
-
-        for (Segment temp : test2) {
-            System.out.println(temp.getX1()+" "+temp.getY1()+" "+temp.getX2()+" "+temp.getY2()+" "+temp.getC());
-        }
-        */
-    }
-
+    /**
+     *
+     * @return the maximum width of the scene
+     */
     public double getMaxWidth() {
         return maxWidth;
     }
 
+    /**
+     *
+     * @return the maximum height of the scene
+     */
     public double getMaxHeight() {
         return maxHeight;
     }
