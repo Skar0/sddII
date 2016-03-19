@@ -19,19 +19,33 @@ public class MainMenu extends JFrame {
 
 
     public MainMenu() {
-        this.setTitle("BSP creator");
-        this.setSize(300, 400);
-       //this.setMinimumSize(new Dimension(300,400));
+        this.setTitle("Heuristic simulator 2016");
+        ImageIcon img = new ImageIcon("assets/img/eye.png");
+        this.setIconImage(img.getImage());
+        this.setSize(250, 200);
         this.setLocationRelativeTo(null);
-        //this.setResizable(false);
+        this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel panel = new JPanel();
-        Box mainBox = Box.createVerticalBox();
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
 
-        JLabel title = new JLabel("Main menu");
-        mainBox.add(title);
+        c.fill = GridBagConstraints.NONE;
+        c.ipady = 0;
+        c.gridwidth = 1;
+        c.weightx = 0.5;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.insets = new Insets(20,0,0,0);
+        JLabel chooseFileLabel = new JLabel("Choose a file : ");
+        panel.add(chooseFileLabel,c);
 
+        c.fill = GridBagConstraints.NONE;
+        c.gridwidth = 1;
+        c.weightx = 0.5;
+        c.gridx = 1;
+        c.gridy = 0;
+        c.insets = new Insets(20,0,0,0);
         final JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")+ System.getProperty("file.separator")+"Documents"));
         JButton chooseFile = new JButton("Open file");
@@ -46,8 +60,23 @@ public class MainMenu extends JFrame {
                 }
             }
         });
-        mainBox.add(chooseFile);
+        panel.add(chooseFile,c);
 
+        c.fill = GridBagConstraints.NONE;
+        c.gridwidth = 1;
+        c.weightx = 0.5;
+        c.gridx = 0;
+        c.gridy = 1;
+        c.insets = new Insets(20,0,0,0);
+        JLabel chooseHeuristicLabel = new JLabel("Choose a heuristic : ");
+        panel.add(chooseHeuristicLabel,c);
+
+        c.fill = GridBagConstraints.NONE;
+        c.gridwidth = 1;
+        c.weightx = 0.5;
+        c.gridx = 1;
+        c.gridy = 1;
+        c.insets = new Insets(20,0,0,0);
         JComboBox comboBox = new JComboBox();
         comboBox.addItem(defaultHeuristic);
         comboBox.addItem(new RandomHeuristic());
@@ -60,9 +89,15 @@ public class MainMenu extends JFrame {
                 heuristic = (Heuristic) cb.getSelectedItem();
             }
         });
-        mainBox.add(comboBox);
+        panel.add(comboBox,c);
 
-        JButton createTree = new JButton("Create view");
+        c.fill = GridBagConstraints.NONE;
+        c.gridwidth = 2;
+        c.weightx = 1;
+        c.gridx = 0;
+        c.gridy = 2;
+        c.insets = new Insets(30,0,0,0);
+        JButton createTree = new JButton("View scene");
         createTree.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent event){
                 if(selectedFile != "" && heuristic != null) {
@@ -79,9 +114,8 @@ public class MainMenu extends JFrame {
                }
             }
         });
-        mainBox.add(createTree);
+        panel.add(createTree,c);
 
-        panel.add(mainBox);
         this.setContentPane(panel);
         this.setVisible(true);
 

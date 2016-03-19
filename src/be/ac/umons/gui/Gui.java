@@ -17,23 +17,7 @@ import java.util.List;
 public class Gui extends JFrame{
 
     public static void main(String[] args) {
-        /*
-        SegmentLoader loader = new SegmentLoader("assets/other/wikipediaExample.txt");
-        List<Segment> segmentList = loader.loadAsList();
-
-        InOrderHeuristic heuristicBuilder = new InOrderHeuristic();
-
-        BSPNode root = heuristicBuilder.createTree(segmentList);
-
-        MainFrame frame = new MainFrame();
-        SegmentsPainter menu = new SegmentsPainter(root);
-        */
-
         MainMenu menu = new MainMenu();
     }
 
-    public void createMenu() {
-
-
-    }
 }
