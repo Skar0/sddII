@@ -6,6 +6,8 @@ import be.ac.umons.bsp.Segment;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Line2D;
@@ -47,7 +49,8 @@ public class SegmentsPainter extends JPanel {
 
     int debug = 0;
 
-    public SegmentsPainter(final BSPNode root, final double maxWidth, final double maxHeight) {
+    public SegmentsPainter(final BSPNode root, final double maxWidth, final double maxHeight, JFrame frame) {
+        frame.setJMenuBar(this.createMenuBar());
         this.root = root;
         this.maxHeight = maxHeight;
         this.maxWidth = maxWidth;
@@ -147,8 +150,54 @@ public class SegmentsPainter extends JPanel {
             }
         });
     }
+    public JMenuBar createMenuBar() {
+        JMenuBar menuBar;
+        JMenu menu;
+        JMenuItem menuItem;
+        JRadioButtonMenuItem rbMenuItem;
 
+        menuBar = new JMenuBar();
+
+        menu = new JMenu("File");
+        menu.setMnemonic(KeyEvent.VK_F);
+        menuBar.add(menu);
+
+        menuItem = new JMenuItem("choose file",KeyEvent.VK_T);
+        menu.add(menuItem);
+
+        menu.addSeparator();
+
+        menuItem = new JMenuItem("choose heuristic",KeyEvent.VK_T);
+        menu.add(menuItem);
+
+        menu.addSeparator();
+
+        ButtonGroup group = new ButtonGroup();
+
+        rbMenuItem = new JRadioButtonMenuItem("Manual angle selection");
+        rbMenuItem.setSelected(true);
+        group.add(rbMenuItem);
+        menu.add(rbMenuItem);
+
+        rbMenuItem = new JRadioButtonMenuItem("Choose angle");
+        group.add(rbMenuItem);
+        menu.add(rbMenuItem);
+
+
+        menu = new JMenu("Help");
+        menuBar.add(menu);
+
+        menuItem = new JMenuItem("Help",KeyEvent.VK_T);
+        menu.add(menuItem);
+
+        menuItem = new JMenuItem("About",KeyEvent.VK_T);
+        menu.add(menuItem);
+
+
+        return menuBar;
+    }
     public void paintComponent(Graphics g) {
+
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         double scalex = (double) panel.getHeight()/(maxHeight+50);
