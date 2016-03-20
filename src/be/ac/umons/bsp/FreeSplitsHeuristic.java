@@ -20,7 +20,7 @@ public class FreeSplitsHeuristic implements Heuristic {
         segmentList.remove(0);
         BSPNode root = new BSPNode(null, null, segmentList, firstSegment);
         treeConstruction(root);
-        //root.printTree();
+        BSPNode.printNode(root);
         return root;
     }
 
@@ -125,12 +125,13 @@ public class FreeSplitsHeuristic implements Heuristic {
                         leftNodeSegments.remove(seg);
                         leftNode = new BSPNode(null, null, leftNodeSegments, seg);
                         currentNode.setLeftSon(leftNode);
-                        System.out.println("Free split worked with : " + leftNode + "\n");
+                        System.out.println("Free split 1 worked with : " + leftNode + "\n");
                         System.out.println("Coordonnées : " +
                                 "(" + leftNode.getSegmentsInLine().get(0).getX1() +" ; "
                                 + leftNode.getSegmentsInLine().get(0).getY1() + ") , ("
                                 + leftNode.getSegmentsInLine().get(0).getX2() + " ; "
                                 + leftNode.getSegmentsInLine().get(0).getY2() + ").");
+
                         break;
                     }
                 }
@@ -142,7 +143,7 @@ public class FreeSplitsHeuristic implements Heuristic {
                         rightNodeSegments.remove(seg);
                         rightNode = new BSPNode(null, null, rightNodeSegments, seg);
                         currentNode.setRightSon(rightNode);
-                        System.out.println("Free split worked with : " + rightNode + "\n");
+                        System.out.println("Free split 2 worked with : " + rightNode + "\n");
                         System.out.println("Coordonnées : " +
                                 "(" + rightNode.getSegmentsInLine().get(0).getX1() +" ; "
                                 + rightNode.getSegmentsInLine().get(0).getY1() + ") , ("
@@ -198,7 +199,7 @@ public class FreeSplitsHeuristic implements Heuristic {
     }
 
     public static void main (String [] args){
-        SegmentLoader loader = new SegmentLoader("assets/random/randomSmall.txt");
+        SegmentLoader loader = new SegmentLoader("assets/other/free_splits.txt");
         List<Segment>myList = loader.loadAsList();
         FreeSplitsHeuristic test = new FreeSplitsHeuristic();
         test.createTree(myList);

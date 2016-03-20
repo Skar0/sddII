@@ -1,5 +1,8 @@
 package be.ac.umons.bsp;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -104,6 +107,69 @@ public class BSPNode {
                 this.rightSon.printTree();
             }
         }
+    }
+
+    /**
+     * Display a node and recursively his children
+     * @param spaceSize the space necessary for the display (depends of the size of de coordinates)
+     * @param node current node displayed
+     * @param prefix precedent nodes already built as a string
+     * @param isTail if the node is a tail
+     * @param sb built string (with new node inside)
+     * @return the String which is a representation of the tree
+     */
+    public static StringBuilder printNode(int spaceSize, BSPNode node, StringBuilder prefix, boolean isTail, StringBuilder sb) {
+        // Inspired of http://stackoverflow.com/questions/4965335/how-to-print-binary-tree-diagram
+        Segment value; //Current segment to display
+        if (node.getSegmentsInLine().size()>0)
+            value = node.getSegmentsInLine().get(0);
+        else
+            value = node.getSegmentsInHyperplane().get(0);
+
+        DecimalFormat df = new DecimalFormat("0.##"); //To force 2 decimals maximum
+        String toPrint = "[("+df.format(value.getX1())+";" +df.format(value.getY1())+")" +
+                "("+df.format(value.getX2())+";"+df.format(value.getY2())+")]";
+        int newSize = toPrint.length()+1;
+
+        if(!node.hasNoRightSon()) {
+            printNode(newSize, node.getRightSon(), new StringBuilder().append(prefix).append(
+                    isTail ? "│" + repeat(spaceSize-1," ") : repeat(spaceSize," ")), false, sb);
+        }
+
+        sb.append(prefix).append(isTail ? "└────── " : "┌────── ").append(toPrint).append("\n");
+
+        if(!node.hasNoLeftSon()) {
+            printNode(newSize, node.getLeftSon(), new StringBuilder().append(prefix).append(
+                    isTail ? repeat(spaceSize," ") : "│" + repeat(spaceSize-1," ")), true, sb);
+        }
+        return sb;
+    }
+
+    /**
+     * Displays the tree from the given node
+     * @param node the root node of the tree
+     */
+    public static void printNode(BSPNode node) {
+        DecimalFormat df = new DecimalFormat("0.##");
+        String toPrint = "[("+df.format(node.getSegmentsInLine().get(0).getX1())+ ";"
+                + df.format(node.getSegmentsInLine().get(0).getY1())+ ")" +
+                "("+df.format(node.getSegmentsInLine().get(0).getX2())+ ";" +
+                df.format(node.getSegmentsInLine().get(0).getY2())+ ")]";
+        int size = toPrint.length();
+        System.out.println("Affichage de l'arbre BSP, précision à deux décimales près : ");
+        System.out.println(printNode(size, node, new StringBuilder(), true, new StringBuilder()).toString());
+    }
+
+    /**
+     * Builds a string with the buffer and the desired number of spaces
+     * @param count the number of desired spaces
+     * @param buffer the first character of the string
+     * @return a string containing the buffer followed by a number (count) of spaces
+     */
+    public static String repeat(int count, String buffer) {
+        if (count == 0)
+            return buffer;
+        return repeat (count-1, buffer + " ");
     }
 
     /**
