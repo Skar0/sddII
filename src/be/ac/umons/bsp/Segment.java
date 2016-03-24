@@ -210,7 +210,7 @@ public class Segment {
 
     @Override
     public boolean equals(Object obj){
-        double EPSILON = 0.01; //Acceptable error on coordinates
+        double EPSILON = 0.025; //Acceptable error on coordinates
         if (obj == null)
             return false;
         if (obj == this)
