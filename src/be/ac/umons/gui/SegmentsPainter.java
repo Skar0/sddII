@@ -1,25 +1,22 @@
 package be.ac.umons.gui;
 
-import be.ac.umons.bsp.BSPNode;
-import be.ac.umons.bsp.Heuristic;
-import be.ac.umons.bsp.Segment;
+import be.ac.umons.bsp.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.awt.geom.Line2D;
+import java.io.File;
 import java.util.*;
 import java.util.List;
 
 /**
  * Created by mr_robot on 04-03-16.
  */
-public class SegmentsPainter extends JPanel {
+public class SegmentsPainter extends JPanel implements ActionListener, ItemListener {
 
     private JPanel panel;
+    private Frame frame;
     private BSPNode root;
     private int scale = 1;
     private double min;
@@ -50,6 +47,7 @@ public class SegmentsPainter extends JPanel {
     int debug = 0;
 
     public SegmentsPainter(final BSPNode root, final double maxWidth, final double maxHeight, JFrame frame) {
+        this.frame = frame;
         frame.setJMenuBar(this.createMenuBar());
         this.root = root;
         this.maxHeight = maxHeight;
@@ -162,12 +160,14 @@ public class SegmentsPainter extends JPanel {
         menu.setMnemonic(KeyEvent.VK_F);
         menuBar.add(menu);
 
-        menuItem = new JMenuItem("choose file",KeyEvent.VK_T);
+        menuItem = new JMenuItem("Choose file",KeyEvent.VK_T);
+        menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menu.addSeparator();
 
-        menuItem = new JMenuItem("choose heuristic",KeyEvent.VK_T);
+        menuItem = new JMenuItem("Choose heuristic",KeyEvent.VK_T);
+        menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menu.addSeparator();
@@ -176,10 +176,12 @@ public class SegmentsPainter extends JPanel {
 
         rbMenuItem = new JRadioButtonMenuItem("Manual angle selection");
         rbMenuItem.setSelected(true);
+        rbMenuItem.addItemListener(this);
         group.add(rbMenuItem);
         menu.add(rbMenuItem);
 
         rbMenuItem = new JRadioButtonMenuItem("Choose angle");
+        rbMenuItem.addItemListener(this);
         group.add(rbMenuItem);
         menu.add(rbMenuItem);
 
@@ -188,14 +190,62 @@ public class SegmentsPainter extends JPanel {
         menuBar.add(menu);
 
         menuItem = new JMenuItem("Help",KeyEvent.VK_T);
+        menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menuItem = new JMenuItem("About",KeyEvent.VK_T);
+        menuItem.addActionListener(this);
         menu.add(menuItem);
 
 
         return menuBar;
     }
+
+    @Override
+    public void actionPerformed(ActionEvent actionEvent) {
+        JMenuItem source = (JMenuItem)(actionEvent.getSource());
+        System.out.println(source.getText());
+        switch(source.getText()) {
+            case "Help":
+                JOptionPane.showMessageDialog(frame, "EXPLIQUER FONCTIONNEMENT", "Help",JOptionPane.INFORMATION_MESSAGE);
+                break;
+            case "About":
+                JOptionPane.showMessageDialog(frame, "EXPLIQUER PAR QUI", "About",JOptionPane.INFORMATION_MESSAGE);
+                break;
+            case "Choose file":
+                final JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")+ System.getProperty("file.separator")+"Documents"));
+                int result = fileChooser.showOpenDialog(frame);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    String selectedFile = "";
+                    selectedFile = file.getAbsolutePath();
+                    System.out.println("Selected file: " + file.getAbsolutePath());
+                }
+                break;
+            case "Choose heuristic":
+                Heuristic inor = new InOrderHeuristic();
+                Heuristic[] heuristics = {inor, new RandomHeuristic(), new FreeSplitsHeuristic()};
+                Heuristic s = (Heuristic) JOptionPane.showInputDialog(
+                        frame,
+                        "Select a heuristic",
+                        "Select a heuristic",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        heuristics,
+                        inor);
+                        if ((s != null)) {
+                            System.out.println(s);
+                        }
+
+        }
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent itemEvent) {
+
+    }
+
     public void paintComponent(Graphics g) {
 
         super.paintComponent(g);
@@ -562,4 +612,5 @@ public class SegmentsPainter extends JPanel {
             return intersectionPoint;
         }
     }
+
 }
