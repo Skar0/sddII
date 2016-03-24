@@ -45,15 +45,7 @@ public class BSPNode {
         this.segmentsInLine.add(segment);
         this.line = segment.computeLine();
     }
-
-    public BSPNode(BSPNode rightSon, BSPNode leftSon, List<Segment> segmentsInHyperplane){
-        this.rightSon = rightSon;
-        this.leftSon = leftSon;
-        this.segmentsInHyperplane = segmentsInHyperplane;
-        this.line = null;
-    }
-
-
+    
     /**
      * Determines if the BSPNode is a leaf
      * @return True if the node is a leaf, false otherwise
@@ -114,7 +106,7 @@ public class BSPNode {
      * @param spaceSize the space necessary for the display (depends of the size of de coordinates)
      * @param node current node displayed
      * @param prefix precedent nodes already built as a string
-     * @param isTail if the node is a tail
+     * @param isTail if the second child
      * @param sb built string (with new node inside)
      * @return the String which is a representation of the tree
      */
@@ -141,6 +133,7 @@ public class BSPNode {
         if(!node.hasNoLeftSon()) {
             printNode(newSize, node.getLeftSon(), new StringBuilder().append(prefix).append(
                     isTail ? repeat(spaceSize," ") : "│" + repeat(spaceSize-1," ")), true, sb);
+            // Left son is tail because we are drawing a binary tree
         }
         return sb;
     }
