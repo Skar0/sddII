@@ -113,8 +113,6 @@ public class FreeSplitsHeuristic implements Heuristic {
             //Free splits strategy
             BSPNode leftNode;
             BSPNode rightNode;
-            boolean leftIsLeaf = false;
-            boolean rightIsLeaf = false;
             boolean freeSplitLeftOk = false;
             boolean freeSplitRightOk = false;
             //Useless method if only one segment in the list
@@ -159,37 +157,25 @@ public class FreeSplitsHeuristic implements Heuristic {
             //Left part
             if (!freeSplitLeftOk){
                 if (!leftNodeSegments.isEmpty()){
-                    if (leftNodeSegments.size() == 1){
-                        leftNode = new BSPNode(null, null, leftNodeSegments);
-                        leftIsLeaf = true;
-                    }
-                    else {
-                        splittingSegment = leftNodeSegments.get(0);
-                        leftNodeSegments.remove(0);
-                        leftNode = new BSPNode(null, null, leftNodeSegments, splittingSegment);
-                    }
+                    splittingSegment = leftNodeSegments.get(0);
+                    leftNodeSegments.remove(0);
+                    leftNode = new BSPNode(null, null, leftNodeSegments, splittingSegment);
                     currentNode.setLeftSon(leftNode);
                 }
             }
             //Right part
             if (!freeSplitRightOk){
                 if (!rightNodeSegments.isEmpty()){
-                    if (rightNodeSegments.size() == 1){
-                        rightNode = new BSPNode(null, null, rightNodeSegments);
-                        rightIsLeaf = true;
-                    }
-                    else {
-                        splittingSegment = rightNodeSegments.get(0);
-                        rightNodeSegments.remove(0);
-                        rightNode = new BSPNode(null, null, rightNodeSegments, splittingSegment);
-                    }
+                    splittingSegment = rightNodeSegments.get(0);
+                    rightNodeSegments.remove(0);
+                    rightNode = new BSPNode(null, null, rightNodeSegments, splittingSegment);
                     currentNode.setRightSon(rightNode);
                 }
             }
-            //Maybe there is no left or right son or it is a leaf, then the work is done
-            if (!leftIsLeaf && currentNode.getLeftSon() != null)
+            //Maybe there is no left or right son, then the work is done
+            if (currentNode.getLeftSon() != null)
                 treeConstruction(currentNode.getLeftSon());
-            if (!rightIsLeaf && currentNode.getRightSon() != null)
+            if (currentNode.getRightSon() != null)
                 treeConstruction(currentNode.getRightSon());
         }
     }
