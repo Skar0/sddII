@@ -15,7 +15,7 @@ public class FreeSplitsHeuristic implements Heuristic {
      * @return The root of the created BSP tree
      */
     public BSPNode createTree(List<Segment> segmentList){
-        //Collections.shuffle(segmentList);
+        Collections.shuffle(segmentList);
         Segment firstSegment = segmentList.get(0);
         segmentList.remove(0);
         BSPNode root = new BSPNode(null, null, segmentList, firstSegment);

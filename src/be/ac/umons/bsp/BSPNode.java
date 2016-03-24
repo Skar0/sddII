@@ -45,7 +45,7 @@ public class BSPNode {
         this.segmentsInLine.add(segment);
         this.line = segment.computeLine();
     }
-    
+
     /**
      * Determines if the BSPNode is a leaf
      * @return True if the node is a leaf, false otherwise

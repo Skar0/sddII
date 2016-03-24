@@ -2,6 +2,7 @@ package be.ac.umons.bsp;
 
 import java.awt.*;
 import java.awt.geom.Arc2D;
+import java.util.Objects;
 
 /**
  * This class represents a segment with its two points and its color. It is also used to compute the cutting line from a
@@ -205,6 +206,20 @@ public class Segment {
         cutCount++;
         if (cutCount >= 2)
             isFreeSplit = true;
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        double EPSILON = 0.01; //Acceptable error on coordinates
+        if (obj == null)
+            return false;
+        if (obj == this)
+            return true;
+        if (!(obj instanceof Segment))
+            return false;
+        Segment castedSegment = (Segment) obj;
+        return (Math.abs(this.x1 - castedSegment.x1) < EPSILON) && (Math.abs(this.x2 - castedSegment.x2) < EPSILON)
+                && (Math.abs(this.y1 - castedSegment.y1) < EPSILON) && (Math.abs(this.y2 - castedSegment.y2) < EPSILON);
     }
 
     public double getX1() {
