@@ -20,10 +20,10 @@ public class Cui {
 
         Console console = System.console();
         System.out.print("Please enter the path to a 2d scene:");
-        String path = "assets/random/randomHuge.txt";
+        String path = "assets/random/randomSmall.txt";
 
-        SegmentLoader loader = new SegmentLoader(path);
-        List<Segment> segmentList = loader.loadAsList();
+        SegmentLoader loader = new SegmentLoader();
+        List<Segment> segmentList = loader.loadAsList(path);
 
         Heuristic inOrderHeuristic = new InOrderHeuristic();
         Heuristic randomHeuristic = new RandomHeuristic();

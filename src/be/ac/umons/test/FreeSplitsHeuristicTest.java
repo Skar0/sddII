@@ -25,8 +25,8 @@ public class FreeSplitsHeuristicTest {
     }
     @Test
     public void checkNodes(){
-        SegmentLoader loader = new SegmentLoader("assets/other/free_splits.txt");
-        List<Segment>myList = loader.loadAsList();
+        SegmentLoader loader = new SegmentLoader();
+        List<Segment>myList = loader.loadAsList("assets/other/free_splits.txt");
         FreeSplitsHeuristic test = new FreeSplitsHeuristic();
         BSPNode root = test.createTree(myList);
         root.printTree();

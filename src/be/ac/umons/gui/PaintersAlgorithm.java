@@ -6,6 +6,8 @@ import be.ac.umons.bsp.Segment;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Line2D;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,10 +23,16 @@ public class PaintersAlgorithm extends JPanel {
 
     int toRemove = 10;
 
+    public PaintersAlgorithm() {
+        maxWidth = 400;
+    }
+
     public PaintersAlgorithm(Pov pov, BSPNode rootOfTree) {
+
         this.pov = pov;
         this.rootOfTree = rootOfTree;
        this.maxWidth = Math.sqrt(Math.pow((pov.getProjectionLine().getX1()-pov.getProjectionLine().getX2()),2))+400;
+        this.setSize(50,100);
     }
 
     public void paintComponent(Graphics g) {
@@ -35,7 +43,7 @@ public class PaintersAlgorithm extends JPanel {
         g2.translate((double) this.getWidth()/2, (double) this.getHeight()/2);
         g2.scale(scaley, 1);
 
-        paintersAlgorithm(rootOfTree, g2);
+        //paintersAlgorithm(rootOfTree, g2);
         toRemove = 1;
     }
 

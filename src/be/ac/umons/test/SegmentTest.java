@@ -12,8 +12,8 @@ import static org.junit.Assert.*;
  * Created by clement on 2/26/16.
  */
 public class SegmentTest {
-    SegmentLoader loader = new SegmentLoader("assets/other/wikipediaExample.txt");
-    List<Segment> segmentList = loader.loadAsList();
+    SegmentLoader loader = new SegmentLoader();
+    List<Segment> segmentList = loader.loadAsList("assets/other/wikipediaExample.txt");
 
     @org.junit.Test
     public void testComputeLine() throws Exception {
