@@ -207,8 +207,8 @@ public class FreeSplitsHeuristic implements Heuristic {
     }
 
     public static void main (String [] args){
-        SegmentLoader loader = new SegmentLoader("assets/other/free_splits.txt");
-        List<Segment>myList = loader.loadAsList();
+        SegmentLoader loader = new SegmentLoader();
+        List<Segment>myList = loader.loadAsList("assets/other/free_splits.txt");
         FreeSplitsHeuristic test = new FreeSplitsHeuristic();
         test.createTree(myList);
     }
