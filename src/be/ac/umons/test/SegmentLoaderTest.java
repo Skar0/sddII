@@ -13,8 +13,8 @@ public class SegmentLoaderTest {
 
     @Test
     public void testLoadAsList() throws Exception {
-        SegmentLoader loader = new SegmentLoader("assets/other/wikipediaExample.txt");
-        for (Segment seg : loader.loadAsList()) {
+        SegmentLoader loader = new SegmentLoader();
+        for (Segment seg : loader.loadAsList("assets/other/wikipediaExample.txt")) {
             System.out.println(seg.getX1()+" "+seg.getY1()+" "+seg.getX2()+" "+seg.getY2());
         }
     }

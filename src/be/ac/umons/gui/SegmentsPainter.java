@@ -15,19 +15,35 @@ import java.util.List;
  */
 public class SegmentsPainter extends JPanel implements ActionListener, ItemListener {
 
+    //Keeping reference to the parent frame
     private JPanel panel;
     private Frame frame;
     private BSPNode root;
+
+    //TODO remove
     private int scale = 1;
-    private double min;
-    private Pov pov = new Pov();
+
+    //Input method for the pov
+    private int inputMode = 0;
+
+    //Scaling of the scene so it is contained in the frame
+    private double sceneScale;
     private double maxWidth;
     private double maxHeight;
+
+    //Point of view
+    private Pov pov = new Pov();
+
+    //Keeping track of used heuristic and file
+    Heuristic usedHeuristic;
+    String usedFile;
+    SegmentLoader loader;
 
     //Lines that represent the angle of the point of view
     private Line2D line1 = null;
     private Line2D line2 = null;
 
+    //Lines that are actually drawn
     private Line2D lineToDraw1 = null;
     private Line2D lineToDraw2 = null;
 
@@ -46,15 +62,19 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
 
     int debug = 0;
 
-    public SegmentsPainter(final BSPNode root, final double maxWidth, final double maxHeight, JFrame frame) {
+    public SegmentsPainter(Heuristic heuristic, String path, JFrame frame) {
+        this.loader = new SegmentLoader();
+        this.usedHeuristic = heuristic;
+        this.usedFile = path;
+        List<Segment> segmentList = loader.loadAsList(path);
+        this.maxHeight = loader.getMaxHeight();
+        this.maxWidth = loader.getMaxWidth();
+        this.root = usedHeuristic.createTree(segmentList);
         this.frame = frame;
-        frame.setJMenuBar(this.createMenuBar());
-        this.root = root;
-        this.maxHeight = maxHeight;
-        this.maxWidth = maxWidth;
-
-        System.out.println(root.getHeight());
         this.panel = this;
+
+        frame.setJMenuBar(this.createMenuBar());
+
         this.addMouseListener(new MouseListener() {
 
             @Override
@@ -63,8 +83,8 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                 double x = e.getX();
                 double y = e.getY();
 
-                double x_scaled = ( e.getPoint().getX() - ( (double) panel.getWidth()/2.0) )/min;
-                double y_scaled = ( -(e.getPoint().getY() - ( (double) panel.getHeight()/2.0)) )/min;
+                double x_scaled = ( e.getPoint().getX() - ( (double) panel.getWidth()/2.0) )/sceneScale;
+                double y_scaled = ( -(e.getPoint().getY() - ( (double) panel.getHeight()/2.0)) )/sceneScale;
 
                 switch (clickCounter % 3) {
                     case 0 :
@@ -148,6 +168,7 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
             }
         });
     }
+
     public JMenuBar createMenuBar() {
         JMenuBar menuBar;
         JMenu menu;
@@ -218,9 +239,13 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                 int result = fileChooser.showOpenDialog(frame);
                 if (result == JFileChooser.APPROVE_OPTION) {
                     File file = fileChooser.getSelectedFile();
-                    String selectedFile = "";
-                    selectedFile = file.getAbsolutePath();
+                    usedFile = file.getAbsolutePath();
                     System.out.println("Selected file: " + file.getAbsolutePath());
+                    List<Segment> list = loader.loadAsList(usedFile);
+                    this.maxHeight = loader.getMaxHeight();
+                    this.maxWidth = loader.getMaxWidth();
+                    this.root = usedHeuristic.createTree(list);
+                    panel.repaint();
                 }
                 break;
             case "Choose heuristic":
@@ -252,9 +277,9 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
         Graphics2D g2 = (Graphics2D) g;
         double scalex = (double) panel.getHeight()/(maxHeight+50);
         double scaley = (double) panel.getWidth()/(maxWidth+50);
-        min = Math.min(scalex,scaley);
+        sceneScale = Math.min(scalex,scaley);
         g2.translate((double) panel.getWidth()/2, (double) panel.getHeight()/2);
-        g2.scale(min,-min);
+        g2.scale(sceneScale,-sceneScale);
         this.paintSegments(g2, this.root);
             g2.setColor(Color.BLACK);
         if(povScaledPosition != null) {
@@ -336,7 +361,7 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
 
         double returnValue = 0;
 
-        if((line[0] == 1) && (line[1] == 0)) {
+        if(Math.abs(line[0]-1)<= Heuristic.EPSILON && (line[1] == 0)) {
             value = -(line[0]*pov.getPosition()[0] + line[1]*pov.getPosition()[1] +line[2]);
         }
 
@@ -390,6 +415,7 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                 double[] positionRelativeToLine2 = seg.computePosition(povLine2,povSegment2);
 
 
+
                 //Segment crosses
                 if(!Double.isNaN(positionRelativeToLine1[0]) && !Double.isInfinite(positionRelativeToLine1[0]) && !Double.isNaN(positionRelativeToLine2[0]) && !Double.isInfinite(positionRelativeToLine2[0])) {
                     g2.setColor(seg.getColor());
@@ -402,6 +428,7 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                     g2.draw(new Line2D.Double(intersection1[0],intersection1[1],intersection2[0],intersection2[1]));
                 }
 
+                /*
                 //povLine1 intersects the segment
                 else if(!Double.isNaN(positionRelativeToLine1[0]) & !Double.isInfinite(positionRelativeToLine1[0])) {
                     List<Segment> recursiveList1 = new LinkedList();
@@ -420,7 +447,7 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                     this.drawSegments(recursiveList2, g2);
 
                 }
-
+*/
             }
 
         }

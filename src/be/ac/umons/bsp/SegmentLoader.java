@@ -17,11 +17,6 @@ import java.util.List;
 public class SegmentLoader {
 
     /**
-     * String is the path to the desired file
-     */
-    private String path;
-
-    /**
      * Maximum value used in the abscissa space.
      */
     private double maxWidth;
@@ -33,17 +28,14 @@ public class SegmentLoader {
 
     /**
      * Constructor
-     * @param path the path to the desired file.
      */
-    public SegmentLoader(String path) {
-        this.path = path;
-    }
+    public SegmentLoader() {}
 
     /**
      * Reads the file and adds all the segments in it to a list, extracts the value of maxWidth and maxHeight.
      * @return a list containing all the segments in the file in order.
      */
-    public List<Segment> loadAsList() {
+    public List<Segment> loadAsList(String path) {
 
         LinkedList<Segment> segmentList = new LinkedList<Segment>();
 
@@ -127,4 +119,5 @@ public class SegmentLoader {
     public double getMaxHeight() {
         return maxHeight;
     }
+
 }

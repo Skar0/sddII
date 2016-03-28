@@ -101,9 +101,8 @@ public class MainMenu extends JFrame {
         createTree.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent event){
                 if(selectedFile != "" && heuristic != null) {
-                    SegmentLoader loader = new SegmentLoader(selectedFile);
                     frame.setResizable(true);
-                    frame.setContentPane(  new SegmentsPainter(heuristic.createTree(loader.loadAsList()), loader.getMaxWidth(), loader.getMaxHeight(), frame));
+                    frame.setContentPane(  new SegmentsPainter(heuristic, selectedFile, frame));
                     frame.revalidate();
                     frame.repaint();
                    // PovChooser povChooser= new PovChooser(heuristic.createTree(loader.loadAsList()));
