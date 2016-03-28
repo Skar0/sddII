@@ -20,7 +20,7 @@ public class FreeSplitsHeuristic implements Heuristic {
         segmentList.remove(0);
         BSPNode root = new BSPNode(null, null, segmentList, firstSegment);
         treeConstruction(root);
-        BSPNode.printNode(root);
+        //BSPNode.printNode(root);
         return root;
     }
 
@@ -52,15 +52,16 @@ public class FreeSplitsHeuristic implements Heuristic {
                 double[] intersection = seg.computePosition(hyperplaneLine, segInHyperplaneLine);
                 //If void intersection, put segment in right or left list of segments
                 if (Double.isInfinite(intersection[0])) {
+                    sideIntersection(seg, hyperplaneLine);
                     rightNodeSegments.add(seg);
                 } else if (Double.isNaN(intersection[0])) {
+                    sideIntersection(seg, hyperplaneLine);
                     leftNodeSegments.add(seg);
                 }
                 //If intersection, split the segment into two new segments
                 //TODO : peut être erreur lors de l'ajout des deux nouveaux segments, car gardent leur intersection ?
                 else {
                     Color color = seg.getColor();
-                    Segment line = currentNode.getSegmentsInLine().get(0);
                     Segment firstSegment = new Segment(intersection[0], intersection[1], seg.getX1(), seg.getY1(), color);
                     Segment secondSegment = new Segment(intersection[0], intersection[1], seg.getX2(), seg.getY2(), color);
                     if (seg.getIsIntersected1()){
@@ -69,8 +70,10 @@ public class FreeSplitsHeuristic implements Heuristic {
                     }
                     firstSegment.setIntersected1(true);
                     firstSegment.incrementCutCount();
+                    //No condition about a new intersection for the second segment because he is really new
                     secondSegment.setIntersected1(true);
                     secondSegment.incrementCutCount();
+
                     double firstIntersection[] = firstSegment.computePosition(hyperplaneLine, segInHyperplaneLine);
                     if (Double.isInfinite(firstIntersection[0])) {
                         //TODO Maybe need epsilon
@@ -108,6 +111,7 @@ public class FreeSplitsHeuristic implements Heuristic {
                     System.out.println("#######################################################");
                     */
                 }
+                //System.out.println("-----------------");
             }
 
             //Free splits strategy
@@ -123,13 +127,14 @@ public class FreeSplitsHeuristic implements Heuristic {
                         leftNodeSegments.remove(seg);
                         leftNode = new BSPNode(null, null, leftNodeSegments, seg);
                         currentNode.setLeftSon(leftNode);
+                        /*
                         System.out.println("Free split 1 worked with : " + leftNode + "\n");
                         System.out.println("Coordonnées : " +
                                 "(" + leftNode.getSegmentsInLine().get(0).getX1() +" ; "
                                 + leftNode.getSegmentsInLine().get(0).getY1() + ") , ("
                                 + leftNode.getSegmentsInLine().get(0).getX2() + " ; "
                                 + leftNode.getSegmentsInLine().get(0).getY2() + ").");
-
+                        */
                         break;
                     }
                 }
@@ -141,12 +146,14 @@ public class FreeSplitsHeuristic implements Heuristic {
                         rightNodeSegments.remove(seg);
                         rightNode = new BSPNode(null, null, rightNodeSegments, seg);
                         currentNode.setRightSon(rightNode);
+                        /*
                         System.out.println("Free split 2 worked with : " + rightNode + "\n");
                         System.out.println("Coordonnées : " +
                                 "(" + rightNode.getSegmentsInLine().get(0).getX1() +" ; "
                                 + rightNode.getSegmentsInLine().get(0).getY1() + ") , ("
                                 + rightNode.getSegmentsInLine().get(0).getX2() + " ; "
                                 + rightNode.getSegmentsInLine().get(0).getY2() + ").");
+                        */
                         break;
                     }
                 }
@@ -178,6 +185,21 @@ public class FreeSplitsHeuristic implements Heuristic {
             if (currentNode.getRightSon() != null)
                 treeConstruction(currentNode.getRightSon());
         }
+    }
+
+    public boolean sideIntersection(Segment seg, double [] line) {
+        if (((Math.abs(seg.getSide(line, seg.getX2(), seg.getY2())) < Heuristic.EPSILON) && !(Math.abs(seg.getSide(line, seg.getX1(), seg.getY1())) < Heuristic.EPSILON)) ||
+                (!(Math.abs(seg.getSide(line, seg.getX2(), seg.getY2())) < Heuristic.EPSILON) && (Math.abs(seg.getSide(line, seg.getX1(), seg.getY1()))) < Heuristic.EPSILON)) {
+            if (seg.getIsIntersected1()) {
+                seg.setIntersected2(true);
+                seg.incrementCutCount();
+            } else {
+                seg.incrementCutCount();
+                seg.setIntersected1(true);
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override public String toString() {

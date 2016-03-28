@@ -210,7 +210,6 @@ public class Segment {
 
     @Override
     public boolean equals(Object obj){
-        double EPSILON = 0.025; //Acceptable error on coordinates
         if (obj == null)
             return false;
         if (obj == this)
@@ -218,8 +217,8 @@ public class Segment {
         if (!(obj instanceof Segment))
             return false;
         Segment castedSegment = (Segment) obj;
-        return (Math.abs(this.x1 - castedSegment.x1) < EPSILON) && (Math.abs(this.x2 - castedSegment.x2) < EPSILON)
-                && (Math.abs(this.y1 - castedSegment.y1) < EPSILON) && (Math.abs(this.y2 - castedSegment.y2) < EPSILON);
+        return (Math.abs(this.x1 - castedSegment.x1) < Heuristic.EPSILON) && (Math.abs(this.x2 - castedSegment.x2) < Heuristic.EPSILON)
+                && (Math.abs(this.y1 - castedSegment.y1) < Heuristic.EPSILON) && (Math.abs(this.y2 - castedSegment.y2) < Heuristic.EPSILON);
     }
 
     public double getX1() {
