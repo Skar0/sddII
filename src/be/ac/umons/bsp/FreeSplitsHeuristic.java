@@ -64,14 +64,13 @@ public class FreeSplitsHeuristic implements Heuristic {
                     Color color = seg.getColor();
                     Segment firstSegment = new Segment(intersection[0], intersection[1], seg.getX1(), seg.getY1(), color);
                     Segment secondSegment = new Segment(intersection[0], intersection[1], seg.getX2(), seg.getY2(), color);
-                    if (seg.getIsIntersected1()){
-                        firstSegment.getIsIntersected2();
+                    if (seg.getIsIntersected()){
                         firstSegment.incrementCutCount();
                     }
-                    firstSegment.setIntersected1(true);
+                    firstSegment.setIntersected(true);
                     firstSegment.incrementCutCount();
                     //No condition about a new intersection for the second segment because he is really new
-                    secondSegment.setIntersected1(true);
+                    secondSegment.setIntersected(true);
                     secondSegment.incrementCutCount();
 
                     double firstIntersection[] = firstSegment.computePosition(hyperplaneLine, segInHyperplaneLine);
@@ -190,12 +189,11 @@ public class FreeSplitsHeuristic implements Heuristic {
     public boolean sideIntersection(Segment seg, double [] line) {
         if (((Math.abs(seg.getSide(line, seg.getX2(), seg.getY2())) < Heuristic.EPSILON) && !(Math.abs(seg.getSide(line, seg.getX1(), seg.getY1())) < Heuristic.EPSILON)) ||
                 (!(Math.abs(seg.getSide(line, seg.getX2(), seg.getY2())) < Heuristic.EPSILON) && (Math.abs(seg.getSide(line, seg.getX1(), seg.getY1()))) < Heuristic.EPSILON)) {
-            if (seg.getIsIntersected1()) {
-                seg.setIntersected2(true);
+            if (seg.getIsIntersected()) {
                 seg.incrementCutCount();
             } else {
                 seg.incrementCutCount();
-                seg.setIntersected1(true);
+                seg.setIntersected(true);
             }
             return true;
         }
@@ -207,8 +205,8 @@ public class FreeSplitsHeuristic implements Heuristic {
     }
 
     public static void main (String [] args){
-        SegmentLoader loader = new SegmentLoader("assets/other/free_splits.txt");
-        List<Segment>myList = loader.loadAsList();
+        SegmentLoader loader = new SegmentLoader();
+        List<Segment>myList = loader.loadAsList("assets/other/free_splits.txt");
         FreeSplitsHeuristic test = new FreeSplitsHeuristic();
         test.createTree(myList);
     }

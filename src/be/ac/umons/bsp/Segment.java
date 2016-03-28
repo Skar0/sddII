@@ -1,8 +1,6 @@
 package be.ac.umons.bsp;
 
 import java.awt.*;
-import java.awt.geom.Arc2D;
-import java.util.Objects;
 
 /**
  * This class represents a segment with its two points and its color. It is also used to compute the cutting line from a
@@ -34,8 +32,7 @@ public class Segment {
     private double y2;
 
     private int cutCount;
-    private boolean intersected1; //Boolean to know if the vertex (x1, y1) is intersected with another segment
-    private boolean intersected2; //Boolean to know if the vertex (x2, y2) is intersected with another segment
+    private boolean intersected; //Boolean to know if the segment is already intersected by an hyperplane
     private boolean isFreeSplit;
 
     /**
@@ -56,8 +53,7 @@ public class Segment {
         this.y1 = y1;
         this.x2 = x2;
         this.y2 = y2;
-        this.intersected1 = false;
-        this.intersected2 = false;
+        this.intersected = false;
         this.cutCount = 0;
         this.isFreeSplit = false;
         this.color = color;
@@ -259,13 +255,9 @@ public class Segment {
 
     public void setY2(double y2) { this.y2 = y2; }
 
-    public boolean getIsIntersected1() { return intersected1; }
+    public boolean getIsIntersected() { return intersected; }
 
-    public void setIntersected1(boolean intersected1) { this.intersected1 = intersected1; }
-
-    public boolean getIsIntersected2() { return intersected2;}
-
-    public void setIntersected2(boolean intersected2) { this.intersected2 = intersected2; }
+    public void setIntersected(boolean intersected1) { this.intersected = intersected1; }
 
     public int getCutCount() {return cutCount; }
 

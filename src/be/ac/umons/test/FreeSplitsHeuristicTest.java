@@ -67,8 +67,8 @@ public class FreeSplitsHeuristicTest {
     @Test
     public void treeTest1(){
         //Basic test with a few segments
-        loader = new SegmentLoader("assets/other/test.txt");
-        segmentList = loader.loadAsList();
+        loader = new SegmentLoader();
+        segmentList = loader.loadAsList("assets/other/test.txt");
         BSPNode root = heuristicTest.createTree(segmentList);
         practicalTreeSegments = generateSegmentList(root, new ArrayList<Segment>());
         theoreticalTreeSegments1.add(new Segment(7,9,15,9, Color.RED));
@@ -84,8 +84,8 @@ public class FreeSplitsHeuristicTest {
     @Test
     public void treeTest2(){
         //Test with more segments and three free splits
-        loader = new SegmentLoader("assets/other/free_splits.txt");
-        segmentList = loader.loadAsList();
+        loader = new SegmentLoader();
+        segmentList = loader.loadAsList("assets/other/free_splits.txt");
         BSPNode root = heuristicTest.createTree(segmentList);
         practicalTreeSegments = generateSegmentList(root, new ArrayList<Segment>());
         theoreticalTreeSegments1.add(new Segment(15.00053883605,9,7,9, Color.RED));
@@ -110,8 +110,8 @@ public class FreeSplitsHeuristicTest {
     @Test
     public void treeTest3(){
         //Test with 1 free split on the extremities of two segments (cutting their sides)
-        loader = new SegmentLoader("assets/other/free_splits2.txt");
-        segmentList = loader.loadAsList();
+        loader = new SegmentLoader();
+        segmentList = loader.loadAsList("assets/other/free_splits2.txt");
         BSPNode root = heuristicTest.createTree(segmentList);
         practicalTreeSegments = generateSegmentList(root, new ArrayList<Segment>());
         theoreticalTreeSegments1.add(new Segment(-1.86,-2.36,3.24,1.36,Color.RED));
