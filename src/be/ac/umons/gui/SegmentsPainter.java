@@ -25,7 +25,7 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
     private int scale = 1;
 
     //Input method for the pov
-    private int inputMode = 0;
+    private int inputMode = 1;
 
     //Scaling of the scene so it is contained in the frame
     private double sceneScale;
@@ -39,6 +39,7 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
     Heuristic usedHeuristic;
     String usedFile;
     SegmentLoader loader;
+    int usedAngle = 30;
 
     //Lines that represent the angle of the point of view
     private Line2D line1 = null;
@@ -130,7 +131,7 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                             lineToDraw2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], secondPoint[0] ,secondPoint[1]);
                             panel.revalidate();
                             panel.repaint();
-                            clickCounter+=1;
+                            clickCounter = 0;
                             pov = new Pov(line1,line2);
                             okPainter = true;
                         //TOREMOVE
@@ -228,10 +229,11 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
         System.out.println(source.getText());
         switch(source.getText()) {
             case "Help":
-                JOptionPane.showMessageDialog(frame, "EXPLIQUER FONCTIONNEMENT", "Help",JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "This program allows you to load a scene, choose a point of view and see what part of the scene is seen by it.\n " +
+                        "To choose a point of view, click once to choose the stating position of it. The next two clicks determine the positions of the two lines defining the point of view.", "Help",JOptionPane.INFORMATION_MESSAGE);
                 break;
             case "About":
-                JOptionPane.showMessageDialog(frame, "EXPLIQUER PAR QUI", "About",JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "This program was created by Clément Tamines and Jérémy Gheysen for the course \"Structures de données II\" in the University of Mons", "About",JOptionPane.INFORMATION_MESSAGE);
                 break;
             case "Choose file":
                 final JFileChooser fileChooser = new JFileChooser();
@@ -260,7 +262,10 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                         heuristics,
                         inor);
                         if ((s != null)) {
-                            System.out.println(s);
+                            this.usedHeuristic = s;
+                            List<Segment> list = loader.loadAsList(usedFile);
+                            this.root = usedHeuristic.createTree(list);
+                            panel.repaint();
                         }
 
         }
@@ -268,7 +273,38 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
 
     @Override
     public void itemStateChanged(ItemEvent itemEvent) {
+        JMenuItem source = (JMenuItem)(itemEvent.getSource());
+        if(itemEvent.getStateChange() == ItemEvent.SELECTED && source.getText() == "Manual angle selection") {
+            this.inputMode = 1;
+            System.out.println("MANUAL");
+        }
+        if(itemEvent.getStateChange() == ItemEvent.SELECTED && source.getText() == "Choose angle") {
+            this.inputMode = 2;
+            System.out.println("CHOOSE");
+            int i = -1;
+            do {
+                String input = (String) JOptionPane.showInputDialog(
+                        frame,
+                        "Angle selection",
+                        "Input an integer angle between 1 and 179",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        1);
+                try {
+                    if(input != null) {
+                        i = Integer.parseInt(input);
+                    }
+                    else {
+                        i = usedAngle;
+                    }
 
+                } catch (NumberFormatException e) {
+                    i = -1;
+                }
+            } while(i < 1 || i > 179);
+            this.usedAngle = i;
+        }
     }
 
     public void paintComponent(Graphics g) {
@@ -509,8 +545,18 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
             }
 
             else if( (toAbsDeg(angle1) < 90 || toAbsDeg(angle2) < 90) && toAbsDeg(angle1) > toAbsDeg(semiAngle) && toAbsDeg(angle2) > toAbsDeg(semiAngle) && ( (toDeg(angle1) >= 0 && toDeg(angle2) < 0) | (toDeg(angle1) < 0 && toDeg(angle2) >= 0)) ) {
-                g2.setColor(seg.getColor());
-                g2.draw(new Line2D.Double(bound1[0],bound1[1],bound2[0],bound2[1]));
+
+                double[] inter1 = seg.computePosition(povLine1,povSegment1);
+                double[] inter2 = seg.computePosition(povLine2,povSegment2);
+
+                if(!Double.isInfinite(inter1[0]) && !Double.isNaN(inter1[0]) && !Double.isInfinite(inter2[0]) && !Double.isNaN(inter2[0]) ) {
+                    List<Segment> tempList = new LinkedList<>();
+                    tempList.add(new Segment(inter1[0],inter1[1],inter2[0],inter2[1],seg.getColor()));
+                    this.drawSegments(tempList,g2);
+                }
+
+                //g2.setColor(seg.getColor());
+                //g2.draw(new Line2D.Double(bound1[0],bound1[1],bound2[0],bound2[1]));
             }
         }
 
