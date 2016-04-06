@@ -201,6 +201,24 @@ public class BSPNode {
     }
 
     /**
+     * Recursively computes the number of segments in the tree this BSPNode is the root of.
+     * @return An integer giving the number of segments in the tree.
+     */
+    public int getSizeInSegments() {
+
+        if(this.isLeaf()) {
+            return this.getSegmentsInLine().size();
+        }
+        if(this.hasNoRightSon()) {
+            return this.getSegmentsInLine().size() + this.leftSon.getSizeInSegments();
+        }
+        else if (this.hasNoLeftSon()) {
+            return this.getSegmentsInLine().size() + this.rightSon.getSizeInSegments();
+        }
+        else return (this.getSegmentsInLine().size() +this.leftSon.getSizeInSegments()+this.rightSon.getSizeInSegments());
+    }
+
+    /**
      *
      * @return the segments on the same line as the cutting line.
      */
