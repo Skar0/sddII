@@ -88,13 +88,14 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                 double x_scaled = ( e.getPoint().getX() - ( (double) panel.getWidth()/2.0) )/sceneScale;
                 double y_scaled = ( -(e.getPoint().getY() - ( (double) panel.getHeight()/2.0)) )/sceneScale;
 
-                switch (clickCounter % 3) {
-                    case 0 :
+                if(inputMode == 1) {
+                    switch (clickCounter % 3) {
+                        case 0:
                             //
                             okPainter = false;
 
                             //
-                            lineToDraw1 =null;
+                            lineToDraw1 = null;
                             lineToDraw2 = null;
                             pov.setProjectionLine(null);
 
@@ -105,46 +106,83 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                             povPosition = new double[2];
                             povPosition[0] = x;
                             povPosition[1] = y;
-                            clickCounter+=1;
+                            clickCounter += 1;
 
                             panel.revalidate();
                             panel.repaint();
 
                             break;
-                    case 1 :
-                            line1 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], x_scaled ,y_scaled);
-                            lineToDraw1 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], x_scaled ,y_scaled);
-                            norm = Math.sqrt( Math.pow(x_scaled-povScaledPosition[0],2) + Math.pow(y_scaled-povScaledPosition[1],2));
-
+                        case 1:
+                            line1 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], x_scaled, y_scaled);
+                            norm = Math.sqrt(Math.pow(x_scaled - povScaledPosition[0], 2) + Math.pow(y_scaled - povScaledPosition[1], 2));
+                            double[] vector2 = {(x_scaled - povScaledPosition[0]) / norm, (y_scaled - povScaledPosition[1]) / norm};
+                            lineToDraw1 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], povScaledPosition[0] + (vector2[0] * (norm + 10)), povScaledPosition[1] + (vector2[1] * (norm + 10)));
                             panel.revalidate();
                             panel.repaint();
-                            clickCounter+=1;
+                            clickCounter += 1;
                             break;
-                    case 2 :
+                        case 2:
 
                             //TODO ici on crée le pov, on dessine le panel
-                            double vectorNorm = Math.sqrt( Math.pow(x_scaled-povScaledPosition[0],2) + Math.pow(y_scaled-povScaledPosition[1],2));
-                            double[] vector = {(x_scaled-povScaledPosition[0])/vectorNorm , (y_scaled-povScaledPosition[1])/vectorNorm};
-                            double[] secondPoint = {povScaledPosition[0]+(vector[0]*norm), povScaledPosition[1]+(vector[1]*norm)};
+                            double vectorNorm = Math.sqrt(Math.pow(x_scaled - povScaledPosition[0], 2) + Math.pow(y_scaled - povScaledPosition[1], 2));
+                            double[] vector = {(x_scaled - povScaledPosition[0]) / vectorNorm, (y_scaled - povScaledPosition[1]) / vectorNorm};
+                            double[] secondPoint = {povScaledPosition[0] + (vector[0] * norm), povScaledPosition[1] + (vector[1] * norm)};
 
-                            line2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], secondPoint[0] ,secondPoint[1]);
-                            lineToDraw2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], secondPoint[0] ,secondPoint[1]);
+                            line2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], secondPoint[0], secondPoint[1]);
+                            lineToDraw2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], povScaledPosition[0] + (vector[0] * (norm + 10)), povScaledPosition[1] + (vector[1] * (norm + 10)));
                             panel.revalidate();
                             panel.repaint();
                             clickCounter = 0;
-                            pov = new Pov(line1,line2);
+                            pov = new Pov(line1, line2);
                             okPainter = true;
-                        //TOREMOVE
-                        /*
-                        JFrame testFrame = new JFrame();
-                        testFrame.setSize(600,600);
-                        testFrame.setContentPane(new PaintersAlgorithm(pov,root));
-                        testFrame.setVisible(true);
-                        */
-                        //
-                             break;
+                            //TOREMOVE
+                            /*
+                            JFrame testFrame = new JFrame();
+                            testFrame.setSize(600,600);
+                            testFrame.setContentPane(new PaintersAlgorithm(pov,root));
+                            testFrame.setVisible(true);
+                            */
+                            //
+                            break;
+                    }
                 }
+                else {
+                    switch(clickCounter%2) {
+                        case 0 :
+                            //
+                            okPainter = false;
 
+                            //
+                            lineToDraw1 = null;
+                            lineToDraw2 = null;
+                            pov.setProjectionLine(null);
+
+                            povScaledPosition = new double[2];
+                            povScaledPosition[0] = x_scaled;
+                            povScaledPosition[1] = y_scaled;
+                            clickCounter++;
+                            break;
+                        case 1 :
+                            double[] directorVector = {x_scaled-povScaledPosition[0], y_scaled-povScaledPosition[1]};
+                            //(x cos alpha + y sin alpha, -x sin alpha + y cos alpha).
+                            double[] vector1 = {(directorVector[0]*Math.cos(Math.toRadians(usedAngle)/2D)) +(directorVector[1]*Math.sin(Math.toRadians(usedAngle)/2D)),(-directorVector[0]*Math.sin(Math.toRadians(usedAngle)/2D))+(directorVector[1]*Math.cos(Math.toRadians(usedAngle)/2D))};
+                            double[] vector2 = {(directorVector[0]*Math.cos((Math.toRadians(-usedAngle))/2D)) +(directorVector[1]*Math.sin((Math.toRadians(-usedAngle))/2D)),(-directorVector[0]*Math.sin((Math.toRadians(-usedAngle))/2D))+(directorVector[1]*Math.cos((Math.toRadians(-usedAngle))/2D))};
+
+                            line1 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector1[0],povScaledPosition[1]+vector1[1]);
+                            lineToDraw1 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector1[0]*1.05,povScaledPosition[1]+vector1[1]*1.05);
+
+                            line2 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector2[0],povScaledPosition[1]+vector2[1]);
+                            lineToDraw2 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector2[0]*1.05,povScaledPosition[1]+vector2[1]*1.05);
+
+
+                            panel.revalidate();
+                            panel.repaint();
+                            clickCounter = 0;
+                            pov = new Pov(line1, line2);
+                            okPainter = true;
+                            break;
+                    }
+                }
 
             }
 
@@ -327,13 +365,16 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
         if(lineToDraw2 != null) {
             g2.draw(lineToDraw2);
         }
+        /*
         if(pov.getProjectionLine() != null) {
             g2.draw(pov.getProjectionLine());
         }
+        */
+        /*
         if(pov.getDirectorVector() != null) {
             g2.draw(pov.getDirectorVector());
         }
-
+        */
         //
         if(okPainter) {
             debug = 10;
@@ -391,6 +432,32 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
         }
     }
 
+    public void paintersAlgorithmForBenchmark(BSPNode root) {
+        if (root != null) {
+            if (root.isLeaf()) {
+                for(Segment seg : root.getSegmentsInLine() ) {
+                    //
+                }
+            } else if (getPovPosition(root).isInfinite()) {
+                paintersAlgorithmForBenchmark(root.getLeftSon());
+                for(Segment seg : root.getSegmentsInLine() ) {
+                    //
+                }
+                paintersAlgorithmForBenchmark(root.getRightSon());
+            } else if (getPovPosition(root).isNaN()) {
+                paintersAlgorithmForBenchmark(root.getRightSon());
+                for(Segment seg : root.getSegmentsInLine() ) {
+                    //
+                }
+                paintersAlgorithmForBenchmark(root.getLeftSon());
+            } else {
+                paintersAlgorithmForBenchmark(root.getRightSon());
+                paintersAlgorithmForBenchmark(root.getLeftSon());
+            }
+        }
+    }
+
+
     private Double getPovPosition(BSPNode root) {
         double[] line = root.getLine();
 
@@ -433,6 +500,15 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
         double[] bound1 = {pov.getLine1().getX2(), pov.getLine1().getY2()};
         double[] bound2 = {pov.getLine2().getX2(), pov.getLine2().getY2()};
 
+        //TODO mettre en instance
+        double minBound = Math.min(bound1[0],bound2[0]);
+        double y = (maxHeight/2)+20;
+        //double u = (double)( maxWidth/Math.abs(bound1[0]-bound2[0]))/scale;
+        double u = maxWidth/Math.abs(bound1[0]-bound2[0]);
+        double t = maxWidth/Math.abs(bound1[0]-bound2[0]);
+        System.out.println(maxWidth+ " "+Math.abs(bound1[0]-bound2[0]));
+        AffineTransform orig = g2.getTransform();
+       //
        // g2.setColor(Color.red);
        // g2.draw(new Line2D.Double(pov.getLine1().getX1(), pov.getLine1().getY1(),pov.getLine1().getX2(),pov.getLine1().getY2()));
         //g2.draw(new Line2D.Double(pov.getLine2().getX1(), pov.getLine2().getY1(),pov.getLine2().getX2(),pov.getLine2().getY2()));
@@ -459,6 +535,10 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
 
                 g2.setColor(seg.getColor());
                 g2.draw(new Line2D.Double(intersection1[0],intersection1[1],intersection2[0],intersection2[1]));
+
+                //
+                g2.draw(new Line2D.Double(((intersection1[0]-minBound)*u)-(maxWidth/2),y,((intersection2[0]-minBound)*u)-(maxWidth/2),y));
+                //
             }
 
             else if(toAbsDeg(angle1) <= (toAbsDeg(semiAngle)+Heuristic.EPSILON) && toAbsDeg(angle2) > (toAbsDeg(semiAngle)+Heuristic.EPSILON) ) {
@@ -477,12 +557,18 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                         double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                         g2.setColor(seg.getColor());
                         g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
+                        //
+                        g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2), y,((intersection1[0]-minBound)*u)-(maxWidth/2), y));
+
                     }
                     else{
                         double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
                         double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                         g2.setColor(seg.getColor());
                         g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
+
+                        //
+                        g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2), y,((intersection1[0]-minBound)*u)-(maxWidth/2), y));
                     }
 
                 }
@@ -492,6 +578,8 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                     double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                     g2.setColor(seg.getColor());
                     g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
+                    //
+                    g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2),y,((intersection1[0]-minBound)*u)-(maxWidth/2),y));
                 }
                 //bound coté povsegment2 + seg x1,x2
                 else if(!Double.isInfinite(inter2[0]) && !Double.isNaN(inter2[0])) {
@@ -499,6 +587,8 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                     double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                     g2.setColor(seg.getColor());
                     g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
+                    //
+                    g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2),y,((bound2[0]-minBound)*u)-(maxWidth/2),y));
                 }
             }
 
@@ -519,12 +609,16 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                         double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                         g2.setColor(seg.getColor());
                         g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
+                        //
+                        g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2),y,((intersection1[0]-minBound)*u)-(maxWidth/2),y));
                     }
                     else {
                         double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
                         double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                         g2.setColor(seg.getColor());
                         g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
+                        //
+                        g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2),y,((bound2[0]-minBound)*u)-(maxWidth/2),y));
                     }
 
                 }
@@ -534,6 +628,8 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                     double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                     g2.setColor(seg.getColor());
                     g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
+                    //
+                    g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2),y,((intersection1[0]-minBound)*u)-(maxWidth/2),y));
                 }
                 //bound coté povsegment2 + seg x1,x2
                 else if(!Double.isInfinite(inter2[0]) && !Double.isNaN(inter2[0])) {
@@ -541,6 +637,8 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                     double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                     g2.setColor(seg.getColor());
                     g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
+                    //
+                    g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2),y,((intersection1[0]-minBound)*u)-(maxWidth/2),y));
                 }
             }
 
@@ -559,6 +657,8 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                 //g2.draw(new Line2D.Double(bound1[0],bound1[1],bound2[0],bound2[1]));
             }
         }
+
+        g2.setTransform(orig);
 
        // debug+=20;
 /*
