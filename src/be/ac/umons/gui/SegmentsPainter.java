@@ -88,13 +88,14 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                 double x_scaled = ( e.getPoint().getX() - ( (double) panel.getWidth()/2.0) )/sceneScale;
                 double y_scaled = ( -(e.getPoint().getY() - ( (double) panel.getHeight()/2.0)) )/sceneScale;
 
-                switch (clickCounter % 3) {
-                    case 0 :
+                if(inputMode == 1) {
+                    switch (clickCounter % 3) {
+                        case 0:
                             //
                             okPainter = false;
 
                             //
-                            lineToDraw1 =null;
+                            lineToDraw1 = null;
                             lineToDraw2 = null;
                             pov.setProjectionLine(null);
 
@@ -105,46 +106,83 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                             povPosition = new double[2];
                             povPosition[0] = x;
                             povPosition[1] = y;
-                            clickCounter+=1;
+                            clickCounter += 1;
 
                             panel.revalidate();
                             panel.repaint();
 
                             break;
-                    case 1 :
-                            line1 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], x_scaled ,y_scaled);
-                            norm = Math.sqrt( Math.pow(x_scaled-povScaledPosition[0],2) + Math.pow(y_scaled-povScaledPosition[1],2));
-                            double[] vector2 = {(x_scaled-povScaledPosition[0])/norm , (y_scaled-povScaledPosition[1])/norm};
-                             lineToDraw1 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1],povScaledPosition[0]+(vector2[0]*(norm+10)) ,povScaledPosition[1]+(vector2[1]*(norm+10)));
+                        case 1:
+                            line1 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], x_scaled, y_scaled);
+                            norm = Math.sqrt(Math.pow(x_scaled - povScaledPosition[0], 2) + Math.pow(y_scaled - povScaledPosition[1], 2));
+                            double[] vector2 = {(x_scaled - povScaledPosition[0]) / norm, (y_scaled - povScaledPosition[1]) / norm};
+                            lineToDraw1 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], povScaledPosition[0] + (vector2[0] * (norm + 10)), povScaledPosition[1] + (vector2[1] * (norm + 10)));
                             panel.revalidate();
                             panel.repaint();
-                            clickCounter+=1;
+                            clickCounter += 1;
                             break;
-                    case 2 :
+                        case 2:
 
                             //TODO ici on crée le pov, on dessine le panel
-                            double vectorNorm = Math.sqrt( Math.pow(x_scaled-povScaledPosition[0],2) + Math.pow(y_scaled-povScaledPosition[1],2));
-                            double[] vector = {(x_scaled-povScaledPosition[0])/vectorNorm , (y_scaled-povScaledPosition[1])/vectorNorm};
-                            double[] secondPoint = {povScaledPosition[0]+(vector[0]*norm), povScaledPosition[1]+(vector[1]*norm)};
+                            double vectorNorm = Math.sqrt(Math.pow(x_scaled - povScaledPosition[0], 2) + Math.pow(y_scaled - povScaledPosition[1], 2));
+                            double[] vector = {(x_scaled - povScaledPosition[0]) / vectorNorm, (y_scaled - povScaledPosition[1]) / vectorNorm};
+                            double[] secondPoint = {povScaledPosition[0] + (vector[0] * norm), povScaledPosition[1] + (vector[1] * norm)};
 
-                            line2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], secondPoint[0] ,secondPoint[1]);
-                            lineToDraw2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], povScaledPosition[0]+(vector[0]*(norm+10)) ,povScaledPosition[1]+(vector[1]*(norm+10)));
+                            line2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], secondPoint[0], secondPoint[1]);
+                            lineToDraw2 = new Line2D.Double(povScaledPosition[0], povScaledPosition[1], povScaledPosition[0] + (vector[0] * (norm + 10)), povScaledPosition[1] + (vector[1] * (norm + 10)));
                             panel.revalidate();
                             panel.repaint();
                             clickCounter = 0;
-                            pov = new Pov(line1,line2);
+                            pov = new Pov(line1, line2);
                             okPainter = true;
-                        //TOREMOVE
-                        /*
-                        JFrame testFrame = new JFrame();
-                        testFrame.setSize(600,600);
-                        testFrame.setContentPane(new PaintersAlgorithm(pov,root));
-                        testFrame.setVisible(true);
-                        */
-                        //
-                             break;
+                            //TOREMOVE
+                            /*
+                            JFrame testFrame = new JFrame();
+                            testFrame.setSize(600,600);
+                            testFrame.setContentPane(new PaintersAlgorithm(pov,root));
+                            testFrame.setVisible(true);
+                            */
+                            //
+                            break;
+                    }
                 }
+                else {
+                    switch(clickCounter%2) {
+                        case 0 :
+                            //
+                            okPainter = false;
 
+                            //
+                            lineToDraw1 = null;
+                            lineToDraw2 = null;
+                            pov.setProjectionLine(null);
+
+                            povScaledPosition = new double[2];
+                            povScaledPosition[0] = x_scaled;
+                            povScaledPosition[1] = y_scaled;
+                            clickCounter++;
+                            break;
+                        case 1 :
+                            double[] directorVector = {x_scaled-povScaledPosition[0], y_scaled-povScaledPosition[1]};
+                            //(x cos alpha + y sin alpha, -x sin alpha + y cos alpha).
+                            double[] vector1 = {(directorVector[0]*Math.cos(usedAngle/2D)) +(directorVector[1]*Math.sin(usedAngle/2D)),(-directorVector[0]*Math.sin(usedAngle/2D))+(directorVector[1]*Math.cos(usedAngle/2D))};
+                            double[] vector2 = {(directorVector[0]*Math.cos((-180+usedAngle)/2D)) +(directorVector[1]*Math.sin((-180+usedAngle)/2D)),(-directorVector[0]*Math.sin((-180+usedAngle)/2D))+(directorVector[1]*Math.cos((-180+usedAngle)/2D))};
+
+                            line1 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector1[0],povScaledPosition[1]+vector1[1]);
+                            lineToDraw1 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector1[0],povScaledPosition[1]+vector1[1]);
+
+                            line2 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector2[0],povScaledPosition[1]+vector2[1]);
+                            lineToDraw2 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector2[0],povScaledPosition[1]+vector2[1]);
+
+
+                            panel.revalidate();
+                            panel.repaint();
+                            clickCounter = 0;
+                            pov = new Pov(line1, line2);
+                            okPainter = true;
+                            break;
+                    }
+                }
 
             }
 
@@ -393,6 +431,32 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
             }
         }
     }
+
+    public void paintersAlgorithmForBenchmark(BSPNode root) {
+        if (root != null) {
+            if (root.isLeaf()) {
+                for(Segment seg : root.getSegmentsInLine() ) {
+                    //
+                }
+            } else if (getPovPosition(root).isInfinite()) {
+                paintersAlgorithmForBenchmark(root.getLeftSon());
+                for(Segment seg : root.getSegmentsInLine() ) {
+                    //
+                }
+                paintersAlgorithmForBenchmark(root.getRightSon());
+            } else if (getPovPosition(root).isNaN()) {
+                paintersAlgorithmForBenchmark(root.getRightSon());
+                for(Segment seg : root.getSegmentsInLine() ) {
+                    //
+                }
+                paintersAlgorithmForBenchmark(root.getLeftSon());
+            } else {
+                paintersAlgorithmForBenchmark(root.getRightSon());
+                paintersAlgorithmForBenchmark(root.getLeftSon());
+            }
+        }
+    }
+
 
     private Double getPovPosition(BSPNode root) {
         double[] line = root.getLine();
