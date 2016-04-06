@@ -165,14 +165,14 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                         case 1 :
                             double[] directorVector = {x_scaled-povScaledPosition[0], y_scaled-povScaledPosition[1]};
                             //(x cos alpha + y sin alpha, -x sin alpha + y cos alpha).
-                            double[] vector1 = {(directorVector[0]*Math.cos(usedAngle/2D)) +(directorVector[1]*Math.sin(usedAngle/2D)),(-directorVector[0]*Math.sin(usedAngle/2D))+(directorVector[1]*Math.cos(usedAngle/2D))};
-                            double[] vector2 = {(directorVector[0]*Math.cos((-180+usedAngle)/2D)) +(directorVector[1]*Math.sin((-180+usedAngle)/2D)),(-directorVector[0]*Math.sin((-180+usedAngle)/2D))+(directorVector[1]*Math.cos((-180+usedAngle)/2D))};
+                            double[] vector1 = {(directorVector[0]*Math.cos(Math.toRadians(usedAngle)/2D)) +(directorVector[1]*Math.sin(Math.toRadians(usedAngle)/2D)),(-directorVector[0]*Math.sin(Math.toRadians(usedAngle)/2D))+(directorVector[1]*Math.cos(Math.toRadians(usedAngle)/2D))};
+                            double[] vector2 = {(directorVector[0]*Math.cos((Math.toRadians(-usedAngle))/2D)) +(directorVector[1]*Math.sin((Math.toRadians(-usedAngle))/2D)),(-directorVector[0]*Math.sin((Math.toRadians(-usedAngle))/2D))+(directorVector[1]*Math.cos((Math.toRadians(-usedAngle))/2D))};
 
                             line1 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector1[0],povScaledPosition[1]+vector1[1]);
-                            lineToDraw1 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector1[0],povScaledPosition[1]+vector1[1]);
+                            lineToDraw1 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector1[0]*1.05,povScaledPosition[1]+vector1[1]*1.05);
 
                             line2 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector2[0],povScaledPosition[1]+vector2[1]);
-                            lineToDraw2 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector2[0],povScaledPosition[1]+vector2[1]);
+                            lineToDraw2 = new Line2D.Double(povScaledPosition[0],povScaledPosition[1],povScaledPosition[0]+vector2[0]*1.05,povScaledPosition[1]+vector2[1]*1.05);
 
 
                             panel.revalidate();
