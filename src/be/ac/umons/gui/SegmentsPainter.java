@@ -508,6 +508,10 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
         double t = maxWidth/Math.abs(bound1[0]-bound2[0]);
         System.out.println(maxWidth+ " "+Math.abs(bound1[0]-bound2[0]));
         AffineTransform orig = g2.getTransform();
+
+        if(toAbsDeg(this.computeAngle(pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(),pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1()+10,pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(),pov.getDirectorVector().getX2(),pov.getDirectorVector().getY2())) > 90) {
+            g2.scale(-scale,scale);
+        }
        //
        // g2.setColor(Color.red);
        // g2.draw(new Line2D.Double(pov.getLine1().getX1(), pov.getLine1().getY1(),pov.getLine1().getX2(),pov.getLine1().getY2()));
@@ -534,10 +538,11 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                 double[] intersection2 = this.computeIntersection(povToSegmentExtremity2,projectionLine);
 
                 g2.setColor(seg.getColor());
+                g2.draw(new Line2D.Double(((intersection1[0]-minBound)*u)-(maxWidth/2),y,((intersection2[0]-minBound)*u)-(maxWidth/2),y));
+
+                g2.setTransform(orig);
                 g2.draw(new Line2D.Double(intersection1[0],intersection1[1],intersection2[0],intersection2[1]));
 
-                //
-                g2.draw(new Line2D.Double(((intersection1[0]-minBound)*u)-(maxWidth/2),y,((intersection2[0]-minBound)*u)-(maxWidth/2),y));
                 //
             }
 
@@ -556,19 +561,19 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                         double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
                         double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                         g2.setColor(seg.getColor());
-                        g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
                         //
                         g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2), y,((intersection1[0]-minBound)*u)-(maxWidth/2), y));
-
+                        g2.setTransform(orig);
+                        g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
                     }
                     else{
                         double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
                         double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                         g2.setColor(seg.getColor());
-                        g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
 
-                        //
                         g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2), y,((intersection1[0]-minBound)*u)-(maxWidth/2), y));
+                        g2.setTransform(orig);
+                        g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
                     }
 
                 }
@@ -577,18 +582,20 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                     double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
                     double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                     g2.setColor(seg.getColor());
-                    g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
                     //
                     g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2),y,((intersection1[0]-minBound)*u)-(maxWidth/2),y));
+                    g2.setTransform(orig);
+                    g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
                 }
                 //bound coté povsegment2 + seg x1,x2
                 else if(!Double.isInfinite(inter2[0]) && !Double.isNaN(inter2[0])) {
                     double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
                     double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                     g2.setColor(seg.getColor());
+                    g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2),y,((bound2[0]-minBound)*u)-(maxWidth/2),y));
+                    g2.setTransform(orig);
                     g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
                     //
-                    g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2),y,((bound2[0]-minBound)*u)-(maxWidth/2),y));
                 }
             }
 
@@ -608,17 +615,19 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                         double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
                         double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                         g2.setColor(seg.getColor());
-                        g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
                         //
                         g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2),y,((intersection1[0]-minBound)*u)-(maxWidth/2),y));
+                        g2.setTransform(orig);
+                        g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
                     }
                     else {
                         double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
                         double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                         g2.setColor(seg.getColor());
-                        g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
                         //
                         g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2),y,((bound2[0]-minBound)*u)-(maxWidth/2),y));
+                        g2.setTransform(orig);
+                        g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
                     }
 
                 }
@@ -627,18 +636,20 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                     double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
                     double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                     g2.setColor(seg.getColor());
-                    g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
                     //
                     g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2),y,((intersection1[0]-minBound)*u)-(maxWidth/2),y));
+                    g2.setTransform(orig);
+                    g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
                 }
                 //bound coté povsegment2 + seg x1,x2
                 else if(!Double.isInfinite(inter2[0]) && !Double.isNaN(inter2[0])) {
                     double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
                     double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                     g2.setColor(seg.getColor());
-                    g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
                     //
                     g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2),y,((intersection1[0]-minBound)*u)-(maxWidth/2),y));
+                    g2.setTransform(orig);
+                    g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
                 }
             }
 
@@ -650,6 +661,7 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                 if(!Double.isInfinite(inter1[0]) && !Double.isNaN(inter1[0]) && !Double.isInfinite(inter2[0]) && !Double.isNaN(inter2[0]) ) {
                     List<Segment> tempList = new LinkedList<>();
                     tempList.add(new Segment(inter1[0],inter1[1],inter2[0],inter2[1],seg.getColor()));
+                    g2.setTransform(orig);
                     this.drawSegments(tempList,g2);
                 }
 
