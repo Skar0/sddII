@@ -480,177 +480,193 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
         return returnValue;
     }
 
+    /**
+     * Draws all the segments and parts of segments in the list visible by the point of view
+     * @param segments the list of segments
+     * @param g2 the graphical object on which the segments are drawn
+     */
     public void drawSegments(java.util.List<Segment> segments, Graphics2D g2) {
+        //First we compute the lines that make the point of view
         double[] povLine1 = this.computeLine(pov.getLine1().getX1(), pov.getLine1().getY1(),pov.getLine1().getX2(),pov.getLine1().getY2());
         Segment povSegment1 = new Segment(pov.getLine1().getX1(), pov.getLine1().getY1(),pov.getLine1().getX2(),pov.getLine1().getY2(), Color.PINK);
         double[] povLine2 = this.computeLine(pov.getLine2().getX1(), pov.getLine2().getY1(),pov.getLine2().getX2(),pov.getLine2().getY2());
         Segment povSegment2 = new Segment(pov.getLine2().getX1(), pov.getLine2().getY1(),pov.getLine2().getX2(),pov.getLine2().getY2(), Color.PINK);
+
         double[] povPosition = pov.getPosition();
+
+        //Angle between the director vector (bisectrix of both povLines) and one of the povLines (giving us half of the angle of the pov
         double semiAngle = this.computeAngle(pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(),pov.getDirectorVector().getX2(),pov.getDirectorVector().getY2(),pov.getLine2().getX1(),pov.getLine2().getY1(),pov.getLine2().getX2(),pov.getLine2().getY2());
 
+        //The projection line joins both ends of the segments that make the point of view
         double[] projectionLine = this.computeLine(pov.getProjectionLine().getX1(), pov.getProjectionLine().getY1(),pov.getProjectionLine().getX2(),pov.getProjectionLine().getY2());
 
+        //both "bounds" ie ends of the projection segment
         double[] bound1 = {pov.getLine1().getX2(), pov.getLine1().getY2()};
         double[] bound2 = {pov.getLine2().getX2(), pov.getLine2().getY2()};
-
-        //TODO mettre en instance
         double minBound = Math.min(bound1[0],bound2[0]);
+
+        //y coordinate where the zoomed version of the painter's algorithm will be drawn
         double y = (maxHeight/2)+20;
-        //double u = (double)( maxWidth/Math.abs(bound1[0]-bound2[0]))/scale;
+
         double u = maxWidth/Math.abs(bound1[0]-bound2[0]);
-        double t = maxWidth/Math.abs(bound1[0]-bound2[0]);
-        System.out.println(maxWidth+ " "+Math.abs(bound1[0]-bound2[0]));
+
+        //Keeping track of the original transform on the g2 object
         AffineTransform orig = g2.getTransform();
 
+        //If the we are looking down, segments must be reversed when displaying the zoomed version (angle between the director vector and y-axis > 90°)
         if(toAbsDeg(this.computeAngle(pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(),pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1()+10,pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(),pov.getDirectorVector().getX2(),pov.getDirectorVector().getY2())) > 90) {
             g2.scale(-scale,scale);
         }
-       //
-       // g2.setColor(Color.red);
-       // g2.draw(new Line2D.Double(pov.getLine1().getX1(), pov.getLine1().getY1(),pov.getLine1().getX2(),pov.getLine1().getY2()));
-        //g2.draw(new Line2D.Double(pov.getLine2().getX1(), pov.getLine2().getY1(),pov.getLine2().getX2(),pov.getLine2().getY2()));
-        //g2.setColor(Color.cyan);
-        //g2.draw(pov.getProjectionLine());
-        //AffineTransform orig = g2.getTransform();
-       // g2.scale(1,-1);
-       // g2.drawString(""+Math.toDegrees(semiAngle),0,0);
 
+        //For each segment, we check if it is visible by the pov
         for(Segment seg : segments) {
+
+            //Angles between the director vector and the lines from the pov origin to the ends of the segment
             double angle1 = computeAngle(pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(), pov.getDirectorVector().getX2(),pov.getDirectorVector().getY2(), povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
             double angle2 = computeAngle(pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(), pov.getDirectorVector().getX2(),pov.getDirectorVector().getY2(),povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
-           // g2.setColor(seg.getColor());
-            //g2.drawString(""+Math.toDegrees(angle1),0,debug);
-           // g2.drawString(""+Math.toDegrees(angle2),0,debug+10);
 
-            //g2.setTransform(orig);
-
+            //If both angles are smaller than the semi angle the segment is completely seen by the pov
             if(toAbsDeg(angle1) <= (toAbsDeg(semiAngle)+Heuristic.EPSILON) && toAbsDeg(angle2) <= (toAbsDeg(semiAngle)+Heuristic.EPSILON) ) {
+
+                //We compute the lines from the pov position to the ends of the segment and then the intersection of those
+                //lines with the projection line
                 double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
                 double[] povToSegmentExtremity2 = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
                 double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
                 double[] intersection2 = this.computeIntersection(povToSegmentExtremity2,projectionLine);
 
+                //Getting the right color for the segment
                 g2.setColor(seg.getColor());
+                //Zoomed version of the painter's algorithm (starting on top of the frame, scaled to take more space
                 g2.draw(new Line2D.Double(((intersection1[0]-minBound)*u)-(maxWidth/2),y,((intersection2[0]-minBound)*u)-(maxWidth/2),y));
-
+                //x-axis might be flipped because of the test above, we make sure to put the axes back to normal
                 g2.setTransform(orig);
+                //Drawing the intersections directly on the pov lines
                 g2.draw(new Line2D.Double(intersection1[0],intersection1[1],intersection2[0],intersection2[1]));
-
-                //
             }
 
+            //If one of the angles is bigger and one is smaller, we know the segment is cut by one of the povLines, in this case
+            //point (x1,y1) of the segment is inside the view, we want to know the intersection with povLine1 OR povLine2 in order
+            //to display the cut segment
             else if(toAbsDeg(angle1) <= (toAbsDeg(semiAngle)+Heuristic.EPSILON) && toAbsDeg(angle2) > (toAbsDeg(semiAngle)+Heuristic.EPSILON) ) {
-                //point dedans seg.getx1, seg.gety1
-                //intersecction du segment avec la première ligne du pov
+
+                //We compute the position of the segment relative to the povLines
                 double[] inter1 = seg.computePosition(povLine1,povSegment1);
                 double[] inter2 = seg.computePosition(povLine2,povSegment2);
 
-                //Si deux intersections, on prend le min
+                //If there are two intersections, this means we intersect one of the segments making the pov, but also the
+                //other line of the pov (segment goes from inside the view to behind the pov)
                 if(!Double.isInfinite(inter1[0]) && !Double.isNaN(inter1[0]) && !Double.isInfinite(inter2[0]) && !Double.isNaN(inter2[0])) {
+                    //In order to determine which of the povLines is really intersected in front of the pov (giving us
+                    //the information of which cut segment to display) we compute the distance from the point (x1,y1) which
+                    //we know is inside the view (in front of the pov) to the intersections we just computed (one of them beeing
+                    //in front of the pov and the other beeing behind)
                     double norm1 = Math.sqrt( Math.pow(inter1[0]-seg.getX1(),2) + Math.pow(inter1[1]-seg.getY1(),2));
                     double norm2 = Math.sqrt( Math.pow(inter2[0]-seg.getX1(),2) + Math.pow(inter2[1]-seg.getY1(),2));
 
+                    //The smaller norm gives us which intersection is in front of the pov, thus telling us which part of the
+                    //segment to display
+
+                    //displaying from (x1,y1) projected on the projection line to bound1 or bound2 (those are the projections
+                    //of the intersection between the segment and projectionLines)
                     if ( Math.min(norm1,norm2) == norm1) {
-                        double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
-                        double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
+                        double[] povToSegmentExtremity = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
+                        double[] intersection = this.computeIntersection(povToSegmentExtremity,projectionLine);
                         g2.setColor(seg.getColor());
-                        //
-                        g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2), y,((intersection1[0]-minBound)*u)-(maxWidth/2), y));
+                        g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2), y,((intersection[0]-minBound)*u)-(maxWidth/2), y));
                         g2.setTransform(orig);
-                        g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
+                        g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection[0],intersection[1]));
                     }
                     else{
-                        double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
-                        double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
+                        double[] povToSegmentExtremity = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
+                        double[] intersection = this.computeIntersection(povToSegmentExtremity,projectionLine);
                         g2.setColor(seg.getColor());
-
-                        g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2), y,((intersection1[0]-minBound)*u)-(maxWidth/2), y));
+                        g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2), y,((intersection[0]-minBound)*u)-(maxWidth/2), y));
                         g2.setTransform(orig);
-                        g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
+                        g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection[0],intersection[1]));
                     }
 
                 }
                 //bound coté povsegment1 + seg x1,x2
+                //If we only have one intersection, we know what to display (from (x1,y1) to that intersection) projected
+                //on the projection line, with the projection of the intersection beeing one of the bounds
                 else if(!Double.isInfinite(inter1[0]) && !Double.isNaN(inter1[0])) {
-                    double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
-                    double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
+                    double[] povToSegmentExtremity = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
+                    double[] intersection = this.computeIntersection(povToSegmentExtremity,projectionLine);
                     g2.setColor(seg.getColor());
-                    //
-                    g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2),y,((intersection1[0]-minBound)*u)-(maxWidth/2),y));
+                    g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2),y,((intersection[0]-minBound)*u)-(maxWidth/2),y));
                     g2.setTransform(orig);
-                    g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
+                    g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection[0],intersection[1]));
                 }
-                //bound coté povsegment2 + seg x1,x2
                 else if(!Double.isInfinite(inter2[0]) && !Double.isNaN(inter2[0])) {
-                    double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
-                    double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
+                    double[] povToSegmentExtremity = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
+                    double[] intersection = this.computeIntersection(povToSegmentExtremity,projectionLine);
                     g2.setColor(seg.getColor());
-                    g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2),y,((bound2[0]-minBound)*u)-(maxWidth/2),y));
+                    g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2),y,((intersection[0]-minBound)*u)-(maxWidth/2),y));
                     g2.setTransform(orig);
-                    g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
-                    //
+                    g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection[0],intersection[1]));
                 }
             }
 
 
+            //Symetric case with inversed point inside the view
             else if(toAbsDeg(angle1) > (toAbsDeg(semiAngle)+Heuristic.EPSILON) && toAbsDeg(angle2) <= (toAbsDeg(semiAngle)+Heuristic.EPSILON) ) {
-                //point dedans seg.getx2, seg.gety2
-                //intersecction du segment avec la première ligne du pov
+
                 double[] inter1 = seg.computePosition(povLine1,povSegment1);
                 double[] inter2 = seg.computePosition(povLine2,povSegment2);
 
-                //Si deux intersections, on prend le min
                 if(!Double.isInfinite(inter1[0]) && !Double.isNaN(inter1[0]) && !Double.isInfinite(inter2[0]) && !Double.isNaN(inter2[0])) {
                     double norm1 = Math.sqrt( Math.pow(inter1[0]-seg.getX2(),2) + Math.pow(inter1[1]-seg.getY2(),2));
                     double norm2 = Math.sqrt( Math.pow(inter2[0]-seg.getX2(),2) + Math.pow(inter2[1]-seg.getY2(),2));
 
                     if ( Math.min(norm1,norm2) == norm1) {
-                        double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
-                        double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
+                        double[] povToSegmentExtremity = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
+                        double[] intersection = this.computeIntersection(povToSegmentExtremity,projectionLine);
                         g2.setColor(seg.getColor());
-                        //
-                        g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2),y,((intersection1[0]-minBound)*u)-(maxWidth/2),y));
+                        g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2),y,((intersection[0]-minBound)*u)-(maxWidth/2),y));
                         g2.setTransform(orig);
-                        g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
+                        g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection[0],intersection[1]));
                     }
                     else {
-                        double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
-                        double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
+                        double[] povToSegmentExtremity = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
+                        double[] intersection = this.computeIntersection(povToSegmentExtremity,projectionLine);
                         g2.setColor(seg.getColor());
-                        //
-                        g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2),y,((bound2[0]-minBound)*u)-(maxWidth/2),y));
+                        g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2),y,((intersection[0]-minBound)*u)-(maxWidth/2),y));
                         g2.setTransform(orig);
-                        g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
+                        g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection[0],intersection[1]));
                     }
 
                 }
-                //bound coté povsegment1 + seg x1,x2
+
                 else if(!Double.isInfinite(inter1[0]) && !Double.isNaN(inter1[0])) {
-                    double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
-                    double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
+                    double[] povToSegmentExtremity = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
+                    double[] intersection = this.computeIntersection(povToSegmentExtremity,projectionLine);
                     g2.setColor(seg.getColor());
-                    //
-                    g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2),y,((intersection1[0]-minBound)*u)-(maxWidth/2),y));
+                    g2.draw(new Line2D.Double(((bound1[0]-minBound)*u)-(maxWidth/2),y,((intersection[0]-minBound)*u)-(maxWidth/2),y));
                     g2.setTransform(orig);
-                    g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection1[0],intersection1[1]));
+                    g2.draw(new Line2D.Double(bound1[0],bound1[1],intersection[0],intersection[1]));
                 }
-                //bound coté povsegment2 + seg x1,x2
+
                 else if(!Double.isInfinite(inter2[0]) && !Double.isNaN(inter2[0])) {
-                    double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
-                    double[] intersection1 = this.computeIntersection(povToSegmentExtremity1,projectionLine);
+                    double[] povToSegmentExtremity = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
+                    double[] intersection = this.computeIntersection(povToSegmentExtremity,projectionLine);
                     g2.setColor(seg.getColor());
-                    //
-                    g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2),y,((intersection1[0]-minBound)*u)-(maxWidth/2),y));
+                    g2.draw(new Line2D.Double(((bound2[0]-minBound)*u)-(maxWidth/2),y,((intersection[0]-minBound)*u)-(maxWidth/2),y));
                     g2.setTransform(orig);
-                    g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection1[0],intersection1[1]));
+                    g2.draw(new Line2D.Double(bound2[0],bound2[1],intersection[0],intersection[1]));
                 }
             }
 
+            //If both angles are bigger than the semi angle, one bigger on the left and one bigger on the right (so that
+            //a segment completely on the left of the pov is not considered) and at least one of the angle is <90° (so we
+            //don't consider segments behind the pov) ait means the segment crosses the point of view in front of it.
             else if( (toAbsDeg(angle1) < 90 || toAbsDeg(angle2) < 90) && toAbsDeg(angle1) > toAbsDeg(semiAngle) && toAbsDeg(angle2) > toAbsDeg(semiAngle) && ( (toDeg(angle1) >= 0 && toDeg(angle2) < 0) | (toDeg(angle1) < 0 && toDeg(angle2) >= 0)) ) {
 
                 double[] inter1 = seg.computePosition(povLine1,povSegment1);
                 double[] inter2 = seg.computePosition(povLine2,povSegment2);
 
+                //If there are two intersections, we know to display only the segment between the intersection recursively
+                //Either it will be completely inside the projection (case 1) or it will be behind it and will be discarded
                 if(!Double.isInfinite(inter1[0]) && !Double.isNaN(inter1[0]) && !Double.isInfinite(inter2[0]) && !Double.isNaN(inter2[0]) ) {
                     List<Segment> tempList = new LinkedList<>();
                     tempList.add(new Segment(inter1[0],inter1[1],inter2[0],inter2[1],seg.getColor()));
@@ -658,189 +674,13 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                     this.drawSegments(tempList,g2);
                 }
 
-                //g2.setColor(seg.getColor());
-                //g2.draw(new Line2D.Double(bound1[0],bound1[1],bound2[0],bound2[1]));
             }
         }
 
         g2.setTransform(orig);
-
-       // debug+=20;
-/*
-        for(Segment seg : segments) {
-            double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
-            double angle1 = computeAngle(pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(), pov.getDirectorVector().getX2(),pov.getDirectorVector().getY2(), povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
-
-            double[] povToSegmentExtremity2 = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
-            double angle2 = computeAngle(pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(), pov.getDirectorVector().getX2(),pov.getDirectorVector().getY2(),povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
-
-            double[] intersection1 = new double[2];
-            double[] intersection2 = new double[2];
-
-            if(Math.toDegrees(angle1) < 90 && Math.toDegrees(angle1) > -90 && Math.toDegrees(angle2) < 90 && Math.toDegrees(angle2) > -90){
-                intersection1 = this.computeIntersection(povToSegmentExtremity1, projectionLine);
-                intersection2 = this.computeIntersection(povToSegmentExtremity2, projectionLine);
-
-                double[] positionRelativeToLine1 = seg.computePosition(povLine1,povSegment1);
-                double[] positionRelativeToLine2 = seg.computePosition(povLine2,povSegment2);
-
-
-
-                //Segment crosses
-                if(!Double.isNaN(positionRelativeToLine1[0]) && !Double.isInfinite(positionRelativeToLine1[0]) && !Double.isNaN(positionRelativeToLine2[0]) && !Double.isInfinite(positionRelativeToLine2[0])) {
-                    g2.setColor(seg.getColor());
-                    g2.draw(new Line2D.Double(bound1[0],bound1[1],bound2[0],bound2[1]));
-                }
-
-                //Segment contained in projection
-                else if( toAbsDeg(angle1) <= toAbsDeg(semiAngle) && toAbsDeg(angle2) <= toAbsDeg(semiAngle)) {
-                    g2.setColor(seg.getColor());
-                    g2.draw(new Line2D.Double(intersection1[0],intersection1[1],intersection2[0],intersection2[1]));
-                }
-
-
-                //povLine1 intersects the segment
-                else if(!Double.isNaN(positionRelativeToLine1[0]) & !Double.isInfinite(positionRelativeToLine1[0])) {
-                    List<Segment> recursiveList1 = new LinkedList();
-                    recursiveList1.add(new Segment(seg.getX1(),seg.getY1(),positionRelativeToLine1[0],positionRelativeToLine1[1],seg.getColor()));
-                    recursiveList1.add(new Segment(seg.getX2(),seg.getY2(),positionRelativeToLine1[0],positionRelativeToLine1[1],seg.getColor()));
-                    this.drawSegments(recursiveList1, g2);
-
-                }
-
-                //povLine2 intersects the segment
-                else if(!Double.isNaN(positionRelativeToLine2[0]) & !Double.isInfinite(positionRelativeToLine2[0])) {
-
-                    List<Segment> recursiveList2 = new LinkedList();
-                    recursiveList2.add(new Segment(seg.getX1(),seg.getY1(),positionRelativeToLine2[0],positionRelativeToLine2[1],seg.getColor()));
-                    recursiveList2.add(new Segment(seg.getX2(),seg.getY2(),positionRelativeToLine2[0],positionRelativeToLine2[1],seg.getColor()));
-                    this.drawSegments(recursiveList2, g2);
-
-                }
-
-            }
-
-        }
-*/
     }
 
-    /*
-    public void drawSegments(java.util.List<Segment> segments, Graphics2D g2) {
-        Line2D povLine1 = pov.getLine1();
-        Line2D povLine2 = pov.getLine2();
-        double[] povPosition = pov.getPosition();
-        double semiAngle = pov.computeAngle(pov.getDirectorVector(), pov.getLine2());
 
-
-        double[] projectionLine = this.computeLine(pov.getProjectionLine().getX1(), pov.getProjectionLine().getY1(),pov.getProjectionLine().getX2(),pov.getProjectionLine().getY2());
-
-        double[] bound1 = {pov.getLine1().getX2(), pov.getLine1().getY2()};
-        double[] bound2 = {pov.getLine2().getX2(), pov.getLine2().getY2()};
-
-        for(Segment seg : segments) {
-            double[] povToSegmentExtremity1 = computeLine(povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
-            double angle1 = computeAngle(pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(), pov.getDirectorVector().getX2(),pov.getDirectorVector().getY2(), povPosition[0], povPosition[1],seg.getX1(), seg.getY1());
-            //double angle1 = pov.computeAngle(pov.getDirectorVector(), new Line2D.Double(povPosition[0], povPosition[1],seg.getX1(), seg.getY1()));
-            double[] povToSegmentExtremity2 = computeLine(povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
-            double angle2 = computeAngle(pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(), pov.getDirectorVector().getX2(),pov.getDirectorVector().getY2(),povPosition[0], povPosition[1],seg.getX2(), seg.getY2());
-            //double angle2 = pov.computeAngle(pov.getDirectorVector(), new Line2D.Double(povPosition[0], povPosition[1],seg.getX2(), seg.getY2()));
-
-            double[] intersection1 = new double[2];
-            double[] intersection2 = new double[2];
-            //System.out.println(toRemove+" "+seg.getColor().toString()+" "+Math.toDegrees(angle1)+" "+Math.toDegrees(angle2)+" "+Math.toDegrees(semiAngle));
-            //Segment completly in front of point of view
-            //if(-Heuristic.EPSILON<Math.abs(Math.toDegrees(angle1)) && Math.abs(Math.abs(Math.toDegrees(angle1))-90)<Heuristic.EPSILON && -Heuristic.EPSILON<Math.abs(Math.toDegrees(angle2)) && Math.abs(Math.abs(Math.toDegrees(angle2))-90)<Heuristic.EPSILON) {
-            if(Math.toDegrees(angle1) < 90 && Math.toDegrees(angle1) > -90 && Math.toDegrees(angle2) < 90 && Math.toDegrees(angle2) > -90){
-                intersection1 = this.computeIntersection(povToSegmentExtremity1, projectionLine);
-                intersection2 = this.computeIntersection(povToSegmentExtremity2, projectionLine);
-
-                //si angle plus grand que demis angle mêe coté on fai rien
-
-                       // cas sym pour autre coté
-                //si deux dans le bon,
-                //si un des deux dans le bon, on coupe
-
-
-
-                //Segment contained in projection
-                if( toAbsDeg(angle1) <= toAbsDeg(semiAngle) && toAbsDeg(angle2) <= toAbsDeg(semiAngle) ) {
-                    g2.setColor(seg.getColor());
-                    //g2.draw(new Line2D.Double(intersection1[0],toRemove,intersection2[0],toRemove));
-                    g2.draw(new Line2D.Double(intersection1[0],intersection1[1],intersection2[0],intersection2[1]));
-                    System.out.println("------");
-                    System.out.println("cas dedans");
-                    System.out.println(seg.getColor());
-                    System.out.println(toDeg(angle1)+" "+toDeg(angle2)+" "+toAbsDeg(semiAngle));
-                }
-                //not in projection
-                else if( toAbsDeg(angle1) > toAbsDeg(semiAngle) && toAbsDeg(angle2) > toAbsDeg(semiAngle) && ( (toDeg(angle1) >= 0 && toDeg(angle2) >= 0) | (toDeg(angle1) < 0 && toDeg(angle2) < 0)) ) {
-
-                    System.out.println("------");
-                    System.out.println("cas hors");
-                    System.out.println(seg.getColor());
-                    System.out.println(toDeg(angle1)+" "+toDeg(angle2)+" "+toAbsDeg(semiAngle));
-
-                }
-                //segment completely crosses both projectionlines
-                else if( toAbsDeg(angle1) > toAbsDeg(semiAngle) && toAbsDeg(angle2) > toAbsDeg(semiAngle) && ( (toDeg(angle1) >= 0 && toDeg(angle2) < 0) | (toDeg(angle1) < 0 && toDeg(angle2) >= 0)) ) {
-                    g2.setColor(seg.getColor());
-                    //g2.draw(new Line2D.Double(bound1[0],toRemove,bound2[0],toRemove));
-                    g2.draw(new Line2D.Double(bound1[0],bound1[1],bound2[0],bound2[1]));
-
-                        System.out.println("------");
-                        System.out.println("cas coupe completement");
-                        System.out.println(seg.getColor());
-                        System.out.println(toDeg(angle1)+" "+toDeg(angle2)+" "+toAbsDeg(semiAngle));
-
-                }
-                //on prend une des deux intersections, et l'autre sera le bound
-                else if( (toAbsDeg(angle1) > toAbsDeg(semiAngle) && toAbsDeg(angle2) < toAbsDeg(semiAngle)) | (toAbsDeg(angle2) > toAbsDeg(semiAngle) && toAbsDeg(angle1) < toAbsDeg(semiAngle)) ) {
-
-                    System.out.println("------");
-                    System.out.println("coupe en deux");
-                    System.out.println(seg.getColor());
-                    System.out.println(toDeg(angle1)+" "+toDeg(angle2)+" "+toAbsDeg(semiAngle));
-
-
-                    //double[] intersection = computeIntersection(this.computeLine(povLine1.getX1(),povLine1.getY1(),povLine1.getX2(),povLine1.getY2()), seg.computeLine());
-                    double[] position = seg.computePosition(this.computeLine(povLine1.getX1(),povLine1.getY1(),povLine1.getX2(),povLine1.getY2()), new Segment(povLine1.getX1(),povLine1.getY1(),povLine1.getX2(),povLine1.getY2(), Color.black));
-
-                    if(!Double.isNaN(position[0]) && !Double.isInfinite(position[0])) {
-                        System.out.println("CAS 1");
-                        System.out.println("debug "+this.computeLine(povLine1.getX1(),povLine1.getY1(),povLine1.getX2(),povLine1.getY2())[0]+"x + "+this.computeLine(povLine1.getX1(),povLine1.getY1(),povLine1.getX2(),povLine1.getY2())[1]+"y + "+this.computeLine(povLine1.getX1(),povLine1.getY1(),povLine1.getX2(),povLine1.getY2())[2]);
-                        System.out.println(seg.getX1()+" "+seg.getY1()+" "+position[0]+" "+position[1]);
-                        System.out.println(seg.getX2()+" "+seg.getY2()+" "+position[0]+" "+position[1]);
-                        LinkedList<Segment> segmentList = new LinkedList<Segment>();
-                        segmentList.add(new Segment(seg.getX1(),seg.getY1(),position[0],position[1],seg.getColor()));
-                        segmentList.add(new Segment(seg.getX2(),seg.getY2(),position[0],position[1],seg.getColor()));
-                        this.drawSegments(segmentList,g2);
-
-
-                    }
-                    else {
-                        position = seg.computePosition(this.computeLine(povLine2.getX1(),povLine2.getY1(),povLine2.getX2(),povLine2.getY2()), new Segment(povLine2.getX1(),povLine2.getY1(),povLine2.getX2(),povLine2.getY2(), Color.black));
-                        System.out.println("CAS 2");
-                        System.out.println("debug "+this.computeLine(povLine2.getX1(),povLine2.getY1(),povLine2.getX2(),povLine2.getY2())[0]+"x +"+this.computeLine(povLine2.getX1(),povLine2.getY1(),povLine2.getX2(),povLine2.getY2())[1]+"y + "+this.computeLine(povLine2.getX1(),povLine2.getY1(),povLine2.getX2(),povLine2.getY2())[2]);
-                        System.out.println(seg.getX1()+" "+seg.getY1()+" "+position[0]+" "+position[1]);
-                        System.out.println(seg.getX2()+" "+seg.getY2()+" "+position[0]+" "+position[1]);
-                        LinkedList<Segment> segmentList = new LinkedList<Segment>();
-                        segmentList.add(new Segment(seg.getX1(),seg.getY1(),position[0],position[1],seg.getColor()));
-                        segmentList.add(new Segment(seg.getX2(),seg.getY2(),position[0],position[1],seg.getColor()));
-                        this.drawSegments(segmentList,g2);
-                    }
-
-                    //g2.setColor(seg.getColor());
-                    //g2.draw(new Line2D.Double(bound1[0],toRemove,intersection2[0],toRemove));
-                    //g2.draw(new Line2D.Double(bound1[0],0,intersection2[0],0));
-
-
-                }
-
-            }
-        }
-        toRemove+=10;
-    }
-*/
     private double toDeg(double x) {
         return Math.toDegrees(x);
     }
