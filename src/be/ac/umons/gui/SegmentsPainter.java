@@ -135,14 +135,7 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                             clickCounter = 0;
                             pov = new Pov(line1, line2);
                             okPainter = true;
-                            //TOREMOVE
-                            /*
-                            JFrame testFrame = new JFrame();
-                            testFrame.setSize(600,600);
-                            testFrame.setContentPane(new PaintersAlgorithm(pov,root));
-                            testFrame.setVisible(true);
-                            */
-                            //
+
                             break;
                     }
                 }

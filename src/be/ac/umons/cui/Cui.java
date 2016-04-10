@@ -1,7 +1,6 @@
 package be.ac.umons.cui;
 
 import be.ac.umons.bsp.*;
-import be.ac.umons.gui.PaintersAlgorithm;
 import be.ac.umons.gui.Pov;
 import be.ac.umons.gui.SegmentsPainter;
 
