@@ -4,10 +4,10 @@ import be.ac.umons.bsp.*;
 import be.ac.umons.gui.PaintersAlgorithm;
 import be.ac.umons.gui.Pov;
 import be.ac.umons.gui.SegmentsPainter;
-import javafx.scene.shape.PolygonBuilder;
 
 import java.awt.geom.Line2D;
 import java.io.Console;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,13 +41,14 @@ public class Cui {
         long start = System.nanoTime();
         BSPNode inOrderRoot = inOrderHeuristic.createTree(loader.loadAsList(path));
         double elapsedTimeInSec = (System.nanoTime() - start) * 1.0e-9;
+        int size1 = 0;
 
         System.out.println("-In order heuristic-");
         System.out.println("Time to build tree : "+elapsedTimeInSec);
-        double time1 = getAverageTimeTreeCreation(inOrderHeuristic,path,200);
+        double time1 = getAverageTimeTreeCreation(inOrderHeuristic,path,1000,size1);
         System.out.println("Time to build tree 2 : "+time1);
 
-        double time11 = getAverageTimePaintersAlgo(inOrderRoot,pov,200);
+        double time11 = getAverageTimePaintersAlgo(inOrderRoot,pov,1000);
         System.out.println("Time to painter : "+time11);
 
         System.out.println("Number of segments :"+inOrderRoot.getSizeInSegments());
@@ -57,13 +58,14 @@ public class Cui {
         start = System.nanoTime();
         BSPNode randomRoot = randomHeuristic.createTree(loader.loadAsList(path));
         elapsedTimeInSec = (System.nanoTime() - start) * 1.0e-9;
+        int size2 = 0;
 
         System.out.println("-Random heuristic-");
         System.out.println("Time to build tree : "+elapsedTimeInSec);
-        double time2 = getAverageTimeTreeCreation(randomHeuristic,path,200);
+        double time2 = getAverageTimeTreeCreation(randomHeuristic,path,1000,size2);
         System.out.println("Time to build tree 2 : "+time2);
 
-        double time21 = getAverageTimePaintersAlgo(randomRoot,pov,200);
+        double time21 = getAverageTimePaintersAlgo(randomRoot,pov,1000);
         System.out.println("Time to painter : "+time21);
 
         System.out.println("Number of segments :"+randomRoot.getSizeInSegments());
@@ -73,13 +75,14 @@ public class Cui {
         start = System.nanoTime();
         BSPNode freeSplitsRoot = freeSplitsHeuristic.createTree(loader.loadAsList(path));
         elapsedTimeInSec = (System.nanoTime() - start) * 1.0e-9;
+        int size3 = 0;
 
         System.out.println("-Free splits heuristic-");
         System.out.println("Time to build tree : "+elapsedTimeInSec);
-        double time3 = getAverageTimeTreeCreation(freeSplitsHeuristic,path,200);
+        double time3 = getAverageTimeTreeCreation(freeSplitsHeuristic,path,1000,size3);
         System.out.println("Time to build tree 2 : "+time3);
 
-        double time31 = getAverageTimePaintersAlgo(freeSplitsRoot,pov,200);
+        double time31 = getAverageTimePaintersAlgo(freeSplitsRoot,pov,1000);
         System.out.println("Time to painter : "+time31);
 
         System.out.println("Number of segments :"+freeSplitsRoot.getSizeInSegments());
@@ -89,13 +92,23 @@ public class Cui {
 
     }
 
-     public static double getAverageTimeTreeCreation(Heuristic heuristic, String path, double repeatCount) {
+     public static double getAverageTimeTreeCreation(Heuristic heuristic, String path, double repeatCount, int values) {
          BSPNode root;
          SegmentLoader loader = new SegmentLoader();
          long start = System.nanoTime();
          int i = 0;
+         int height = 0;
+         int segments = 0;
          while(i < repeatCount) {
              root = heuristic.createTree(loader.loadAsList(path));
+             values += root.getSize();
+             height += root.getHeight();
+             segments += root.getSizeInSegments();
+             if (i == repeatCount-1) {
+                 System.out.println("Size average : " + (double) values / 1000);
+                 System.out.println("Height average : " + (double) height / 1000);
+                 System.out.println("Segments average : " + (double) segments / 1000);
+             }
              i++;
          }
          double elapsedTimeInSec = (System.nanoTime() - start)*1.0e-9;

@@ -31,9 +31,9 @@ public class Segment {
      */
     private double y2;
 
-    private int cutCount;
-    private boolean intersected; //Boolean to know if the segment is already intersected by an hyperplane
-    private boolean isFreeSplit;
+    private boolean intersected; //Tells if the segment is already intersected by a splitting line
+    private boolean isFreeSplit; //Tells if the segment is a free-split
+    private double [] intersection; //If exists, contains the intersection of the segment with a splitting line
 
     /**
      * The segment's color.
@@ -53,8 +53,8 @@ public class Segment {
         this.y1 = y1;
         this.x2 = x2;
         this.y2 = y2;
+        this.intersection = new double[] {Double.NaN, Double.NaN};
         this.intersected = false;
-        this.cutCount = 0;
         this.isFreeSplit = false;
         this.color = color;
     }
@@ -195,16 +195,10 @@ public class Segment {
         }
     }
 
-    /**
-     * Increment the number of times
-     */
-    public void incrementCutCount(){
-        cutCount++;
-        if (cutCount >= 2)
-            isFreeSplit = true;
-    }
-
     @Override
+    /**
+     * Method used in the test to compare segments, it doesn't take count of colors, just extremity of segments
+     */
     public boolean equals(Object obj){
         if (obj == null)
             return false;
@@ -257,12 +251,14 @@ public class Segment {
 
     public boolean getIsIntersected() { return intersected; }
 
-    public void setIntersected(boolean intersected1) { this.intersected = intersected1; }
+    public void setIntersected(boolean intersected) { this.intersected = intersected; }
 
-    public int getCutCount() {return cutCount; }
+    public double[] getIntersection() {return intersection;}
 
-    public void setCutCount(int cutCount) { this.cutCount = cutCount; }
+    public void setIntersection(double[] intersection) {this.intersection = intersection;}
 
     public boolean isFreeSplit() { return isFreeSplit; }
+
+    public void setFreeSplit() {isFreeSplit = true;}
 
 }
