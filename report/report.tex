@@ -267,68 +267,6 @@ Sortie : racine de l'arbre BSP généré
 3: retourner inorder.createTree(\(segList\))
 \end{alltt}
 
-\begin{alltt}
-\textbf{createRoot}
-Entrée : noeud, étant un noeud incomplet de l'arbre BSP ne
-disposant que de sa ligne de séparation et sa liste de
-segments contenus dans son hyperplan.
-Sortie : /
-Effet : ajoute les fils au noeud s'il en a et dans ce cas 
-appelle l'algorithme récursivement sur ces derniers en 
-choisissant une nouvelle droite de séparation et en 
-donnant les nouvelles listes de segments adaptées.
-
- 1: si \(noeud\) non vide alors
- 2:   pour chaque segment \(s\) dans \(noeud.segmentsInHyperplane\) faire
- 3:     si \(s \in noeud.line\) alors
- 4:       ajouter \(s\) à \(segmentsInLine\)
- 5:       enlever \(s\) de \(segmentsInHyperplane\)
- 6:       
- 7:   créer les listes \(leftNodeSegments\) et \(rightNodeSegments\)
- 8:   
- 9:   pour chaque segment \(s\) dans \(noeud.segmentsInHyperplane\) faire
-10:     si \(s\) est à droite de \(noeud.line\) alors
-11:       ajouter \(s\) à \(rightNodeSegments\)
-12:
-13:     sinon si \(s\) est à gauche de \(noeud.line\) alors
-14:       ajouter \(s\) à \(leftNodeSegments\)
-15:
-16:     sinon on est dans le cas où \(s\) intersecte \(noeud.line\) alors
-17:       créer deux nouveaux segments \(s1\) et \(s2\)
-18:       si \(s1\) est à droite de \(noeud.line\) alors
-19:         ajouter \(s1\) à \(rightNodeSegments\)
-20:         ajouter \(s2\) à \(leftNodeSegments\)
-21:
-22:       sinon
-23:         ajouter \(s1\) à \(leftNodeSegments\)
-24:         ajouter \(s2\) à \(rightNodeSegments\)
-25:         
-26:   si \(leftNodeSegments\) et \(rightNodeSegments\) sont non-vides alors
-27:     \(line \leftarrow rightNodeSegments[0]\)
-28:     enlever \(rightNodeSegments[0]\) de \(rightNodeSegments\)
-29:     \(rightNode \leftarrow\) nouveau noeud (\(vide\), \(vide\), \(rightNodeSegments\), \(line\))
-30:     setRightSon(\(rightNode\))
-31:     \(line \leftarrow leftNodeSegments[0]\)
-32:     enlever \(leftNodeSegments[0]\) de \(leftNodeSegments\)
-33:     \(leftNode \leftarrow\) nouveau noeud (\(vide\), \(vide\), \(leftNodeSegments\), \(line\))
-34:     setLeftSon(\(leftNode\));
-35:     
-36:   sinon si \(leftNodeSegments\) vide et \(rightNodeSegments\) non-vide alors
-37:     \(line \leftarrow rightNodeSegments[0]\)
-38:     enlever \(rightNodeSegments[0]\) de \(rightNodeSegments\)
-39:     \(rightNode \leftarrow \) nouveau noeud (\(vide\), \(vide\), \(rightNodeSegments\), \(line\))
-40:     setRightSon(\(rightNode\))
-41:    
-42:   sinon si \(leftNodeSegments\) non-vide et \(rightNodeSegments\) vide alors
-43:     \(line \leftarrow leftNodeSegments[0]\)
-44:     enlever \(leftNodeSegments[0]\) de \(leftNodeSegments\)
-45:     \(leftNode \leftarrow \) nouveau noeud (\(vide\), \(vide\), \(leftNodeSegments\), \(line\))
-46:     setLeftSon(\(leftNode\))
-47:     
-48:   createRoot(\(leftNode)\))
-49:   createRoot(\(rightNode\))
-\end{alltt}
-
 \paragraph{Complexité}
 
 N'ayant effectué qu'un mélange de liste en \emph{O(n)} en dehors de toute boucle ou appel récursif, cela n'aucun impact au niveau de la complexité asymptotique. 
@@ -375,7 +313,7 @@ L'implémentation de l'heuristique des "free-splits" paraît à première vue fo
 
 Pour les besoins de l'heuristique nous introduisons les attributs suivants aux objets de type segment : un booléen isIntersected indiquand si le segment a déjà été intersecté ou non, un tableau de deux nombres nommé intersection contenant cette intersection si elle existe et un booléen isFreeSplit indiquant si le segment est un "free-split". Notons également les deux abréviations suivantes : a et b pour désigner les deux extrémités du segment.\\
 
-Afin de comprendre sans ambiguïté les lignes ???? ,lorsque nous réalisons une coupure au niveau d'un segment par une droite, cette coupure se fait au niveau de l'extrémité b pour les nouveaux segments. 
+Notons bien qu'afin de comprendre sans ambiguïté les lignes 20,25,27 et 30, nous admettons que lorsque nous réalisons une coupure au niveau d'un segment par une droite, celle-ci se fait au niveau de l'extrémité b pour les nouveaux segments. 
 
 \begin{alltt}
 \textbf{createTree}
@@ -491,6 +429,10 @@ donnant les nouvelles listes de segments adaptées.
 88:   createRoot(\(leftNode)\))
 89:   createRoot(\(rightNode\))
 \end{alltt}
+
+Au niveau du code présent aux lignes 20-32, il s'agit de la recherche de free-splits. En effet ceux-ci peuvent se créer lorsqu'il y a une coupure d'un segment par une droite. Ce dernier, si déjà intersecté précédemment, présente alors un free-split sur un de ses sous-segments récemment créés. C'est ce que nous réalisons aux lignes 20-21 et 27-28, en vérifiant bien si nous nous trouvons sur le bon sous-segment. Par contre si le segment original n'a pas encore été intersecté, nous marquons les deux sous-segments comme intersectés et conservons dans une variable le point d'intersection. \\
+
+Pour les instructions 42-59, il s'agit simplement d'une vérification permettant de savoir si des free-splits sont présent dans la liste des segments pour le fils gauche et le fils droit. Si c'est le cas, le noeud est créé avec le segment résultant du free-split comme base pour une nouvelle droite de séparation, un booléen est mis à vrai et il n'y aura donc pas de choix aléatoire comme dans l'heuristique précédente. Et cela grâce aux conditions ajoutée en 62,68,74-75 et 81-82. Si aucun free-split n'est trouvé, le premier segment de l'hyperplan en question est choisi comme nouvelle "splitting-line", comme dans l'heuristique précédente. 
 
 \paragraph{Complexité}
 
