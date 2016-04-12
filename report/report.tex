@@ -11,6 +11,16 @@
 \usepackage{titlesec} %Pour le 3ème niveau de titres
 \usepackage{fancyvrb} %Pour le Verbatim
 \usepackage{alltt} %Environnement pseudo code
+\usepackage{listings}% http://ctan.org/pkg/listings
+\usepackage{listingsutf8}
+\usepackage{geometry}
+\lstset{
+  basicstyle=\ttfamily,
+  mathescape,
+	literate={é}{{\'e}}1
+           {è}{{\''e}}1
+}
+\lstinputlisting[inputencoding=utf8/latin1]
 
 \newcommand{\reporttitle}{Rapport final}
 \newcommand{\reportauthor}{Clément \textsc{Tamines} Jérémy \textsc{Gheysen}}
@@ -442,16 +452,245 @@ Dans cette section nous allons analyser les performances des différentes heuris
 
 \section{Algorithme du peintre}
 
-\subsection{Détails sur l'algorithme}
+Notre implémentation de l'algorithme du peintre est similaire à celle présentée dans le livre de référence. Son principe est le suivant : chaque noeud de l'arbre BSP est parcouru dans un certain ordre et les segments qu'il contient sont alors affichés.
 
-\subsection{Implémentation}
+\subsection{Algorithme principal}
+\subsubsection{Pseudo-code}
+\begin{lstlisting}
+paintersAlgorithm
+Entrées : N la racine d'un arbre BSP, P un point de vue
+Sortie : / (les segments sont dessinés dans le bon ordre)
 
+ 1: si !vide(N) alors
+ 2
+ 3:    si feuille(N) alors
+ 4:       drawSegments($N_{liste}$)
+ 5:
+ 6:    si $P \in N_{s^+}$ alors
+ 7:       paintersAlgorithm($N_{filsGauche}$,$P$)
+ 8:       drawSegments($N_{liste}$)
+ 9:       paintersAlgorithm($N_{filsDroit}$,$P$)
+10:
+11:    si $P \in N_{s^-}$ alors
+12:       paintersAlgorithm($N_{filsDroit}$,$P$)
+13:       drawSegments($N_{liste}$)
+14:       paintersAlgorithm($N_{filsGauche}$,$P$)
+15:
+16:    sinon
+16:       paintersAlgorithm($N_{filsDroit}$,$P$)
+17:       paintersAlgorithm($N_{filsGauche}$,$P$)
+\end{lstlisting}
+
+\subsection{Complexité}
+
+\subsubsection{Explications}
+Cet algorithme permet de parcourir l'arbre BSP pour afficher les segments par ordre de distance avec le point de vue (les segments les plus éloignés étant dessinés en premier).
+Nous vérifions tout d'abord si la racine de l'arbre N n'est pas vide, ceci peut résulter d'un appel récursif sur l'algorithme avec un noeud $N$ qui n'a pas de fils gauche ou droit. L'appel se fera donc avec un noeud null et ne résultera en aucun calcul.
+
+Ensuite, il est évident que si le noeud $N^$ est une feuille, nous ne pouvons plus parcourir récursivement l'arbre et nous appellons la méthode qui permet d'afficher les segments contenus dans le noeud $N$ via $N_{liste}$. Cette méthode déterminera si ces segments sont compris dans la vue et les dessinera le cas échéant.
+
+Si le point de vue $P$ appartient à $N_{s^+}$, nous nous voulons d'abord afficher les segments plus distants que ceux de $N_{liste}$, 
+ceux si seront ceux du fils gauche qui appartient à $N_{s^-}$ et possède donc des segments plus distants du point de vue comme détaillé sur la figure \ref{ordre_1}. Le même principe s'applique pour le cas ou $P$ appartient à $N_{s^-}$.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=0.5]{painter_ordre_1.png}
+\caption{Ordre de parcours si $P \in N_{s^+}$ }
+\label{ordre_1}
+\end{figure}
+
+Si $P$ n'appartient pas à $N_{s^+}$ ni à $N_{s^-}$ alors $P \in N_s$ et les segments du noeud $N$ ne doivent pas être affichés et le parcours est continué.
+
+\subsection{Algorithme de projection}
+
+\subsubsection{Pseudo-code}
+
+\begin{lstlisting}
+drawSegments
+Entrées : L une liste d'objets segments
+Sortie : / (les segments sont dessinés via l'objet g2)
+\end{lstlisting}
+
+Les figure \ref{painter_notations} et \ref{painter_notations_2} rend compte des notations utilisées dans l'algorithme.
+\\
+\begin{figure}[!htbp]
+  \centering
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{painter_notations.png}
+    \caption{Notations du point de vue}
+		\label{painter_notations}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{painter_notations_2.png}
+    \caption{Notations avec segment $s$}
+		\label{painter_notations_2}
+  \end{minipage}
+\end{figure}
+\\
+
+\newpage
+
+\newgeometry{margin=0.4in}
+\begin{lstlisting}
+ 1: $l_1$ $\leftarrow$ calcDroite($x_1,y_1,x_2,y_2$)
+ 2: $l_2$ $\leftarrow$ calcDroite($x_1,y_1,x_3,y_3$)
+ 3: $limite_1$ $\leftarrow$ ($x_2,y_2$)
+ 4: $limite_2$ $\leftarrow$ ($x_3,y_3$)
+ 5: $position$ $\leftarrow$ ($x_1,y_1$)
+ 6: $vecteurDirecteur$ $\leftarrow$ pointDeVue.vecteurDirecteur
+ 7: $demisAngle$ $\leftarrow$ calcAngle($l_1$, $vecteurDirecteur$)
+ 8: $droiteProjection$ $\leftarrow$ calcDroite($x_2,y_2,x_3,y_3$)
+ 9: 
+10: pour chaque segment $s$ dans $L$ faire
+11:   $d_1$ $\leftarrow$ calcDroite($x_1,y_1,s_x_1,s_y_1$)
+12:   $d_2$ $\leftarrow$ calcDroite($x_1,y_1,s_x_2,s_y_2$)
+13:   $angle_1$ $\leftarrow$ calcAngle($vecteurDirecteur$, $d_1$)
+14:   $angle_2$ $\leftarrow$ calcAngle($vecteurDirecteur$, $d_2$)
+15:
+16:   si $|angle_1| \leq |demisAngle|$ et $|angle_2| \leq |demisAngle|$ alors
+17:      $i_1$ $\leftarrow$ calcInter($d_1$,$droiteProjection$)
+17:      $i_2$ $\leftarrow$ calcInter($d_2$,$droiteProjection$)
+18:      dessiner($i_1,i_2$,$s_{couleur}$)
+19:
+20:   sinon si $|angle_1| \leq |demisAngle|$ et $|angle_2| > |demisAngle|$ alors
+21:   |   $i_1$ $\leftarrow$ $s$.calcPosition($l_1$)
+22:   |   $i_2$ $\leftarrow$ $s$.calcPosition($l_2$)
+23:   |
+24:   |   si !$i_1$=gauche et !$i_1$=droite et !$i_2$=gauche et !$i_2$=droite alors
+25:   |   |   $norme_1$ $\leftarrow$ calcNorme($s_x_1,s_y_1,i_1_x,i_1_y$)
+26:   |   |   $norme_2$ $\leftarrow$ calcNorme($s_x_1,s_y_1,i_2_x,i_2_y$)
+27:   |   |   
+28:   |   |   si $min(norme_1,norme_2)=norme_1$ alors
+29:   |   |   |   $j_1$ $\leftarrow$ calcInter($d_1$,$droiteProjection$)
+30:   |   |   |   dessiner($j_1,limite_1$,$s_{couleur}$)
+31:   |   |   |
+32:   |   |   sinon
+33:   |   |   |   $j_1$ $\leftarrow$ calcInter($d_1$,$droiteProjection$)
+34:   |   |   |   dessiner($j_1,limite_2$,$s_{couleur}$)
+35    |   |   |
+36:   |   sinon si !$i_1$=gauche et !$i_1$=droite alors
+37:   |   |   $j_1$ $\leftarrow$ calcInter($d_1$,$droiteProjection$)
+38:   |   |   dessiner($j_1,limite_1$,$s_{couleur}$)
+39    |   |
+40:   |   sinon si !$i_2$=gauche et !$i_2$=droite alors
+41:   |   |   $j_1$ $\leftarrow$ calcInter($d_1$,$droiteProjection$)
+41:   |   |   dessiner($j_1,limite_2$,$s_{couleur}$)
+42:   |   |
+43:   sinon si $|angle_1| > |demisAngle|$ et $|angle_2|\leq |demisAngle|$ alors
+44:      Cas semblable au cas précédent
+45:
+46:   sinon si $|angle_1|>|demisAngle|$ et $|angle_2|>|demisAngle|$ et ( ($angle_1\geq 0$ et $angle_2<0$)
+47:   |         ou ($angle_1 <0$ et $angle_2\geq 0$) ) et ( ($angle_1<90$) ou ($angle_2<90$) ) alors
+48:   |
+49:   |   $i_1$ $\leftarrow$ $s$.calcPosition($l_1$)
+50:   |   $i_2$ $\leftarrow$ $s$.calcPosition($l_2$)
+51:   |
+52:   |   si !$i_1$=gauche et !$i_1$=droite et !$i_2$=gauche et !$i_2$=droite alors
+53:   |      $liste$ $\leftarrow$ nouvelleListe()
+54:   |      $s'$ $\leftarrow$ Segment($i_1$,$i_2$,$s_{couleur}$)
+54:   |      $L'$.ajouterSegment($s'$)
+55:   |      drawSegments($L'$)
+\end{lstlisting}
+\restoregeometry
+
+\subsection{Complexité}
+
+\subsubsection{Explications}
+Dans cette section, nous détaillerons le fonctionnement général de l'algorithme ainsi qu'un exemple.
+Nous connaissons les valeurs de $(x_1,y_1)$,$(x_2,y_2)$,$(x_3,y_3)$ grâce au point de vue, ceci nous permet de calculer les droites $l_1$ et $l_2$.
+Le vecteur directeur est la bisectrice de $l_1$ et $l_2$, le segment sur lequel nous projetons la vue relie les deux points $(x_2,y_2)$,$(x_3,y_3)$ qui deviennent alors les "`limites"' de ce segment (et ausii les projections de tout point sur $l_1$ et $l_2$)
+
+La situation de base est détaillée dans les figures \ref{exp_1} et \ref{exp_2}.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=0.4]{painter_notations_2.png}
+\caption{Notations avec segment $s$}
+\label{exp_1}
+\end{figure}
+\newline
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=0.4]{base.png}
+\caption{Scène de base}
+\label{exp_2}
+\end{figure}
+
+Pour chaque segment dans la liste, nous allons déterminer si celui ci est visible par le point de vue (entièrement ou non) et l'afficher si c'est le cas.
+
+Pour chaque segment, nous calculons les droites partant de point de vue et allant jusqu'à ses deux extrémités ainsi que les angles que ces droites forment avec le vecteur directeur. Ces angles nous permettent de déterminer si le segment est bien compris dans la vue ou non. Les droites en poitillé sur la figure \ref{exp_3} montre cette situation (les angles ne sont pas représentés).
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=0.6]{inter.png}
+\caption{Scène avec calcul des droites}
+\label{exp_3}
+\end{figure}
+
+16 à 18 
+Si les deux angles sont plus petit que le demis angle, il est évident que le segment est complètement compris dans la vue (fig1) nous l'affichons donc en entier. Pour ce faire nous projetons ses extrémités sur la droite de projection (pointillés) et dessinons le segment reliant ces intersections. (segments rouges, oranges et vert sur l'exemple).
+
+20 à 41
+Si un des deux angles est plus grand que le demis angle et l'autre plus petit, nous savons que le point qui compose la droite qvec l'angle a l'intérieur est dans la vue. Nous devons dès lors déterminer l'autre point d'intersection qui se trouve sur la ligne $l_1$ ou 
+$l_2$ Pour déterminer cela, nous procédons comme suit :
+
+Nous calculons la position du segment par rapport aux lignes $l_1$ et $l_2$. Si nous obtenons deux intersections, nous avons le cas particulier ou le segment coupe $l_1$ ou $l_2$ devant le point de vue et $l_2$ ou $l_1$ derrière cette situation est représentée sur la figure \ref{exp4}. 
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=0.6]{casSpecial1.png}
+\caption{cas spécial ou il y a deux intersections}
+\label{exp_4}
+\end{figure}
+
+Pour déterminer l'intersection qui nous intéresse $i_1$ ou $i_2$ (celle devant le point de vue)  nous calculons la norme allant du point dans la vue jusq'à cette intersection. Il est évident que la norme la plus petite est celle avec la bonne intersection (car être devant le point de vue force à avoir une norme moins grande). Nous savons ainsi si la ligne $l_1$ ou $l_2$ intersecte le segment. LE deuxième point du segment est donc sur cette ligne $l_1$ ou $l_2$ et dans le but de dessiner ce segment, nous en calculons les projections (du point via la technique précédente) et de l'intersection sera une des limites car comme dit précédemment la projection d'un poitn sur $l_1$ ou $l_2$ est respectivement $limite_1$ et $limite_2$
+
+Si nous obtenons qu'on a qu'une seule intersection, la ligne $l_1$ ou $l_2$ qui intersecte nous donne la position de l'intersection et donc de l'autre point $limite_1$ ou $limite_2$. Le segment bleu sur la figure \ref{exp_3} montre cette situation ou l'intersection $i_1$ nous donne un point d'intersection, ce qui nous permet de savoir que la ligne $l_1$ est intersectée. L'angle nous avait permis de savoir que le point ($s_{x_2},s_{y_2}$) du segment bleu $s$ était dans la vue. Le segment a dessiner ira donc de $limite_1$ à la projection de ($s_{x_2},s_{y_2}$) sur le segment de projection.
+
+Enfin, si nous avons deux angles plus grands que demis angle, et qu'on ai une droite de chaque coté (ceci veut dire qu'on a une droite de chaque coté) et qu'on moins une des droites est devant le point de vue, il est possible que le segment coupe complètement le point de vue. Dès lors, nous calculons les interections avec $l_1$ et $l_2$ et si nous obtenosn deux intersections, nous calculons les projections qui sont les deux limites et appellons récursivement la méthode. Ceci débouche sur deux cas :
+
+LE segment était bien devant et les deux angles sont donc inférieurs, le segment est dessiné.
+Le segment coupait les deux droites derrière le point de vue, nous repassons dans le dernier cas, mais dorénavant nous n'avons plus d'intersection mais gauche ou droite.
+
+Ces deux cas sont représentés sur les figure \ref{exp_5} et \ref{exp_6}.
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=0.5]{casSpecial2.png}
+\caption{cas spécial ou il y a deux intersections devant}
+\label{exp_5}
+\end{figure}
 \subsection{Tests \& Résultats}
 
-\section{Interface graphique}
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=0.5]{casSpecial3.png}
+\caption{cas spécial ou il y a deux intersections derrière}
+\label{exp_6}
+\end{figure}
+\subsection{Tests \& Résultats}
+\section{Mode d'emplois}
 
-%TODO : Expliquer les subtilités de l'utilisation ? 
+\subsection{Interface graphique}
+
+Afin de lancer l'interface graphique, la classe \textit{TestGui.java} du package \textit{be.umons.ac.gui} doit être lancée. 
+
+L'interface graphique fonctionne comme suit :
+Lors du lancement de l'interface graphique, il est demandé à l'utilisateur de choisir un fichier contenant une scène et une heuristique de construction de l'arbre. Suite à ce choix, une fenêtre montrant la représentaton de la scène est ouverte. La barre de menu en haut de cette fenêtre permet de choisir un différent fichier ou une heuristique différente. Elle permet aussi de choisi le monde d'input de l'angle de vue.
+
+Mode 1 : Choix manuel : le premier click donne la position du point de vue. Les deux suivants donnent l'angle de vue proprement dit.
+Mode 2 : Choix de l'angle : lorsceque ce choix est pris, il est demandé à l'utilisateur d'entrer un angle de vue. Celui ci peut alors clicker deux fois pour donner la droite bisecrite de l'angle de vue.
+
+L'algorithme du peintre est représenté une fois un angle valide choisis par l'utilisateur. Il est représenté deux fois pour une meilleure compréhension : une fois sur une droite directement sur le point de vue et une autre au dessus de la fenête mis à l'échelle et donc plus grande et visible pour les gros fichiers.
+
+\subsection{Mode console}
+
+Pour lancer le mode console, la classe \textit{TestCui.java} du package \textit{be.umons.ac.cui} doit être lancée.
+
+Le mode console fonctionne comme suit :
+Il est tout d'abord demandé à l'utilisateur de choisir un fichier. Il doit pour cela introduire le chemin complet de celui-ci dans la console. Suite à cela, les temps de création des arbres via les différentes heuristiques ainsi que les temps d'éxécution de l'algorithme sur peintre sur ces arbres sont affichés sous forme de tableau. Les temps affichés sont en secondes. 
 
 \section*{Conclusion}
+
 \addcontentsline{toc}{section}{Conclusion}
 \end{document}
