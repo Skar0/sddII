@@ -99,22 +99,25 @@ Ce rapport a pour but de décrire les différentes techniques et algorithmes uti
 
 \section{Arbres BSP}
 
-\subsection{Principe}
-Un arbre BSP (\emph{Binary Space Partition}), est un arbre binaire permettant de stocker de manière efficace un ensemble d'objets (dans notre cas de segments) situés dans un plan. Rappelons tout de même qu'un arbre binaire est un arbre tel que tout noeud possède au plus deux fils. \\
+\subsection{Principe et définitions}
+Un arbre BSP (\emph{Binary Space Partition}) est un arbre binaire permettant de stocker de manière efficace un ensemble d'objets (dans notre cas des segments) situés dans un plan. Rappelons tout de même qu'un arbre binaire est un arbre tel que tout nœud possède au plus deux fils.\\
 
-Le type d'arbre étudié ici consiste donc en une séparation binaire de l'espace, s'effectuant de manière récursive. Chaque noeud possède un ensemble de segments dans le plan et définit une nouvelle séparation binaire de ce dernier, cela sur base d'une droite (choisie selon une technique définie au préalable et dans laquelle sont contenus un ou plusieurs segments), et sépare ainsi le plan en deux sous-espaces contenant chacun une partie des segments restants. Cette méthode est alors appelée récursivement sur chacun des deux sous-espaces nouvellement créés (les deux fils) jusqu'au moment où tous les segments présents dans le plan sont contenus dans les noeuds de l'arbre. L'utilisation de la droite pour définir les nouveaux plans peut néanmoins couper des segments restants en deux, ces segments sont alors supprimés et les segments résultant de la coupure sont alors placés dans le fils leur correspondant en fonction de leur position. Remarquons qu'avec la manière avec laquelle nous définissons chaque nouveau noeud, les feuilles sont également des noeuds définissant deux nouveaux plans, mais ces derniers ne contiendront alors aucun segment (appel récursif alors impossible). \\
+Les arbres BSP étudiés ici consistent en une séparation binaire du plan, s'effectuant de manière récursive. Ce processus sépare donc le plan en plusieurs régions, chacune d'entre elles contenant des segments. La séparation du plan se termine lorsque chaque région ne contient plus qu'un segment.\\
 
-La taille d'un arbre BSP est calculée en fonction du nombre total de segments dans chacun de ses noeuds. Moins il y aura eu de fragmentation lors de la création de l'arbre, moins ce dernier aura de segments et donc moins il sera grand et inversément. Il est donc intéressant de limiter cette fragmentation. \\
+Chaque nœud possède un ensemble de segments $i$ dans un hyperplan et définit une nouvelle séparation binaire de ce dernier, cela sur base d'une droite de séparation $s$ (choisie selon une technique définie au préalable et dans laquelle sont contenus un ou plusieurs segments), et sépare ainsi le plan en deux sous-espaces $s^+$ et $s^-$ contenant chacun une partie des segments de $i$ non contenus dans la droite de séparation (les segments contenus dans $s$ étant les segments importants à stocker dans le nœud). Cette méthode de séparation est alors appelée récursivement sur chacun des deux sous-espaces nouvellement créés qui seront stockés dans les deux fils de ce nœud. La droite $s$ utilisée pour séparer le plan peut néanmoins couper des segments en deux, résultant alors dans la création de deux nouveaux segments qui seront contenus dans $s^+$ et $s^-$. Remarquons qu'avec la manière avec laquelle nous définissons chaque nouveau nœud, les feuilles de l'arbre seront des nœuds possédant une droite de séparation $s$ dans laquelle seront contenus un ou plusieurs segments. Ces feuilles ne pourront donc pas avoir de fils, puisqu'elles ne posséderont aucun segments dans $s^+$ et $s^-$.\\
 
-Il existe bien évidemment diverses méthodes afin de construire de tels arbres de manière plus ou moins optimisée (en taille et/ou en temps), nous verrons ci-dessous trois de ces méthodes. 
-
-Voici la définition récursive d'un arbre BSP que nous avons utilisé :
-
-\theoremstyle{definition}
+\theoremstyle{Definition}
 \begin{definition}{Arbre BSP}\\
-\textit{Cas de base :} Un arbre BSP vide est un arbre BSP\\
-\textit{Cas général :} Un arbre BSP est un composé d'un noeud contenant une ligne de séparation $s$, une liste chainée de segments contenus  dans cette ligne et une liste de segments dont ont doit déterminer si ils sont dans la séparation $s^+$ ou $s^-$. Il possède aussi deux fils qui sont eux-même des arbres BSP.
+\textit{-Cas de base :} Un arbre BSP vide est un arbre BSP\\
+\textit{-Cas général :} Un arbre BSP est un composé d'un nœud contenant une droite de séparation $s$, une liste chaînée de segments contenus dans cette droite et une liste chaînée $i$ de segments dont ont doit déterminer si ils sont dans $s^+$ ou $s^-$. Il possède aussi deux fils qui sont eux-même des arbres BSP.
 \end{definition}
+
+\theoremstyle{Definition}
+\begin{definition}{Taille d'un arbre BSP}\\
+La taille d'un arbre BSP est calculée en fonction du nombre total de segments que celui-ci contient. Cette valeur est donc la somme, pour chaque nœud de l'arbre, du nombre de segments contenus dans la droite de séparation $s$ de ce nœud. Ce calcul de taille prend donc en compte le fait que des segments peuvent être coupés en plusieurs fragments.\\
+\end{definition}
+
+Les méthodes de construction des arbres seront présentées plus loin dans ce rapport.
 
 \subsection{Éléments indispensables à la construction}
 
