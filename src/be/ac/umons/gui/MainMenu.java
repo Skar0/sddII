@@ -8,7 +8,8 @@ import java.awt.event.*;
 import java.io.File;
 
 /**
- * Created by mr_robot on 04-03-16.
+ * Creates and displays the main menu
+ * @author Clément Tamines
  */
 public class MainMenu extends JFrame {
 
@@ -105,8 +106,6 @@ public class MainMenu extends JFrame {
                     frame.setContentPane(  new SegmentsPainter(heuristic, selectedFile, frame));
                     frame.revalidate();
                     frame.repaint();
-                   // PovChooser povChooser= new PovChooser(heuristic.createTree(loader.loadAsList()));
-                  //  frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
                 }
                 else {
                    JOptionPane.showMessageDialog(frame, "Please fill in all the fields", "Warning",JOptionPane.WARNING_MESSAGE);
@@ -117,10 +116,6 @@ public class MainMenu extends JFrame {
 
         this.setContentPane(panel);
         this.setVisible(true);
-
-        /*
-
-        to try resize */
 
         frame.addComponentListener(new ComponentAdapter() {
         @Override

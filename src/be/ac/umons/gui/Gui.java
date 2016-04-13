@@ -12,7 +12,8 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 /**
- * Created by clement on 2/27/16.
+ * Project launcher for the graphical user interface
+ * @author Clément Tamines
  */
 public class Gui extends JFrame{
 
