@@ -12,17 +12,31 @@ import java.util.*;
 import java.util.List;
 
 /**
- * Created by mr_robot on 13-04-16.
+ * This class is used to call the painter's algorithm and compute the segments that are seen by the point of view
+ * @author Clément Tamines
  */
 public class PaintersAlgorithm {
 
+    /**
+     * Calls the painter's algorithm and returns the list of segments seen by the painter's algorithm in the right order
+     * @param root the root of the BSP tree on which to call the painter's algorithm
+     * @param pov the point of view
+     * @return an ordered list of segments seen by the pov
+     */
     public List<Segment> getSegmentToDraw(BSPNode root, Pov pov) {
         List<Segment> toDraw = new LinkedList<>();
         paintersAlgorithm(root, pov, toDraw);
         return toDraw;
     }
 
-
+    /**
+     * Painter's algorithm, recursively going through a BSP tree in order of distance of its cutting line to the point
+     * of view and calling the scanConvert method that determines whether the segments in the node are seen by the
+     * point of view.
+     * @param root the root of a BSP tree
+     * @param pov the point of view
+     * @param toDraw the list that will be filled with segments by the scanConvert method
+     */
     public void paintersAlgorithm(BSPNode root, Pov pov, List toDraw) {
         if (root != null) {
             if (root.isLeaf()) {
@@ -43,6 +57,14 @@ public class PaintersAlgorithm {
     }
 
 
+    /**
+     * Computes the position of the point of view relative to the cutting line of the node of a BSP tree.
+     * The technique used is to replace the starting point of the point of view inside the equation of the cutting line
+     * and returning the result, thus giving us a position relative to the line.
+     * @param root a node of the BSP tree
+     * @param pov the point of view
+     * @return
+     */
     private Double getPovPosition(BSPNode root, Pov pov) {
         double[] line = root.getLine();
 
@@ -73,8 +95,10 @@ public class PaintersAlgorithm {
     }
 
     /**
-     * Draws all the segments and parts of segments in the list visible by the point of view
-     * @param segments the list of segments
+     * Adds all the segments and parts of segments visible by the point of view and adds them in a list.
+     * @param segments the input list of segments
+     * @param pov the point of view
+     * @param toDraw the list of segments in which to add seen segments
      */
     public void scanConvert(java.util.List<Segment> segments, Pov pov, List<Segment> toDraw) {
         //First we compute the lines that make the point of view
@@ -238,30 +262,53 @@ public class PaintersAlgorithm {
         }
     }
 
-
+    /**
+     * Converts a angle from radians to degrees.
+     * @param x the angle in radians
+     * @return the angle in degrees
+     */
     private double toDeg(double x) {
         return Math.toDegrees(x);
     }
 
-    private double toAbs(double x) {
-        return Math.abs(x);
-    }
+    /**
+     * Converts an angle from randians to its absolute value in degrees.
+     * @param x the anfle in radians
+     * @return the absolute value of the same angle in degrees
+     */
     private double toAbsDeg(double x) {
         return Math.abs(Math.toDegrees(x));
     }
 
+    /**
+     * Computes an oriented angle between two vectors defined by their extremities. It uses the dot product and the cross
+     * product.
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param x3
+     * @param y3
+     * @param x4
+     * @param y4
+     * @return the angle between the two vectors
+     */
     public static double computeAngle(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) {
         double[] vector1 = {x2-x1,y2-y1};
         double[] vector2 = {x4-x3,y4-y3};
         double crossProd = (vector1[0]*vector2[0])+(vector1[1]*vector2[1]);
-        double v1Norm = Math.sqrt( Math.pow(x1-x2,2) + Math.pow(y1-y2,2));
-        double v2Norm = Math.sqrt( Math.pow(x3-x4,2) + Math.pow(y3-y4,2));
-        double cos = (double) crossProd/(v1Norm*v2Norm);
-        //return  Math.acos(cos);
         double dotProd = (vector1[0]*vector2[1])-(vector1[1]*vector2[0]);
         return  Math.atan2(dotProd,crossProd);
     }
 
+    /**
+     * Computes the line that contains the segment given in parameters by its extremities
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return an array of three doubles corresponding to the coefficients in the equation ax + by + c = 0
+     */
     public double[] computeLine(double x1, double y1, double x2, double y2) {
 
         double[] line = new double[3];
@@ -281,6 +328,12 @@ public class PaintersAlgorithm {
 
     }
 
+    /**
+     * Computes the intersection between two lines (which we are sure they cross)
+     * @param line1
+     * @param line2
+     * @return the intersection point of these lines in a two dimensional array
+     */
     public double[] computeIntersection(double[] line1, double[] line2) {
 
         double[] intersectionPoint = new double[2];
