@@ -13,7 +13,8 @@ import java.util.*;
 import java.util.List;
 
 /**
- * Created by mr_robot on 04-03-16.
+ * Main panel displaying the scene and the painter's algorithm.
+ * @author Clément Tamines
  */
 public class SegmentsPainter extends JPanel implements ActionListener, ItemListener {
 
@@ -390,9 +391,9 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
             for(Segment seg : toDraw ) {
                 g2.setColor(seg.getColor());
                 g2.draw(new Line2D.Double(seg.getX1(),seg.getY1(),seg.getX2(),seg.getY2()));
-                g2.scale(inverseDrawing*scale,scale);
+                g2.scale(inverseDrawing,1);
                 g2.draw(new Line2D.Double(((seg.getX1()-minBound)*u)-(maxWidth/2),y,((seg.getX2()-minBound)*u)-(maxWidth/2),y));
-                g2.scale(inverseDrawing*scale,scale);
+                g2.scale(inverseDrawing,1);
             }
         }
 
@@ -404,7 +405,7 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
     private void paintSegments(Graphics2D g, BSPNode root) {
         for(Segment seg : root.getSegmentsInLine()) {
             g.setColor(seg.getColor());
-            g.draw(new Line2D.Double(seg.getX1()*scale,seg.getY1()*scale,seg.getX2()*scale,seg.getY2()*scale));
+            g.draw(new Line2D.Double(seg.getX1(),seg.getY1(),seg.getX2(),seg.getY2()));
         }
 
         if (!root.isLeaf()) {
@@ -427,7 +428,7 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
     private double toAbsDeg(double x) {
         return Math.abs(Math.toDegrees(x));
     }
-    
+
     public static double computeAngle(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) {
         double[] vector1 = {x2-x1,y2-y1};
         double[] vector2 = {x4-x3,y4-y3};
