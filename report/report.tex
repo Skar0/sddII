@@ -109,7 +109,7 @@ Chaque nœud possède un ensemble de segments $i$ dans un hyperplan et définit 
 \theoremstyle{Definition}
 \begin{definition}{Arbre BSP}\\
 \textit{-Cas de base :} Un arbre BSP vide est un arbre BSP\\
-\textit{-Cas général :} Un arbre BSP est un composé d'un nœud contenant une droite de séparation $s$, une liste chaînée de segments contenus dans cette droite et une liste chaînée $i$ de segments dont ont doit déterminer si ils sont dans $s^+$ ou $s^-$. Il possède aussi deux fils qui sont eux-même des arbres BSP.
+\textit{-Cas général :} Un arbre BSP est un composé d'un nœud contenant une droite de séparation $s$, une liste chaînée de segments contenus dans cette droite et une liste chaînée $i$ de segments dont ont doit déterminer si ils sont dans $s^+$ ou $s^-$. Il possède aussi deux fils qui sont eux-même des arbres BSP et qui auront pour liste de segments $i$ les segments contenus dans $s^+$ ou $s^-$.
 \end{definition}
 
 \theoremstyle{Definition}
@@ -119,23 +119,37 @@ La taille d'un arbre BSP est calculée en fonction du nombre total de segments q
 
 Les méthodes de construction des arbres seront présentées plus loin dans ce rapport.
 
-\subsection{Éléments indispensables à la construction}
+\subsection{Structures de données}
+Afin de représenter les différents éléments du problème, nous avons créé plusieurs objets et structures de données.
 
 \subsubsection{Segment}
-La classe Segment permet, comme son nom l'indique, de représenter un segment dans le plan orthonormé. Son constructeur prend en paramètres ses deux extrémités $(x1,y1)$, $(x2,y2)$ et sa couleur. Un segment possède également trois autres paramètres (\emph{intersected, isFreeSplit, intersection}), nécessaires à l'implémentation de l'heuristique des free-splits. Nous nous attarderons sur ces éléments plus tard. \\
-Ci-dessous sont présentées les méthodes les plus importantes pour la suite des calculs :
+La classe Segment permet, comme son nom l'indique, de représenter un segment dans le plan. Celui-ci est définit à partir de deux extrémités $(x_1,y_1)$, $(x_2,y_2)$ et d'une couleur. Un segment possède également trois autres propriétés (\emph{intersected, isFreeSplit, intersection}), nécessaires à l'implémentation de l'heuristique des free-splits. Nous nous attarderons sur ces éléments plus tard. \\
+
+Ci-dessous sont présentées les méthodes sur ces segments les plus importantes pour la suite des calculs :\\
+
 \begin{itemize}
-\item \emph{computeLine} : Calcule l'équation de la droite générée à partir du segment en question sous la forme $ax + by + c = 0$;
-\item \emph{getSide} : Cette méthode remplace les coordonnées $x$ et $y$ données en paramètres dans la droite également donnée en paramètre et retourne le résultat (donc 0 si le point est sur la droite);
-\item \emph{computePosition} : Retourne la position relative du segment par rapport à la droite donnée en paramètre. Remarquons que pour cette méthode certaines conventions ont été prises. En effet, s'il y a intersection, cette dernière est retournée. Sinon, si le segment est à gauche de la droite, NaN est retourné, s'il est à droite, c'est Infinity qui est renvoyé. Notons également que si nous nous trouvons dans le cas où il y a intersection au niveau d'un sommet du segment, par facilité d'implémentation nous retournons NaN ou Infinity en fonction de sa position et non le point d'intersection. Car en effet, nous aurions sinon création d'un segment qui est en réalité un point lors de la création de l'arbre BSP (ce qui aurait consisté en une segmentation incorrecte). Ces différentes situations sont représentées dans la figure \ref{computePositionExample}
+\item \emph{computeLine} : Calcule l'équation de la droite qui contient le segment sous la forme $ax + by + c = 0$ et la stocke dans un tableau de dimension trois contenant ses coefficients $a,b,c$;
+\item \emph{getSide} : Remplace les coordonnées $x$ et $y$ données en paramètres dans la droite également donnée en paramètre et retourne le résultat (0 si le point est sur la droite). Ceci nous permet de savoir de quel coté de la droite le point se trouve;
+\item \emph{computePosition} : Retourne la position relative du segment par rapport à la droite donnée en paramètre. Remarquons que pour cette méthode certaines conventions ont été prises. En effet, si il y a une intersection entre le segment et la droite, cette dernière est retournée dans un tableau à deux dimensions représentant un point. Sinon si le segment est à gauche de la droite, NaN est retourné, si il est à droite, Infinity qui est retourné. Notons également que si nous nous trouvons dans le cas où il y a intersection au niveau d'un sommet du segment, par facilité d'implémentation nous retournerons que celui-ci est à gauche ou à droite en ignorant l'intersection.
 \end{itemize}
 
-\subsubsection{BSPNode} 
-Cette classe est utile pour le stockage des arbres BSP. Sa conception est très proche des structures utilisées pour la représentation de simples arbre binaire. Des adaptations ont uniquement été faites pour stocker dans chaque noeud le ou les segment(s) présent(s) dans la droite le caractérisant via une liste chainée, et une autre liste chainée pour les segments présents dans l'hyperplan défini par le père (tous les segments s'il s'agit de la racine). 
+\subsubsection{Nœud BSP} 
+La classe BSPNode permet de représenter un nœud d'un arbre BSP définit de manière récursive. Un nœud possède une droite de séparation $s$ stockée sous la forme d'un tableau de dimension trois contenant ses coefficients $a,b,c$ de l'équation $ax + by + c = 0$ de la droite. Bien évidemment, chaque nœud contient aussi une référence vers son fils gauche $leftSon$ et son fils droit $rightSon$. 
+Le nœud contient aussi deux listes chaînées de segments :\\
 
-\subsection{Méthodes utiles}
-Intersection angle, position, remplacement
+\begin{itemize}
+\item \emph{segmentsInLine} : stocke les segments contenus dans la droite $s$;
+\item \emph{segmentsInHyperplane} : stocke les segments contenus dans la région du plan obtenue en suivant les séparations successives effectuée par chaque nœud à partir de la racine de l'arbre;
+\end{itemize}
+
+\subsubsection{Listes chaînées}
+
+Nous avons fait le choix d'utiliser les listes chaînées pour stocker des segments.\\
+L'avantage de ces structures de données est la récupération du premier élément et sa suppression en O(1). En effet, une référence au début de la liste étant toujours gardée, il est très peu coûteux d'y accéder et de le supprimer. Étant donné que les segments sont traités dans l'ordre de la liste dans le but de créer une ligne de séparation $s$, il est intéressant de pouvoir facilement accéder au premier segment.\\
+Dans un second temps, il est utile de remarquer que l'ajout d'un segment dans une liste chaînée se fait aussi en O(1) via l'utilisation d'une référence vers le dernier élément de la liste. Ceci est très utile vu que des segments sont ajoutés à des listes chaînées constamment (notamment les fragments ajoutés à ces listes suite à la coupure d'un segment).
+
 \subsection{Construction}
+
 \subsubsection{Heuristique "in-order"}
 
 \paragraph{Méthode}
@@ -483,11 +497,6 @@ Au niveau du code présent aux lignes 20-32, il s'agit de la recherche de free-s
 Pour les instructions 42-59, il s'agit simplement d'une vérification permettant de savoir si des free-splits sont présent dans la liste des segments pour le fils gauche et le fils droit. Si c'est le cas, le noeud est créé avec le segment résultant du free-split comme base pour une nouvelle droite de séparation, un booléen est mis à vrai et il n'y aura donc pas de choix aléatoire comme dans l'heuristique précédente. Et cela grâce aux conditions ajoutée en 62,68,74-75 et 81-82. Si aucun free-split n'est trouvé, le premier segment de l'hyperplan en question est choisi comme nouvelle "splitting-line", comme dans l'heuristique précédente. 
 
 \subsection{Complexité}
-
-\subsection{Structures de données utilisées}
-Outre nos structures de données pour représenter les arbres BSP, nous avont fait le choix d'utiliser des listes chainées de Java contenir les segments (que ce soient les segments contenus dans la ligne de séparation $s$ ou ceux compris dans les séparations de l'espace $s^+$ et $s^-$). 
-L'avantage de ces structures de données est la récupération du premier élément et sa suppression en O(1). En effet, une référence au début de la liste étant toujours gardée, il est très peu couteux d'y accéder et de la supprimer. Etant donné que les segments sont traités dans l'ordre de la liste dans le but de créer une ligne de séparation $s$, il est intéressant de pouvoir facilement accéder au premier segment. 
-Dans un second temps, il est utile de remarquer que l'ajout d'un segment dans une liste chainée se fait aussi en O(1) via l'utilisation d'une référence au dernier élément de la liste. Ceci est très utile vu que des segments sont ajouté à des listes chainées constamment (que ce soit un segment qui se trouve dans $s^+$ ou $s^-$ et qui doit donc être placé dans la liste chainée correspondante ou que ce soit les fragments ajoutés à ces listes suite à la coupure d'un segment).
 
 \subsection{Tests \& Résultats}
 
