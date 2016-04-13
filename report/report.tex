@@ -463,7 +463,7 @@ Au niveau du code présent aux lignes 20-32, il s'agit de la recherche de free-s
 
 Pour les instructions 42-59, il s'agit simplement d'une vérification permettant de savoir si des free-splits sont présent dans la liste des segments pour le fils gauche et le fils droit. Si c'est le cas, le noeud est créé avec le segment résultant du free-split comme base pour une nouvelle droite de séparation, un booléen est mis à vrai et il n'y aura donc pas de choix aléatoire comme dans l'heuristique précédente. Et cela grâce aux conditions ajoutée en 62,68,74-75 et 81-82. Si aucun free-split n'est trouvé, le premier segment de l'hyperplan en question est choisi comme nouvelle "splitting-line", comme dans l'heuristique précédente. 
 
-\paragraph{Complexité}
+\subsection{Complexité}
 
 \subsection{Structures de données utilisées}
 Outre nos structures de données pour représenter les arbres BSP, nous avont fait le choix d'utiliser des listes chainées de Java contenir les segments (que ce soient les segments contenus dans la ligne de séparation $s$ ou ceux compris dans les séparations de l'espace $s^+$ et $s^-$). 
@@ -506,6 +506,8 @@ Sortie : / (les segments sont dessinés dans le bon ordre)
 \end{lstlisting}
 
 \subsection{Complexité}
+Nous remarquons tout d'abord que l'algorithme va parcourir tous les noeuds de l'arbre, la méthode scanConvert va quant à elle parcourir tous les segments contenus dans ces noeuds. Pour une entrée d'un arbre avec $n$ noeuds et $m$ segments, nous obtenons une complexité à un appel récursif $i_k$ telle quel O($i_k$) avec $i_1 + i_2 + ... + i_k + ... + i_n$ =$m$. On a donc pour les n noeuds une complexité en 
+
 
 \subsubsection{Explications}
 Cet algorithme permet de parcourir l'arbre BSP pour afficher les segments par ordre de distance avec le point de vue (les segments les plus éloignés étant dessinés en premier).
@@ -618,7 +620,7 @@ Les figure \ref{painter_notations} et \ref{painter_notations_2} rend compte des 
 \end{lstlisting}
 \restoregeometry
 
-\subsection{Complexité}
+\subsubsection{Complexité}
 
 \subsubsection{Explications}
 Dans cette section, nous détaillerons le fonctionnement général de l'algorithme ainsi qu'un exemple.
@@ -707,7 +709,15 @@ Ces deux cas sont représentés sur les figure \ref{exp_5} et \ref{exp_6}.
 \caption{cas spécial ou il y a deux intersections derrière}
 \label{exp_6}
 \end{figure}
+
+
 \subsection{Tests \& Résultats}
+L'algorithme du peintre parcourant tous les noeuds de l'arbre BSP ainsi que tous les segments contenus dans la ligne de séparation de l'espace de ce noeud, il est naturel que le temps d'exécution de l'algorithme dépendra du nombre de noeuds de l'arbre ainsi que du nombre de segments contenus dans l'arbre (la somme du nombre de segments contenus dans chaque noeud). Le tableau suivant nous donne les valeurs de temps pour chaque arbre créé via une heuristique ainsi que le temps pris par l'algorithme du peintre. Il convient aussi de remarquer que plus il y aura de segments contenus dans le point de vue, plus il y aura de calculs effectués par la méthode scanConvert
+
+
+
+Nous remarquons que plus le nombre de segments est élevé, plus l'algorithme du peintre prendra du temps.
+
 \section{Mode d'emplois}
 
 \subsection{Interface graphique}

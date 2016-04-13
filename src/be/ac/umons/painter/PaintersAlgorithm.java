@@ -16,17 +16,24 @@ import java.util.List;
  */
 public class PaintersAlgorithm {
 
+    public List<Segment> getSegmentToDraw(BSPNode root, Pov pov) {
+        List<Segment> toDraw = new LinkedList<>();
+        paintersAlgorithm(root, pov, toDraw);
+        return toDraw;
+    }
+
+
     public void paintersAlgorithm(BSPNode root, Pov pov, List toDraw) {
         if (root != null) {
             if (root.isLeaf()) {
-                drawSegments(root.getSegmentsInLine(),pov,toDraw);
+                scanConvert(root.getSegmentsInLine(),pov,toDraw);
             } else if (getPovPosition(root, pov).isInfinite()) {
                 paintersAlgorithm(root.getLeftSon(), pov, toDraw);
-                drawSegments(root.getSegmentsInLine(), pov, toDraw);
+                scanConvert(root.getSegmentsInLine(), pov, toDraw);
                 paintersAlgorithm(root.getRightSon(), pov, toDraw);
             } else if (getPovPosition(root, pov).isNaN()) {
                 paintersAlgorithm(root.getRightSon(), pov, toDraw);
-                drawSegments(root.getSegmentsInLine(), pov, toDraw);
+                scanConvert(root.getSegmentsInLine(), pov, toDraw);
                 paintersAlgorithm(root.getLeftSon(), pov, toDraw);
             } else {
                 paintersAlgorithm(root.getRightSon(), pov, toDraw);
@@ -69,7 +76,7 @@ public class PaintersAlgorithm {
      * Draws all the segments and parts of segments in the list visible by the point of view
      * @param segments the list of segments
      */
-    public void drawSegments(java.util.List<Segment> segments, Pov pov, List<Segment> toDraw) {
+    public void scanConvert(java.util.List<Segment> segments, Pov pov, List<Segment> toDraw) {
         //First we compute the lines that make the point of view
         double[] povLine1 = this.computeLine(pov.getLine1().getX1(), pov.getLine1().getY1(),pov.getLine1().getX2(),pov.getLine1().getY2());
         Segment povSegment1 = new Segment(pov.getLine1().getX1(), pov.getLine1().getY1(),pov.getLine1().getX2(),pov.getLine1().getY2(), Color.PINK);
@@ -224,7 +231,7 @@ public class PaintersAlgorithm {
                 if(!Double.isInfinite(inter1[0]) && !Double.isNaN(inter1[0]) && !Double.isInfinite(inter2[0]) && !Double.isNaN(inter2[0]) ) {
                     java.util.List<Segment> tempList = new LinkedList<>();
                     tempList.add(new Segment(inter1[0],inter1[1],inter2[0],inter2[1],seg.getColor()));
-                    this.drawSegments(tempList,pov,toDraw);
+                    this.scanConvert(tempList,pov,toDraw);
                 }
 
             }
