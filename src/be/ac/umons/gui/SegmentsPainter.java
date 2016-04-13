@@ -1,6 +1,7 @@
 package be.ac.umons.gui;
 
 import be.ac.umons.bsp.*;
+import be.ac.umons.painter.PaintersAlgorithm;
 
 import javax.swing.*;
 import java.awt.*;
@@ -370,8 +371,37 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
         */
         //
         if(okPainter) {
-            debug = 10;
-            paintersAlgorithm(root, g2);
+
+            PaintersAlgorithm painter = new PaintersAlgorithm();
+            List<Segment> toDraw = new LinkedList<>();
+
+            //Keeping track of the original transform on the g2 object
+            AffineTransform originalTransform = g2.getTransform();
+
+            int inverseDrawing = 1;
+            //If the we are looking down, segments must be reversed when displaying the zoomed version (angle between the director vector and y-axis > 90°)
+            if(toAbsDeg(this.computeAngle(pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(),pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1()+10,pov.getDirectorVector().getX1(),pov.getDirectorVector().getY1(),pov.getDirectorVector().getX2(),pov.getDirectorVector().getY2())) > 90) {
+                inverseDrawing = -1;
+            }
+
+            //both "bounds" ie ends of the projection segment
+            double[] bound1 = {pov.getLine1().getX2(), pov.getLine1().getY2()};
+            double[] bound2 = {pov.getLine2().getX2(), pov.getLine2().getY2()};
+            double minBound = Math.min(bound1[0],bound2[0]);
+
+            //y coordinate where the zoomed version of the painter's algorithm will be drawn
+            double y = (maxHeight/2)+20;
+            double u = maxWidth/Math.abs(bound1[0]-bound2[0]);
+
+            painter.paintersAlgorithm(root,pov,toDraw);
+
+            for(Segment seg : toDraw ) {
+                g2.setColor(seg.getColor());
+                g2.draw(new Line2D.Double(seg.getX1(),seg.getY1(),seg.getX2(),seg.getY2()));
+                g2.scale(inverseDrawing*scale,scale);
+                g2.draw(new Line2D.Double(((seg.getX1()-minBound)*u)-(maxWidth/2),y,((seg.getX2()-minBound)*u)-(maxWidth/2),y));
+                g2.scale(inverseDrawing*scale,scale);
+            }
         }
 
         //
