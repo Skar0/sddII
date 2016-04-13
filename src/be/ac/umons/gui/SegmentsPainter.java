@@ -259,8 +259,8 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
             case "Help":
                 JOptionPane.showMessageDialog(frame, "This program allows you to load a scene, display it choose a " +
                         "point of view and see what segments or part of segments of the scene is seen by it.\n " +
-                        "To choose a point of view, click once to choose the stating position of it. The next two clicks determine the\n" +
-                        "positions of the two lines defining the point of view. In the other input option, clicking twice" +
+                        "To choose a point of view, click once to choose the stating position of it. The next two clicks determine the " +
+                        "positions of the two lines defining the point of view.\nIn the other input option, clicking twice" +
                         "give the extrmities of a director vector that is between both lines of the point of view with" +
                         "the right angle", "Help",JOptionPane.INFORMATION_MESSAGE);
                 break;

@@ -103,6 +103,7 @@ public class MainMenu extends JFrame {
             public void actionPerformed(ActionEvent event){
                 if(selectedFile != "" && heuristic != null) {
                     frame.setResizable(true);
+                    frame.setSize(500, 500);
                     frame.setContentPane(  new SegmentsPainter(heuristic, selectedFile, frame));
                     frame.revalidate();
                     frame.repaint();
