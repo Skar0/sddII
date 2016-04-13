@@ -3,6 +3,11 @@
 \usepackage[french]{babel}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath}
+\usepackage{amsthm}
+\theoremstyle{definition}
+\newtheorem*{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
 \usepackage{float}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -84,15 +89,16 @@
 
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
-Ce projet consiste en l'implémentation d'un outil permettant la représentation, en 2 dimensions, de scènes formées d'un ensemble de segments colorés placés dans un repère orthonormé. Cette représentation comprend deux paramètres ajustables à souhait : un point de vue pouvant se situer à divers endroits dans le repère, et un certain angle de vision $\alpha$ tel que $0 \degree <\alpha<180 \degree$.\\
+Ce projet consiste en l'implémentation d'un outil permettant, à partir d'un point de vue et d'une scène composée de segments colorés placés dans un repère orthonormé, d'afficher la scène telle que perçue par ce point de vue. Ce point de vue pourra être placé dans le repère par l'utilisateur.\\
 
-Pour réaliser cet affichage, nous utiliserons comme décrit dans l'énoncé l'algorithme du peintre. Ce dernier se basant sur des arbres de type BSP (\emph{Binary Spaces Partition}), il nous faut d'abord, à partir d'une liste de segments définis par leurs sommets et leur couleur, construire ces arbres. Leur création peut se faire de différentes manières, nous utiliserons ici 3 techniques : la technique classique "inordre", sa variante "random" et le principe des "free-splits". \\
+Pour réaliser cet affichage, nous utiliserons l'algorithme du peintre tel que décrit dans le Chapitre 12 du livre \textit{Computational Geometry}. Cet algorithme s'applique sur des arbres qui stockent l'ensemble de segments qui compose la scène et qui permettent de trouver un ordre d'affichage correct pour un point de vue quelconque. Ces arbres sont appelés arbres BSP (\emph{Binary Spaces Partition}) et seront construit via différentes techniques à partir d'une liste de segments définis par leurs sommets et leur couleur. Nous présenterons dans ce rapport la technique \textit{in-order}, sa variante \textit{random} et le principe des \textit{free-splits}.\\
 
-Ce rapport a pour but de décrire et expliquer les différentes techniques et algorithmes utilisés lors de la construction des arbres BSP et de la visualitation de ces derniers à l'aide de l'algorithme du peintre. Nous analyserons également la complexité et la performance de tels algorithmes.
+Ce rapport a pour but de décrire les différentes techniques et algorithmes utilisés lors de la construction des arbres BSP et de la visualisation de la scène à l'aide de l'algorithme du peintre. Nous analyserons également la complexité et la performance de ces algorithmes.
 
 \newpage
 
 \section{Arbres BSP}
+
 \subsection{Principe}
 Un arbre BSP (\emph{Binary Space Partition}), est un arbre binaire permettant de stocker de manière efficace un ensemble d'objets (dans notre cas de segments) situés dans un plan. Rappelons tout de même qu'un arbre binaire est un arbre tel que tout noeud possède au plus deux fils. \\
 
@@ -101,6 +107,14 @@ Le type d'arbre étudié ici consiste donc en une séparation binaire de l'espac
 La taille d'un arbre BSP est calculée en fonction du nombre total de segments dans chacun de ses noeuds. Moins il y aura eu de fragmentation lors de la création de l'arbre, moins ce dernier aura de segments et donc moins il sera grand et inversément. Il est donc intéressant de limiter cette fragmentation. \\
 
 Il existe bien évidemment diverses méthodes afin de construire de tels arbres de manière plus ou moins optimisée (en taille et/ou en temps), nous verrons ci-dessous trois de ces méthodes. 
+
+Voici la définition récursive d'un arbre BSP que nous avons utilisé :
+
+\theoremstyle{definition}
+\begin{definition}{Arbre BSP}\\
+\textit{Cas de base :} Un arbre BSP vide est un arbre BSP\\
+\textit{Cas général :} Un arbre BSP est un composé d'un noeud contenant une ligne de séparation $s$, une liste chainée de segments contenus  dans cette ligne et une liste de segments dont ont doit déterminer si ils sont dans la séparation $s^+$ ou $s^-$. Il possède aussi deux fils qui sont eux-même des arbres BSP.
+\end{definition}
 
 \subsection{Éléments indispensables à la construction}
 
@@ -116,6 +130,8 @@ Ci-dessous sont présentées les méthodes les plus importantes pour la suite de
 \subsubsection{BSPNode} 
 Cette classe est utile pour le stockage des arbres BSP. Sa conception est très proche des structures utilisées pour la représentation de simples arbre binaire. Des adaptations ont uniquement été faites pour stocker dans chaque noeud le ou les segment(s) présent(s) dans la droite le caractérisant via une liste chainée, et une autre liste chainée pour les segments présents dans l'hyperplan défini par le père (tous les segments s'il s'agit de la racine). 
 
+\subsection{Méthodes utiles}
+Intersection angle, position, remplacement
 \subsection{Construction}
 \subsubsection{Heuristique "in-order"}
 
