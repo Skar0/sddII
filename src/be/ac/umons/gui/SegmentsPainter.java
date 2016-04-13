@@ -23,9 +23,6 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
     private Frame frame;
     private BSPNode root;
 
-    //TODO remove
-    private int scale = 1;
-
     //Input method for the pov
     private int inputMode = 1;
 
@@ -53,18 +50,15 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
 
     double norm;
 
-    private double angle = Double.POSITIVE_INFINITY; //angle infini de base
+    //Position of the pov in the scene
     private double[] povScaledPosition = null;
     private double[] povPosition = null;
 
-    //
+    //Variable telling the gui if a point of view was choosen
     boolean okPainter = false;
-    //
 
-    //TODO manière dégeulasse
+    //Counter telling the gui where we are in constructing the point of view
     private int clickCounter = 0;
-
-    int debug = 10;
 
     public SegmentsPainter(Heuristic heuristic, String path, JFrame frame) {
         this.loader = new SegmentLoader();
@@ -77,8 +71,10 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
         this.frame = frame;
         this.panel = this;
 
+        //adds the menu bar
         frame.setJMenuBar(this.createMenuBar());
 
+        //Handles the pov creation with the mouse clicks
         this.addMouseListener(new MouseListener() {
 
             @Override
@@ -93,10 +89,9 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                 if(inputMode == 1) {
                     switch (clickCounter % 3) {
                         case 0:
-                            //
+
                             okPainter = false;
 
-                            //
                             lineToDraw1 = null;
                             lineToDraw2 = null;
                             pov.setProjectionLine(null);
@@ -125,7 +120,6 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                             break;
                         case 2:
 
-                            //TODO ici on crée le pov, on dessine le panel
                             double vectorNorm = Math.sqrt(Math.pow(x_scaled - povScaledPosition[0], 2) + Math.pow(y_scaled - povScaledPosition[1], 2));
                             double[] vector = {(x_scaled - povScaledPosition[0]) / vectorNorm, (y_scaled - povScaledPosition[1]) / vectorNorm};
                             double[] secondPoint = {povScaledPosition[0] + (vector[0] * norm), povScaledPosition[1] + (vector[1] * norm)};
@@ -144,10 +138,9 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
                 else {
                     switch(clickCounter%2) {
                         case 0 :
-                            //
+
                             okPainter = false;
 
-                            //
                             lineToDraw1 = null;
                             lineToDraw2 = null;
                             pov.setProjectionLine(null);
@@ -203,6 +196,10 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
         });
     }
 
+    /**
+     * Creates the menu bar
+     * @return the JMenuBar object corresponding to the menu
+     */
     public JMenuBar createMenuBar() {
         JMenuBar menuBar;
         JMenu menu;
@@ -261,11 +258,16 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
         JMenuItem source = (JMenuItem)(actionEvent.getSource());
         switch(source.getText()) {
             case "Help":
-                JOptionPane.showMessageDialog(frame, "This program allows you to load a scene, choose a point of view and see what part of the scene is seen by it.\n " +
-                        "To choose a point of view, click once to choose the stating position of it. The next two clicks determine the positions of the two lines defining the point of view.", "Help",JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "This program allows you to load a scene, display it choose a " +
+                        "point of view and see what segments or part of segments of the scene is seen by it.\n " +
+                        "To choose a point of view, click once to choose the stating position of it. The next two clicks determine the\n" +
+                        "positions of the two lines defining the point of view. In the other input option, clicking twice" +
+                        "give the extrmities of a director vector that is between both lines of the point of view with" +
+                        "the right angle", "Help",JOptionPane.INFORMATION_MESSAGE);
                 break;
             case "About":
-                JOptionPane.showMessageDialog(frame, "This program was created by Clément Tamines and Jérémy Gheysen for the course \"Structures de données II\" in the University of Mons", "About",JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "This program was created by Clément Tamines and Jérémy Gheysen " +
+                        "for the course \"Structures de données II\" in the University of Mons", "About",JOptionPane.INFORMATION_MESSAGE);
                 break;
             case "Choose file":
                 final JFileChooser fileChooser = new JFileChooser();
@@ -314,8 +316,8 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
             do {
                 String input = (String) JOptionPane.showInputDialog(
                         frame,
+                        "Input an integer angle between 1 and 179°",
                         "Angle selection",
-                        "Input an integer angle between 1 and 179",
                         JOptionPane.PLAIN_MESSAGE,
                         null,
                         null,
@@ -356,17 +358,7 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
         if(lineToDraw2 != null) {
             g2.draw(lineToDraw2);
         }
-        /*
-        if(pov.getProjectionLine() != null) {
-            g2.draw(pov.getProjectionLine());
-        }
-        */
-        /*
-        if(pov.getDirectorVector() != null) {
-            g2.draw(pov.getDirectorVector());
-        }
-        */
-        //
+
         if(okPainter) {
 
             PaintersAlgorithm painter = new PaintersAlgorithm();
@@ -397,11 +389,13 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
             }
         }
 
-        //
-
-
     }
 
+    /**
+     * Recursively goes through a BSP tree displaying all the segments it contains
+     * @param g
+     * @param root the root of the BSP tree
+     */
     private void paintSegments(Graphics2D g, BSPNode root) {
         for(Segment seg : root.getSegmentsInLine()) {
             g.setColor(seg.getColor());
@@ -433,10 +427,6 @@ public class SegmentsPainter extends JPanel implements ActionListener, ItemListe
         double[] vector1 = {x2-x1,y2-y1};
         double[] vector2 = {x4-x3,y4-y3};
         double crossProd = (vector1[0]*vector2[0])+(vector1[1]*vector2[1]);
-        double v1Norm = Math.sqrt( Math.pow(x1-x2,2) + Math.pow(y1-y2,2));
-        double v2Norm = Math.sqrt( Math.pow(x3-x4,2) + Math.pow(y3-y4,2));
-        double cos = (double) crossProd/(v1Norm*v2Norm);
-        //return  Math.acos(cos);
         double dotProd = (vector1[0]*vector2[1])-(vector1[1]*vector2[0]);
         return  Math.atan2(dotProd,crossProd);
     }
