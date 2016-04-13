@@ -1,4 +1,4 @@
-package be.ac.umons.gui;
+package be.ac.umons.painter;
 
 import java.awt.geom.Line2D;
 

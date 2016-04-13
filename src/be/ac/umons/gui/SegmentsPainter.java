@@ -2,14 +2,13 @@ package be.ac.umons.gui;
 
 import be.ac.umons.bsp.*;
 import be.ac.umons.painter.PaintersAlgorithm;
+import be.ac.umons.painter.Pov;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.io.File;
-import java.util.*;
 import java.util.List;
 
 /**

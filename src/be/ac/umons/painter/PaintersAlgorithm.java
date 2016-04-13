@@ -3,11 +3,8 @@ package be.ac.umons.painter;
 import be.ac.umons.bsp.BSPNode;
 import be.ac.umons.bsp.Heuristic;
 import be.ac.umons.bsp.Segment;
-import be.ac.umons.gui.Pov;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
 import java.util.*;
 import java.util.List;
 
