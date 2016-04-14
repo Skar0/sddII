@@ -92,9 +92,9 @@
 \addcontentsline{toc}{section}{Introduction}
 Ce projet consiste en l'implémentation d'un outil permettant, à partir d'un point de vue et d'une scène composée de segments colorés placés dans un repère orthonormé, d'afficher la scène telle que perçue par ce point de vue. Ce point de vue pourra être placé dans le repère par l'utilisateur.\\
 
-Pour réaliser cet affichage, nous utiliserons l'algorithme du peintre tel que décrit dans le Chapitre 12 du livre \textit{Computational Geometry}. Cet algorithme s'applique sur des arbres qui stockent l'ensemble de segments qui compose la scène et qui permettent de trouver un ordre d'affichage correct pour un point de vue quelconque. Ces arbres sont appelés arbres BSP (\emph{Binary Spaces Partition}) et seront construit via différentes techniques à partir d'une liste de segments définis par leurs sommets et leur couleur. Nous présenterons dans ce rapport la technique \textit{in-order}, sa variante \textit{random} et le principe des \textit{free-splits}.\\
+Pour réaliser cet affichage, nous utiliserons l'algorithme du peintre tel que décrit dans le Chapitre 12 du livre \textit{Computational Geometry}. Cet algorithme s'applique sur des arbres qui stockent l'ensemble de segments qui composent la scène et qui permettent de trouver un ordre d'affichage correct pour un point de vue quelconque. Ces arbres sont appelés arbres BSP (\emph{Binary Spaces Partition}) et seront construit via différentes techniques à partir d'une liste de segments définis par leurs sommets et leur couleur. Nous présenterons dans ce rapport la technique \textit{in-order}, sa variante \textit{random} et le principe des \textit{free-splits}.\\
 
-Ce rapport a pour but de décrire les différentes techniques et algorithmes utilisés lors de la construction des arbres BSP et de la visualisation de la scène à l'aide de l'algorithme du peintre. Nous analyserons également la complexité et la performance de ces algorithmes.
+Ce rapport a pour but de décrire les différentes techniques et algorithmes utilisés lors de la construction des arbres BSP et de la visualisation de la scène à l'aide de l'algorithme du peintre. Nous analyserons également les résultats fournis par ces algorithmes ainsi que la complexité pour l'algorithme du peintre.
 
 \newpage
 
@@ -105,7 +105,7 @@ Un arbre BSP (\emph{Binary Space Partition}) est un arbre binaire permettant de 
 
 Les arbres BSP étudiés ici consistent en une séparation binaire du plan, s'effectuant de manière récursive. Ce processus sépare donc le plan en plusieurs régions, chacune d'entre elles contenant des segments. La séparation du plan se termine lorsque chaque région ne contient plus qu'un segment.\\
 
-Chaque nœud possède un ensemble de segments $i$ dans un hyperplan et définit une nouvelle séparation binaire de ce dernier, cela sur base d'une droite de séparation $s$ (choisie selon une technique définie au préalable et dans laquelle sont contenus un ou plusieurs segments), et sépare ainsi le plan en deux sous-espaces $s^+$ et $s^-$ contenant chacun une partie des segments de $i$ non contenus dans la droite de séparation (les segments contenus dans $s$ étant les segments importants à stocker dans le nœud). Cette méthode de séparation est alors appelée récursivement sur chacun des deux sous-espaces nouvellement créés qui seront stockés dans les deux fils de ce nœud. La droite $s$ utilisée pour séparer le plan peut néanmoins couper des segments en deux, résultant alors dans la création de deux nouveaux segments qui seront contenus dans $s^+$ et $s^-$. Remarquons qu'avec la manière avec laquelle nous définissons chaque nouveau nœud, les feuilles de l'arbre seront des nœuds possédant une droite de séparation $s$ dans laquelle seront contenus un ou plusieurs segments. Ces feuilles ne pourront donc pas avoir de fils, puisqu'elles ne posséderont aucun segments dans $s^+$ et $s^-$.\\
+Chaque nœud possède un ensemble de segments $i$ contenu dans un hyperplan et définit une nouvelle séparation binaire pour ceux de ses fils, et cela à l'aide d'une droite $s$ (choisie selon une technique définie au préalable et dans laquelle sont contenus un ou plusieurs segments). Le plan est alors divisé en deux sous-espaces $s^+$ et $s^-$ contenant chacun une partie des segments de $i$ non contenus dans la droite de séparation (les segments contenus dans $s$ étant les segments importants à stocker dans le nœud). Cette méthode de séparation est alors appelée récursivement sur chacun des deux sous-espaces nouvellement créés qui seront stockés dans les deux fils de ce nœud. La droite $s$ utilisée pour séparer le plan peut néanmoins couper des segments en deux, résultant alors dans la création de deux nouveaux segments qui seront contenus dans $s^+$ et $s^-$. Remarquons qu'avec la manière avec laquelle nous définissons chaque nouveau nœud, les feuilles de l'arbre seront des nœuds possédant une droite de séparation $s$ dans laquelle seront contenus un ou plusieurs segments mais sans segments dans leur hyperplan. Ces feuilles ne pourront donc pas avoir de fils, puisqu'elles ne posséderont aucun segments dans $s^+$ et $s^-$.\\
 
 \theoremstyle{Definition}
 \begin{definition}{Arbre BSP}\\
@@ -124,18 +124,18 @@ Les méthodes de construction des arbres seront présentées plus loin dans ce r
 Afin de représenter les différents éléments du problème, nous avons créé plusieurs objets et structures de données.
 
 \subsubsection{Segment}
-La classe Segment permet, comme son nom l'indique, de représenter un segment dans le plan. Celui-ci est définit à partir de deux extrémités $(x_1,y_1)$, $(x_2,y_2)$ et d'une couleur. Un segment possède également trois autres propriétés (\emph{intersected, isFreeSplit, intersection}), nécessaires à l'implémentation de l'heuristique des free-splits. Nous nous attarderons sur ces éléments plus tard. \\
+La classe Segment permet, comme son nom l'indique, de représenter un segment dans le plan. Celui-ci est défini à partir de deux extrémités $(x_1,y_1)$, $(x_2,y_2)$ et d'une couleur. Un segment possède également trois autres propriétés (\emph{intersected, isFreeSplit, intersection}), nécessaires à l'implémentation de l'heuristique des free-splits. Nous nous attarderons sur ces éléments plus tard. \\
 
-Ci-dessous sont présentées les méthodes sur ces segments les plus importantes pour la suite des calculs :\\
+Ci-dessous sont présentées les méthodes les plus importantes pour la suite des calculs, appliquées sur ces segments  :\\
 
 \begin{itemize}
-\item \emph{computeLine} : Calcule l'équation de la droite qui contient le segment sous la forme $ax + by + c = 0$ et la stocke dans un tableau de dimension trois contenant ses coefficients $a,b,c$;
+\item \emph{computeLine} : Calcule l'équation de la droite qui contient le segment, sous la forme $ax + by + c = 0$ et la stocke dans un tableau de dimension trois contenant ses coefficients $a,b,c$;
 \item \emph{getSide} : Remplace les coordonnées $x$ et $y$ données en paramètres dans la droite également donnée en paramètre et retourne le résultat (0 si le point est sur la droite). Ceci nous permet de savoir de quel coté de la droite le point se trouve;
-\item \emph{computePosition} : Retourne la position relative du segment par rapport à la droite donnée en paramètre. Remarquons que pour cette méthode certaines conventions ont été prises. En effet, si il y a une intersection entre le segment et la droite, cette dernière est retournée dans un tableau à deux dimensions représentant un point. Sinon si le segment est à gauche de la droite, NaN est retourné, si il est à droite, Infinity qui est retourné. Notons également que si nous nous trouvons dans le cas où il y a intersection au niveau d'un sommet du segment, par facilité d'implémentation nous retournerons que celui-ci est à gauche ou à droite en ignorant l'intersection.
+\item \emph{computePosition} : Retourne la position relative du segment par rapport à la droite donnée en paramètre. Remarquons que pour cette méthode certaines conventions ont été prises. En effet, si il y a une intersection entre le segment et la droite, cette dernière est retournée dans un tableau à deux dimensions représentant un point. Sinon si le segment est à gauche de la droite, NaN est retourné, s'il est à droite, Infinity est retourné. Notons également que si nous nous trouvons dans le cas où il y a intersection au niveau d'un sommet du segment, par facilité d'implémentation nous retournerons que celui-ci est à gauche ou à droite en ignorant l'intersection.
 \end{itemize}
 
 \subsubsection{Nœud BSP} 
-La classe BSPNode permet de représenter un nœud d'un arbre BSP définit de manière récursive. Un nœud possède une droite de séparation $s$ stockée sous la forme d'un tableau de dimension trois contenant ses coefficients $a,b,c$ de l'équation $ax + by + c = 0$ de la droite. Bien évidemment, chaque nœud contient aussi une référence vers son fils gauche $leftSon$ et son fils droit $rightSon$. 
+La classe BSPNode permet de représenter un nœud d'un arbre BSP défini de manière récursive. Un nœud possède une droite de séparation $s$ stockée sous la forme d'un tableau de dimension trois contenant ses coefficients $a,b,c$ de l'équation $ax + by + c = 0$ de la droite. Bien évidemment, chaque nœud contient aussi une référence vers son fils gauche $leftSon$ et son fils droit $rightSon$. 
 Le nœud contient aussi deux listes chaînées de segments :\\
 
 \begin{itemize}
@@ -147,7 +147,7 @@ Le nœud contient aussi deux listes chaînées de segments :\\
 
 Nous avons fait le choix d'utiliser les listes chaînées pour stocker des segments.\\
 L'avantage de ces structures de données est la récupération du premier élément et sa suppression en O(1). En effet, une référence au début de la liste étant toujours gardée, il est très peu coûteux d'y accéder et de le supprimer. Étant donné que les segments sont traités dans l'ordre de la liste dans le but de créer une ligne de séparation $s$, il est intéressant de pouvoir facilement accéder au premier segment.\\
-Dans un second temps, il est utile de remarquer que l'ajout d'un segment dans une liste chaînée se fait aussi en O(1) via l'utilisation d'une référence vers le dernier élément de la liste. Ceci est très utile vu que des segments sont ajoutés à des listes chaînées constamment (notamment les fragments ajoutés à ces listes suite à la coupure d'un segment).
+Dans un second temps, il est utile de remarquer que l'ajout d'un segment dans une liste chaînée se fait aussi en O(1) via l'utilisation d'une référence vers le dernier élément de la liste. Ceci est très utile vu des segments ajoutés constamment aux listes chaînées (notamment les fragments ajoutés à ces listes suite à la coupure d'un segment).
 
 \subsection{Construction}
 
@@ -196,7 +196,7 @@ Le nœud actuel ne possédera alors pas de fils droit et aura un fils gauche qui
 \end{figure}
 \newpage
 
-La deuxième liste contiendra ainsi les segments $\{S3,S4,S5B,S6\}$. Le segment $S3$ sera utilisé pour créer la ligne de séparation $s_3$, nous remarquons que le segment $S4$ est lui aussi compris dans cette droite. Nous avons également que $s_3$ intersecte $S5B$ et $S6$ ce qui engendre la création des fragments : $S5C$, $S6A$, $S6B$ comme indiqué sur la figure \ref{bsp_ex_5.png}. Les régions $s_3^+$ et $s_3^-$ contiennent les segments suivants:\\
+La deuxième liste contiendra ainsi les segments $\{S3,S4,S5B,S6\}$. Le segment $S3$ sera utilisé pour créer la ligne de séparation $s_3$, nous remarquons que le segment $S4$ est lui aussi compris dans cette droite. Nous avons également que $s_3$ intersecte $S5B$ et $S6$ ce qui engendre la création des fragments : $S5C$, $S6A$, $S6B$ comme indiqué sur la figure \ref{bsp_ex_5}. Les régions $s_3^+$ et $s_3^-$ contiennent les segments suivants:\\
 $$s_3^+ \quad contient\quad \{S6B, S5C\}$$
 $$s_3^- \quad contient\quad \{S5B,S6A\}$$
 
@@ -516,20 +516,20 @@ Pour les instructions 42-59, il s'agit simplement d'une vérification permettant
 
 \section{Algorithme du peintre}
 
-Notre implémentation de l'algorithme du peintre est similaire à celle présentée dans le livre de référence. Son principe est le suivant : chaque nœud de l'arbre BSP est parcouru dans un certain ordre et les segments qu'il contient sont alors affichés si ils sont visibles par le point de vue.
+Notre implémentation de l'algorithme du peintre est similaire à celle présentée dans le livre de référence. Son principe est le suivant : chaque nœud de l'arbre BSP est parcouru dans un certain ordre et les segments qu'il contient sont alors affichés s'ils sont visibles par le point de vue.
 
 \subsection{Structures de données}
-Les algorithmes présentés dans cette section utilisent les structures de données Segment pour représenter les segments, BSPNode pour représenter les arbres et listes chaînées pour stocker les segments comme elles ont été présentées dans la section \textit{1.2}
+Les algorithmes présentés dans cette section utilisent les structures de données suivantes : Segment pour représenter les segments, BSPNode pour représenter les arbres et listes chaînées pour stocker les segments comme elles ont été présentées dans la section \textit{1.2}
 
 \subsubsection{Point de vue}
 La structure de données Pov (\emph{Point Of View}) permet de représenter un point de vue. Celui-ci contient plusieurs attributs utiles pour l'algorithme du peintre :\\
 
 \begin{itemize}
-	\item \emph{position} le point de départ du point de vue, stocké sous forme d'un tableau de doubles à deux dimensions.
-	\item \emph{line1} le premier vecteur qui définit le point de vue, stocké sous forme d'un objet qui comprend les deux points composant ce segment.
-	\item \emph{line2} le deuxième vecteur qui définit le point de vue, stocké sous forme d'un objet qui comprend les deux points composant ce segment.
-	\item \emph{directorVector} le vecteur directeur du point de vue, reliant le point stocké dans \emph{position} et le point entre les extrémités des deux segments qui définissent le point de vue. Ce vecteur directeur est essentiellement la bissectrice du point de vue et est stocké de la même façon que précédemment.
-	\item \emph{projectionLine} la ligne sur laquelle seront projetés les segments vu par le point de vue, stockée de la même façon que précédemment.
+	\item \emph{position :} le point de départ du point de vue, stocké sous forme d'un tableau de doubles à deux dimensions.
+	\item \emph{line1 :} le premier vecteur qui définit le point de vue, stocké sous forme d'un objet qui comprend les deux points composant ce segment.
+	\item \emph{line2 :} le deuxième vecteur qui définit le point de vue, stocké sous forme d'un objet qui comprend les deux points composant ce segment.
+	\item \emph{directorVector :} le vecteur directeur du point de vue, reliant le point stocké dans \emph{position} et le point entre les extrémités des deux segments qui définissent le point de vue. Ce vecteur directeur est essentiellement la bissectrice du point de vue et est stocké de la même façon que précédemment.
+	\item \emph{projectionLine :} la ligne sur laquelle seront projetés les segments vu par le point de vue, stockée de la même façon que précédemment.
 \end{itemize}
 
 \subsection{Algorithme principal}
@@ -566,7 +566,7 @@ Sortie : / (les segments sont dessinés dans le bon ordre)
 \subsubsection{Méthode}
 Cet algorithme permet de parcourir l'arbre BSP pour afficher les segments par ordre de distance avec le point de vue (les segments les plus éloignés étant dessinés en premier).\\
 
-Nous vérifions tout d'abord si la racine $N$ de l'arbre n'est pas vide Ce cas peut résulter d'un appel récursif sur l'algorithme avec un nœud $N$ qui n'a pas de fils gauche et/ou de fils droit. L'appel se fera donc avec un nœud null et ne résultera en aucun calcul.\\
+Nous vérifions tout d'abord si la racine $N$ de l'arbre n'est pas vide. Ce cas peut résulter d'un appel récursif sur l'algorithme avec un nœud $N$ qui n'a pas de fils gauche et/ou de fils droit. L'appel se fera donc avec un nœud null et ne résultera en aucun calcul.\\
 
 Ensuite, il est évident que si le nœud $N^$ est une feuille, nous ne pouvons plus parcourir récursivement l'arbre et nous appelons donc la méthode \textbf{scanConvert} qui permet d'afficher les segments contenus dans le nœud $N$ si ceux-ci sont visibles par le point de vue $P$. Il est utile de rappeler que les segments potentiellement affichés sont ceux contenus dans la droite de séparation du nœud $N$, stockés dans $N_{liste}$.\\
 
@@ -764,7 +764,7 @@ Enfin, si nous avons deux angles plus grands que demis angle, qu'on a une droite
 
 \begin{itemize}
 	\item Le segment coupait bien le point de vue, le segment coupé sur lequel l'appel récursif est effectué est donc complètement compris dans le point de vue et sera affiché par le premier cas (figure \ref{exp_5}).
-	\item Le segment coupait les deux droites derrière le point de vue, le segment coupé sur lequel l'appel récursif est effectué est n'est donc pas contenu dans le point de vue. Il ne passera dans aucuns cas et ne sera pas affiché (figure \ref{exp_6}).
+	\item Le segment coupait les deux droites derrière le point de vue, le segment coupé sur lequel l'appel récursif est effectué est n'est donc pas contenu dans le point de vue. Il ne passera dans aucun cas et ne sera pas affiché (figure \ref{exp_6}).
 \end{itemize}
 
 \begin{figure}[H]
@@ -781,7 +781,7 @@ Enfin, si nous avons deux angles plus grands que demis angle, qu'on a une droite
 \label{exp_6}
 \end{figure}
 
-Grâce à l'ordre des appels sur cette méthode donné par l'algorithme du peintre, nous obtenus ce que voit le point de vue suite au traitement de tous les segments de l'arbre BSP comme montré sur la figure \ref{algofini}.
+Grâce à l'ordre des appels sur cette méthode donné par l'algorithme du peintre, nous obtenons ce que voit le point de vue suite au traitement de tous les segments de l'arbre BSP comme montré sur la figure \ref{algofini}.
 
 \begin{figure}[H]
 \centering
@@ -893,7 +893,7 @@ L'algorithme du peintre parcourant tous les noeuds de l'arbre BSP ainsi que tous
 \end{tabular}%
 }
 \end{table}
-\section{Mode d'emplois}
+\section{Mode d'emploi}
 
 \subsection{Interface graphique}
 
@@ -913,7 +913,7 @@ L'algorithme du peintre est appliqué une fois un point de vue valide choisi par
 
 Pour lancer le mode console, la classe \textit{TestCui.java} du package \textit{be.umons.ac.cui} doit être lancée à partir du dossier\textbf{src} via \textbf{javac be\textbackslash ac\textbackslash umons\textbackslash cui\textbackslash Cui.java} et \textbf{java be.ac.umons.cui.Cui}. Le mode console fonctionne comme suit :\\
 
-Il est tout d'abord demandé à l'utilisateur de choisir un fichier. Il doit pour cela choisir un des fichiers proposés (les fichiers de base de l'énoncé) ou introduire le chemin complet d'un fichier contenant une scène. L'utilisateur doit ensuite choisir un nombre d'itération des algorithmes pour le calcul des temps. En effet, les algorithmes de création étant non déterministes, il est intéressant de pouvoir les lancer plusieurs fois et faire une moyenne des résultats et temps obtenus. Cette moyenne n'affectera pas les résultats des algorithmes déterministes. Suite au choix d'un fichier et d'un nombre d'itérations, un tableau reprenant les résultats obtenus pour les heuristiques et algorithme du peintre sont affichés dans la console.
+Il est tout d'abord demandé à l'utilisateur de choisir un fichier. Il doit pour cela choisir un des fichiers proposés (les fichiers de base de l'énoncé) ou introduire le chemin complet d'un fichier contenant une scène. L'utilisateur doit ensuite choisir un nombre d'itérations, effectuant ainsi une batterie de test pour le calcul des temps. En effet, les algorithmes de création étant non déterministes, il est intéressant de pouvoir les lancer plusieurs fois et faire une moyenne des résultats et temps obtenus. Cette moyenne n'affectera pas les résultats des algorithmes déterministes. Suite au choix d'un fichier et d'un nombre d'itérations, un tableau reprenant les résultats obtenus pour les heuristiques et algorithme du peintre sont affichés dans la console.
 
 \section*{Conclusion}
 Lors de ce projet, nous avons connus quelques difficultés que nous n'avions encore jamais rencontrées, comme la gestion d'erreurs de précision lors du calcul de droites, d'intersections ou d'angles. Nous avons également réalisé ce projet en prenant en compte la complexité des algorithmes et des structures de données que nous devions créer.\\
