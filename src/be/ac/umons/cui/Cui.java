@@ -181,7 +181,7 @@ public class Cui {
                 answer = "../assets/rectangles/rectanglesSmall.txt";
                 break;
             case("rectanglesMedium"):
-                answer = "../assets/rectangles/rectangleMedium.txt";
+                answer = "../assets/rectangles/rectanglesMedium.txt";
                 break;
             case("rectanglesLarge"):
                 answer = "../assets/rectangles/rectanglesLarge.txt";
