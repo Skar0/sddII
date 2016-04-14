@@ -802,6 +802,29 @@ L'algorithme du peintre parcourant tous les noeuds de l'arbre BSP ainsi que tous
 
 Nous remarquons que plus le nombre de segments est élevé, plus l'algorithme du peintre prendra du temps.
 
+\begin{table}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|c|c||c|c|c|c|c|}
+\hline 
+  &  &  &  & BSP &  & Painter \\ 
+\hline 
+\textbf{Fichier} & \textbf{Heuristique} & \textbf{Taille} & \textbf{Hauteur} & \textbf{Segments} & \textbf{Temps création (ms)} & \textbf{Temps parcours(ms)} \\ 
+\hline 
+  & Inorder & 12 & 11 & 14 & 0.26193 & 0.12797 \\ 
+\hline 
+Octangle & Random & 14 & 9 & 16 & 0.13641 & 0.02473 \\ 
+\hline 
+  & Free-splits & 13 & 10 & 15 & 0.14450 & 0.02000 \\ 
+\hline 
+  & Inorder & 8 & 8 & 8 & 0.09030 & 0.01054 \\ 
+\hline 
+Octogone & Random & 8 & 8 & 8 & 0.07308 & 0.00680 \\ 
+\hline 
+  & Free-splits & 8 & 8 & 8 & 0.04571 & 0.00593 \\ 
+\hline 
+\end{tabular}%
+}
+\end{table}
 \section{Mode d'emplois}
 
 \subsection{Interface graphique}
