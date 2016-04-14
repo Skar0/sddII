@@ -16,23 +16,18 @@ import java.lang.management.*;
  * @author Clément Tamines
  */
 public class Cui {
+    
+    private enum Heuristics {Inorder, Random, Free_Splits}
+    private static Heuristics currentHeuristic;
+    private static int iterations;
+    private static Line2D line1 = new Line2D.Double(0,0,0,1), line2 = new Line2D.Double(0,0,1,1);
+    private static Pov pov = new Pov(line1,line2);
+    private static computeResults myThread;
 
-    /*TODO :
-     * Faire l'help
-     * Préciser qu'on fait une moyenne
-     * Permettre de recharger un fichier quand on a fini un test
-     */
 
-
-    public enum Heuristics {Inorder, Random, Free_Splits}
 
     public static void main(String [] args) {
 
-        Heuristics currentHeuristic;
-        int iterations;
-        Line2D line1 = new Line2D.Double(0,0,0,1), line2 = new Line2D.Double(0,0,1,1);
-        Pov pov = new Pov(line1,line2);
-        computeResults myThread;
         boolean canTakeCPUMeasurements = true;
 
         //Test if the JVM is able to run methods on the threads
@@ -53,57 +48,7 @@ public class Cui {
                 Console console = System.console();
                 if (console != null) {
                     System.out.println("-BSP Tree comparator-\n");
-
-                    System.out.println("You can choose files from the following ones or enter a relative path to a new one :");
-                    System.out.println("[Current directory : " + System.getProperty("user.dir") + "]");
-                    System.out.println("");
-
-                    System.out.printf(" %-17s || %-17s \n", "octangle", "octogone");
-                    System.out.printf(" %-17s || %-17s || %-17s \n", "ellipsesSmall", "ellipsesMedium", "ellipsesLarge");
-                    System.out.printf(" %-17s || %-17s || %-17s || %-17s \n", "randomSmall", "randomMedium", "randomLarge", "randomHuge");
-                    System.out.printf(" %-17s || %-17s || %-17s || %-17s \n", "rectanglesSmall", "rectanglesMedium", "rectanglesLarge", "rectanglesHuge");
-
-                    System.out.println("");
-                    String response = console.readLine("Please enter what you want : ");
-                    String path = getPath(console, response);
-                    System.out.println("You entered the following path : " + path + "\n");
-                    String test_iter = console.readLine("Please choose a number of iterations for testing : ");
-                    iterations = getIntFromString(console, test_iter);
-                    System.out.println("Here are the results for the chosen file : \n");
-
-                    currentHeuristic = Heuristics.Inorder;
-                    myThread = new computeResults(currentHeuristic, iterations, path, pov);
-                    myThread.start();
-                    myThread.join();
-                    double[] result1 = myThread.getResult();
-
-                    currentHeuristic = Heuristics.Random;
-                    myThread = new computeResults(currentHeuristic, iterations, path, pov);
-                    myThread.start();
-                    myThread.join();
-                    double[] result2 = myThread.getResult();
-
-                    currentHeuristic = Heuristics.Free_Splits;
-                    myThread = new computeResults(currentHeuristic, iterations, path, pov);
-                    myThread.start();
-                    myThread.join();
-                    double[] result3 = myThread.getResult();
-
-                    String header = String.format("  %-22s|  %-9s| %-10s| %-8s| %-8s| %-8s|",
-                            "      [Nom]", " [Size]", " [Height]", "[Segments]", "[BSP creation time (s)]", "[Painter Algorithm (s)]");
-                    String inorder = String.format("%-24s|%11.0f|%11.0f|%11.0f|%24.5f|%24.5f|",
-                            "In order Heuristic", result1[0], result1[1], result1[2], result1[3], result1[4]);
-
-                    String random = String.format("%-24s|%11.0f|%11.0f|%11.0f|%24.5f|%24.5f|",
-                            "Random Heuristic", result2[0], result2[1], result2[2], result2[3], result2[4]);
-
-                    String free_split = String.format("%-24s|%11.0f|%11.0f|%11.0f|%24.5f|%24.5f|",
-                            "Free-Splits Heuristic", result3[0], result3[1], result3[2], result3[3], result3[4]);
-
-                    System.out.println(header);
-                    System.out.println(inorder);
-                    System.out.println(random);
-                    System.out.println(free_split);
+                    startMenu(console);
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -272,6 +217,93 @@ public class Cui {
         else{
             String response = console.readLine("Please enter a integer : ");
             return getIntFromString(console, response);
+        }
+    }
+
+    /**
+     * Starts the user interface to test the heuristics
+     * @param console the console in use
+     */
+    public static void startMenu(Console console){
+        try {
+            System.out.println("You can choose files from the following ones or enter a relative path to a new one :");
+            System.out.println("[Current directory : " + System.getProperty("user.dir") + "]");
+            System.out.println("");
+
+            System.out.printf(" %-17s || %-17s \n", "octangle", "octogone");
+            System.out.printf(" %-17s || %-17s || %-17s \n", "ellipsesSmall", "ellipsesMedium", "ellipsesLarge");
+            System.out.printf(" %-17s || %-17s || %-17s || %-17s \n", "randomSmall", "randomMedium", "randomLarge", "randomHuge");
+            System.out.printf(" %-17s || %-17s || %-17s || %-17s \n", "rectanglesSmall", "rectanglesMedium", "rectanglesLarge", "rectanglesHuge");
+
+            System.out.println("");
+            String response = console.readLine("Please enter what you want : ");
+            String path = getPath(console, response);
+            System.out.println("You entered the following path : " + path + "\n");
+            System.out.println("We will now test the selected file and make averages on results");
+            String test_iter = console.readLine("Please choose a number of iterations for testing : ");
+            iterations = getIntFromString(console, test_iter);
+            System.out.println("Here are the results for the chosen file : \n");
+
+            currentHeuristic = Heuristics.Inorder;
+            myThread = new computeResults(currentHeuristic, iterations, path, pov);
+            myThread.start();
+            myThread.join();
+            double[] result1 = myThread.getResult();
+
+            currentHeuristic = Heuristics.Random;
+            myThread = new computeResults(currentHeuristic, iterations, path, pov);
+            myThread.start();
+            myThread.join();
+            double[] result2 = myThread.getResult();
+
+            currentHeuristic = Heuristics.Free_Splits;
+            myThread = new computeResults(currentHeuristic, iterations, path, pov);
+            myThread.start();
+            myThread.join();
+            double[] result3 = myThread.getResult();
+
+            String header = String.format("  %-22s|  %-9s| %-10s| %-8s| %-8s| %-8s|",
+                    "      [Nom]", " [Size]", " [Height]", "[Segments]", "[BSP creation time (s)]", "[Painter Algorithm (s)]");
+            String inorder = String.format("%-24s|%11.0f|%11.0f|%11.0f|%24.5f|%24.5f|",
+                    "In order Heuristic", result1[0], result1[1], result1[2], result1[3], result1[4]);
+
+            String random = String.format("%-24s|%11.0f|%11.0f|%11.0f|%24.5f|%24.5f|",
+                    "Random Heuristic", result2[0], result2[1], result2[2], result2[3], result2[4]);
+
+            String free_split = String.format("%-24s|%11.0f|%11.0f|%11.0f|%24.5f|%24.5f|",
+                    "Free-Splits Heuristic", result3[0], result3[1], result3[2], result3[3], result3[4]);
+
+            System.out.println(header);
+            System.out.println(inorder);
+            System.out.println(random);
+            System.out.println(free_split);
+
+            System.out.println("");
+            response = console.readLine("Do you want to do a new test or quit ?  [test/quit] :  ");
+            restartMenu(console, response);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Starts the user interface to test the heuristics if the response equals "test",
+     * Ends it if the response equals "response", else ask to the user to enter a valid instruction
+     * @param console the console in use
+     * @param response the user's response
+     */
+    public static void restartMenu(Console console, String response){
+        if (response.equals("test")){
+            System.out.println("");
+            startMenu(console);
+        }
+        else if(response.equals("quit")){
+            return;
+        }
+        else{
+            response = console.readLine("Please enter a valid response : ");
+            restartMenu(console, response);
         }
     }
 }
