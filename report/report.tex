@@ -668,7 +668,7 @@ Sortie : / (les segments sont dessinés)
 \subsubsection{Méthode}
 Dans cette section, nous détaillerons le fonctionnement général de l'algorithme ainsi qu'un exemple.\\
 
-Nous connaissons les valeurs de $(x_1,y_1)$, $(x_2,y_2)$, $(x_3,y_3)$ grâce au point de vue, ceci nous permet de calculer les droites $l_1$ et $l_2$, le vecteur directeur (qui joint $(x_1,y_1)$ au point situé entre $(x_2,y_2)$ et $(x_3,y_3)$), le segment sur lequel nous projetons la vue relie les deux points $(x_2,y_2)$, $(x_3,y_3)$ qui deviennent alors les $limites$ de ce segment (et aussi les projections de tout point sur $l_1$ et $l_2$). Nous calculons aussi le "demis angle" qui est l'angle entre le vecteur directeur et la droite $l_1$. Ceci nous donne le demis angle de vue. La situation de base est détaillée dans les figures \ref{exp_1} et \ref{exp_2}.
+Nous connaissons les valeurs de $(x_1,y_1)$, $(x_2,y_2)$, $(x_3,y_3)$ grâce au point de vue, ceci nous permet de calculer les droites $l_1$ et $l_2$, le vecteur directeur (qui joint $(x_1,y_1)$ au point situé entre $(x_2,y_2)$ et $(x_3,y_3)$), le segment sur lequel nous projetons la vue relie les deux points $(x_2,y_2)$, $(x_3,y_3)$ qui deviennent alors les $limites$ de ce segment (et aussi les projections de tout point sur $l_1$ et $l_2$). Nous calculons aussi le "demis angle" qui est l'angle entre le vecteur directeur et la droite $l_1$. Ceci nous donne le demis angle de vue (lignes 1 à 8). La situation de base est détaillée dans les figures \ref{exp_1} et \ref{exp_2}.
 
 \begin{figure}[!h]
 \centering
@@ -688,16 +688,16 @@ Nous connaissons les valeurs de $(x_1,y_1)$, $(x_2,y_2)$, $(x_3,y_3)$ grâce au 
 
 Pour chaque segment dans la liste, nous allons déterminer si celui-ci est visible par le point de vue (entièrement ou non) et l'afficher si c'est le cas.\\
 
-Pour chaque segment, nous calculons les droites partant du point du vue et allant jusqu'aux deux extrémités de ce segment ainsi que les angles que ces droites forment avec le vecteur directeur. Ces angles nous permettent de déterminer si le segment est bien compris dans la vue ou non. Les droites en pointillé sur la figure \ref{exp_3} montrent cette situation (les angles ne sont pas représentés).
+Pour chaque segment, nous calculons les droites partant du point du vue et allant jusqu'aux deux extrémités de ce segment ainsi que les angles que ces droites forment avec le vecteur directeur (lignes 10 à 14). Ces angles nous permettent de déterminer si le segment est bien compris dans la vue ou non. Les droites en pointillé sur la figure \ref{exp_3} montrent cette situation (les angles ne sont pas représentés).
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.6]{inter.png}
+\includegraphics[scale=0.5]{inter.png}
 \caption{Scène avec calcul des droites}
 \label{exp_3}
 \end{figure}
 
-Si, pour un segment, ses deux angles calculés comme présenté ci-dessus sont plus petit que le demis angle, il est évident que le segment est complètement compris dans la vue. Nous l'affichons donc en entier. Pour ce faire nous projetons ses extrémités sur la droite de projection, ce qui revient à calculer l'intersection entre les droites qui relient le point de vue aux extrémités du segment et le segment sur lequel on veut projeter. Nous dessinons donc le segment reliant ces deux nouvelles intersections comme sur la figure \ref{cas1}.
+Si, pour un segment, ses deux angles calculés comme présenté ci-dessus sont plus petits que le demis angle, il est évident que le segment est complètement compris dans la vue. Nous l'affichons donc en entier. Pour ce faire nous projetons ses extrémités sur la droite de projection, ce qui revient à calculer l'intersection entre les droites qui relient le point de vue aux extrémités du segment et le segment sur lequel on veut projeter (lignes 16 à 18). Nous dessinons donc le segment reliant ces deux nouvelles intersections comme sur la figure \ref{cas1}.
 
 \begin{figure}[H]
 \centering
@@ -706,49 +706,56 @@ Si, pour un segment, ses deux angles calculés comme présenté ci-dessus sont p
 \label{cas1}
 \end{figure}
 
-20 à 41
-Si un des deux angles est plus grand que le demis angle et l'autre plus petit, nous savons que le point qui compose la droite qvec l'angle a l'intérieur est dans la vue. Nous devons dès lors déterminer l'autre point d'intersection qui se trouve sur la ligne $l_1$ ou 
-$l_2$ Pour déterminer cela, nous procédons comme suit :
+Si un des deux angles est plus grand que le demis angle et l'autre plus petit, nous savons qu'une des deux extrémités du segment est dans la vue. Cette extrémité est celle qui forme la droite dont l'angle avec le vecteur directeur est plus petit que le demis angle. Nous devons dès lors déterminer l'autre extrémité du segment à projeter, qui se trouvera sur une des droites $l_1$ ou $l_2$ (le segment original étant coupé par une de ces droites). Pour déterminer cela, nous procédons comme suit :\\
 
-Nous calculons la position du segment par rapport aux lignes $l_1$ et $l_2$. Si nous obtenons deux intersections, nous avons le cas particulier ou le segment coupe $l_1$ ou $l_2$ devant le point de vue et $l_2$ ou $l_1$ derrière cette situation est représentée sur la figure \ref{exp4}. 
+Nous calculons la position du segment par rapport aux droites $l_1$ et $l_2$ (qui peut nous donner trois résultats : une intersection, à gauche de la droite ou à droite de la droite) et nous en déduirons la position de la deuxième extrémité du segment à projeter (lignes 21 et 22). \\
+
+Si nous obtenons deux intersections, nous avons le cas particulier où le segment intersecte $l_1$ ou $l_2$ devant le point de vue et $l_2$ ou $l_1$ derrière le point de vue. Cette situation est représentée sur la figure \ref{exp_4}. Pour déterminer l'intersection $i_1$ ou $i_2$ qui nous intéresse (celle devant le point de vue), nous calculons la norme du vecteur reliant l'extrémité du segment qui est dans la vue et cette intersection $i_1$ ou $i_2$. Il est évident que la norme la plus petite est celle avec la bonne intersection (car si l'intersection est devant le point de vue, la norme sera moins grande car le point d'intersection sera plus proche de l'extrémité du segment). Nous savons ainsi si la ligne $l_1$ ou $l_2$ intersecte le segment. La deuxième extrémité du segment à projeter est donc sur cette ligne $l_1$ ou $l_2$. Dans le but de dessiner ce segment, nous en calculons les projections. Nous remarquons que la projection de l'extrémité qui est une intersection avec $l_1$ ou $l_2$ sera une des limites, car comme dit précédemment, la projection d'un point sur $l_1$ ou $l_2$ est respectivement $limite_1$ et $limite_2$ (lignes 24 à 34).\\
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.6]{casSpecial1.png}
-\caption{cas spécial ou il y a deux intersections}
+\includegraphics[scale=0.5]{casSpecial1.png}
+\caption{Cas particulier où il y a deux intersections}
 \label{exp_4}
 \end{figure}
 
-Pour déterminer l'intersection qui nous intéresse $i_1$ ou $i_2$ (celle devant le point de vue)  nous calculons la norme allant du point dans la vue jusq'à cette intersection. Il est évident que la norme la plus petite est celle avec la bonne intersection (car être devant le point de vue force à avoir une norme moins grande). Nous savons ainsi si la ligne $l_1$ ou $l_2$ intersecte le segment. LE deuxième point du segment est donc sur cette ligne $l_1$ ou $l_2$ et dans le but de dessiner ce segment, nous en calculons les projections (du point via la technique précédente) et de l'intersection sera une des limites car comme dit précédemment la projection d'un poitn sur $l_1$ ou $l_2$ est respectivement $limite_1$ et $limite_2$
-
-Si nous obtenons qu'on a qu'une seule intersection, la ligne $l_1$ ou $l_2$ qui intersecte nous donne la position de l'intersection et donc de l'autre point $limite_1$ ou $limite_2$. Le segment bleu sur la figure \ref{exp_3} montre cette situation ou l'intersection $i_1$ nous donne un point d'intersection, ce qui nous permet de savoir que la ligne $l_1$ est intersectée. L'angle nous avait permis de savoir que le point ($s_{x_2},s_{y_2}$) du segment bleu $s$ était dans la vue. Le segment a dessiner ira donc de $limite_1$ à la projection de ($s_{x_2},s_{y_2}$) sur le segment de projection comme expliqué sur la figure \ref{cas2}
+Si nous n'avons qu'une seule intersection avec $l_1$ ou $l_2$, la ligne $l_1$ ou $l_2$ qui intersecte le segment nous dit quel sera la deuxième extrémité du segment à projeter. En effet, si nous n'avons qu'une seule intersection avec $l_1$ ou $l_2$, nous savons que cette intersection sera la deuxième extrémité et sa projection sera donc $limite_1$ ou $limite_2$. Le segment bleu sur la figure \ref{cas2} montre cette situation ou $i_1$ nous donne un point d'intersection, ce qui nous permet de savoir que la ligne $l_1$ intersecte le segment. L'angle nous avait permis de savoir que le point ($s_{x_2},s_{y_2}$) du segment bleu $s$ était dans la vue. Le segment a dessiner ira donc de $limite_1$ à la projection de ($s_{x_2},s_{y_2}$) sur le segment de projection (lignes 36 à 41).\\
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.6]{cas2.png}
+\includegraphics[scale=0.5]{cas2.png}
 \caption{Cas ou le segment est coupé par $l_1$}
 \label{cas2}
 \end{figure}
 
-Enfin, si nous avons deux angles plus grands que demis angle, et qu'on ai une droite de chaque coté (ceci veut dire qu'on a une droite de chaque coté) et qu'on moins une des droites est devant le point de vue, il est possible que le segment coupe complètement le point de vue. Dès lors, nous calculons les interections avec $l_1$ et $l_2$ et si nous obtenosn deux intersections, nous calculons les projections qui sont les deux limites et appellons récursivement la méthode. Ceci débouche sur deux cas :
+Enfin, si nous avons deux angles plus grands que demis angle, qu'on a une droite qui relie le point de vue aux extrémités du segment de chaque coté du point de vue et qu'on moins une de ces droites est devant le point de vue (c'est à dire forme un angle inférieur à 90 degrés avec le vecteur directeur), il est possible que le segment coupe complètement le point de vue. Dès lors, nous calculons les intersections avec $l_1$ et $l_2$. Si nous obtenons deux intersections, le segment coupé reliera ces deux intersections et la méthode sera appelée récursivement sur ce segment coupé (lignes 46 à 55). Ceci débouche sur deux cas :\\
 
-LE segment était bien devant et les deux angles sont donc inférieurs, le segment est dessiné.
-Le segment coupait les deux droites derrière le point de vue, nous repassons dans le dernier cas, mais dorénavant nous n'avons plus d'intersection mais gauche ou droite.
-
-Ces deux cas sont représentés sur les figure \ref{exp_5} et \ref{exp_6}.
+\begin{itemize}
+	\item Le segment coupait bien le point de vue, le segment coupé sur lequel l'appel récursif est effectué est donc complètement compris dans le point de vue et sera affiché par le premier cas (figure \ref{exp_5}).
+	\item Le segment coupait les deux droites derrière le point de vue, le segment coupé sur lequel l'appel récursif est effectué est n'est donc pas contenu dans le point de vue. Il ne passera dans aucuns cas et ne sera pas affiché (figure \ref{exp_6}).
+\end{itemize}
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.5]{casSpecial2.png}
-\caption{cas spécial ou il y a deux intersections devant}
+\includegraphics[scale=0.4]{casSpecial2.png}
+\caption{Cas normal ou le segment coupe le point de vue et sera affiché}
 \label{exp_5}
 \end{figure}
 
-\begin{figure}[!h]
+\begin{figure}[H]
 \centering
-\includegraphics[scale=0.5]{casSpecial3.png}
-\caption{cas spécial ou il y a deux intersections derrière}
+\includegraphics[scale=0.4]{casSpecial3.png}
+\caption{Cas particulier ou le segment coupe les deux droites derrière le point de vue et ne sera pas affiché}
 \label{exp_6}
+\end{figure}
+
+Grâce à l'ordre des appels sur cette méthode donné par l'algorithme du peintre, nous obtenus ce que voit le point de vue suite au traitement de tous les segments de l'arbre BSP comme montré sur la figure \ref{algofini}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{fini.png}
+\caption{Projection terminée telle qu'observée par le point de vue}
+\label{algofini}
 \end{figure}
 
 \subsubsection{Complexité}
