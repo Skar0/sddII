@@ -522,9 +522,25 @@ Pour les instructions 42-59, il s'agit simplement d'une vérification permettant
 
 Notre implémentation de l'algorithme du peintre est similaire à celle présentée dans le livre de référence. Son principe est le suivant : chaque nœud de l'arbre BSP est parcouru dans un certain ordre et les segments qu'il contient sont alors affichés si ils sont visibles par le point de vue.
 
+\subsection{Structures de données}
+Les algorithmes présentés dans cette section utilisent les structures de données Segment pour représenter les segments, BSPNode pour représenter les arbres et listes chaînées pour stocker les segments comme elles ont été présentées dans la section \textit{1.2}
+
+\subsubsection{Point de vue}
+La structure de données Pov (\emph{Point Of View}) permet de représenter un point de vue. Celui-ci contient plusieurs attributs utiles pour l'algorithme du peintre :\\
+
+\begin{itemize}
+	\item \emph{position} le point de départ du point de vue, stocké sous forme d'un tableau de doubles à deux dimensions.
+	\item \emph{line1} le premier vecteur qui définit le point de vue, stocké sous forme d'un objet qui comprend les deux points composant ce segment.
+	\item \emph{line2} le deuxième vecteur qui définit le point de vue, stocké sous forme d'un objet qui comprend les deux points composant ce segment.
+	\item \emph{directorVector} le vecteur directeur du point de vue, reliant le point stocké dans \emph{position} et le point entre les extrémités des deux segments qui définissent le point de vue. Ce vecteur directeur est essentiellement la bissectrice du point de vue et est stocké de la même façon que précédemment.
+	\item \emph{projectionLine} la ligne sur laquelle seront projetés les segments vu par le point de vue, stockée de la même façon que précédemment.
+\end{itemize}
+
 \subsection{Algorithme principal}
 \subsubsection{Pseudo-code}
 Le pseudo code suivant part du principe que les segments sont directement affichés par l'algorithme du peintre. En réalité, l'algorithme du peintre ajoute les segments à dessiner dans le bon ordre dans une liste chaînée qui sera ensuite utilisée par l'interface graphique. Ce détail d'implémentation ne changeant rien à la complexité et gênant la bonne compréhension de l'algorithme, nous l'ignorons ici.\\
+
+\newpage
 
 \begin{lstlisting}
 paintersAlgorithm
@@ -770,22 +786,23 @@ Nous remarquons que plus le nombre de segments est élevé, plus l'algorithme du
 
 \subsection{Interface graphique}
 
-Afin de lancer l'interface graphique, la classe \textit{TestGui.java} du package \textit{be.umons.ac.gui} doit être lancée. 
+Afin de lancer l'interface graphique, la classe \textit{TestGui.java} du package \textit{be.umons.ac.gui} doit être lancée. L'interface graphique fonctionne comme suit : \\
 
-L'interface graphique fonctionne comme suit :
-Lors du lancement de l'interface graphique, il est demandé à l'utilisateur de choisir un fichier contenant une scène et une heuristique de construction de l'arbre. Suite à ce choix, une fenêtre montrant la représentaton de la scène est ouverte. La barre de menu en haut de cette fenêtre permet de choisir un différent fichier ou une heuristique différente. Elle permet aussi de choisi le monde d'input de l'angle de vue.
+Lors du lancement de l'interface graphique, il est demandé à l'utilisateur de choisir un fichier contenant une scène et une heuristique de construction de l'arbre. Suite à ce choix, une fenêtre montrant la représentation de la scène est ouverte. La barre de menu en haut de cette fenêtre permet de choisir un fichier ou une heuristique différente. Elle permet aussi de choisir le monde de  saisie de l'angle de vue.\\
 
-Mode 1 : Choix manuel : le premier click donne la position du point de vue. Les deux suivants donnent l'angle de vue proprement dit.
-Mode 2 : Choix de l'angle : lorsceque ce choix est pris, il est demandé à l'utilisateur d'entrer un angle de vue. Celui ci peut alors clicker deux fois pour donner la droite bisecrite de l'angle de vue.
+\begin{itemize}
+	\item \emph{Manual angle selection} permet de choisir manuellement le point de vue avec la souris. Le premier clic permet de choisir le point de départ du point de vue (\emph{position}) et les deux clics suivants permettront de choisir les segments qui définissent l'angle de vue à proprement parler (\emph{line1} et \emph{line2}).
+	\item \emph{Choose angle} permet de choisi un angle de vue $a$ tel que $0<a<180$ (en effet, on ne peut pas voir à un angle supérieur à $180°$). Suite à ce choix, les deux clics suivant de l'utilisateur permettront de choisir le vecteur directeur du point de vue, les deux segments définissant l'angle de vue étant calculés automatiquement pour respecter l'angle choisi.
+\end{itemize}
+\vspace{20}
 
-L'algorithme du peintre est représenté une fois un angle valide choisis par l'utilisateur. Il est représenté deux fois pour une meilleure compréhension : une fois sur une droite directement sur le point de vue et une autre au dessus de la fenête mis à l'échelle et donc plus grande et visible pour les gros fichiers.
+L'algorithme du peintre est appliqué une fois un point de vue valide choisi par l'utilisateur. Le résultat de l'algorithme est représenté deux fois pour une meilleure compréhension : une fois sur la droite de projection du point de vue, telle que définie implicitement par l'utilisateur et une autre fois au dessus de la fenêtre, mis à l'échelle. Cette représentation mise à l'échelle permet une meilleure visualisation pour de grosses scènes.
 
 \subsection{Mode console}
 
-Pour lancer le mode console, la classe \textit{TestCui.java} du package \textit{be.umons.ac.cui} doit être lancée.
+Pour lancer le mode console, la classe \textit{TestCui.java} du package \textit{be.umons.ac.cui} doit être lancée. Le mode console fonctionne comme suit :\\
 
-Le mode console fonctionne comme suit :
-Il est tout d'abord demandé à l'utilisateur de choisir un fichier. Il doit pour cela introduire le chemin complet de celui-ci dans la console. Suite à cela, les temps de création des arbres via les différentes heuristiques ainsi que les temps d'éxécution de l'algorithme sur peintre sur ces arbres sont affichés sous forme de tableau. Les temps affichés sont en secondes. 
+Il est tout d'abord demandé à l'utilisateur de choisir un fichier. Il doit pour cela choisir un des fichiers proposés (les fichiers de base de l'énoncé) ou introduire le chemin complet d'un fichier contenant une scène. L'utilisateur doit ensuite choisir un nombre d'itération des algorithmes pour le calcul des temps. En effet, les algorithmes de création étant non déterministes, il est intéressant de pouvoir les lancer plusieurs fois et faire une moyenne des résultats et temps obtenus. Cette moyenne n'affectera pas les résultats des algorithmes déterministes. Suite au choix d'un fichier et d'un nombre d'itérations, un tableau reprenant les résultats obtenus pour les heuristiques et algorithme du peintre sont affichés dans la console.
 
 \section*{Conclusion}
 
