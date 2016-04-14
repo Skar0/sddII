@@ -794,10 +794,8 @@ Grâce à l'ordre des appels sur cette méthode donné par l'algorithme du peint
 Les calculs effectués dans cette méthode sont en O($m$) avec $m$ le nombre de segments contenus dans la liste de segments pris en entrée. Dans le pire des cas, chaque segment traverse complètement le point de vue et nécessite un deuxième appel récursif sur la méthode \textbf{scanConvert}. Chaque segment de la liste résulte en deux appels de la méthode, donnant une complexité en O(2$m$) = O(m).
 
 \section{Tests et Résultats}
-L'algorithme du peintre parcourant tous les noeuds de l'arbre BSP ainsi que tous les segments contenus dans la ligne de séparation de l'espace de ce noeud, il est naturel que le temps d'exécution de l'algorithme dépendra du nombre de noeuds de l'arbre ainsi que du nombre de segments contenus dans l'arbre (la somme du nombre de segments contenus dans chaque noeud). Le tableau suivant nous donne les valeurs de temps pour chaque arbre créé via une heuristique ainsi que le temps pris par l'algorithme du peintre. Il convient aussi de remarquer que plus il y aura de segments contenus dans le point de vue, plus il y aura de calculs effectués par la méthode scanConvert
 
-Nous remarquons que plus le nombre de segments est élevé, plus l'algorithme du peintre prendra du temps.
-
+Voici un tableau reprenant les différents résultats après exécution pour les trois heuristiques. Ces résultats sont des moyennes effectuées sur 200 itérations de constructions d'arbres pour les heuristiques et d'exécution de parcours pour l'algorithme du peintre. 
 
 \begin{table}
 \resizebox{\columnwidth}{!}{%
@@ -885,7 +883,13 @@ rectanglesHuge & Random & 184 & 14 & 16816 & 200.15107 & 4.97284 \\
 \hline 
   & Free-splits & 180 & 14 & 16815 & 190.22075 & 4.91997 \\ 
 \hline
-    
+
+Au niveau des BSP, nous pouvons remarquer un comportement constant entre les différents temps d'exécution pour la construction des arbres. En effet, l'heuristique inordre est toujours la plus longue à exécuter, ce qui paraît logique étant donné que c'est l'algorithme de construction le plus simple et basique n'effectuant aucune action pour essayer d'optimiser la construction. 
+Ensuite nous avons le temps construction des arbres pour les free-splits qui est très proche de celui pour l'heuristique random, néanmoins ce dernier reste légèrement toujours plus performant (à l'exception des fichiers "rectanglesLarge et rectanglesHuge"). Cette constatation s'explique du fait que l'algorithme des free-splits se base sur le random et lui ajoute quelques améliorations se traduisant par des instructions supplémentaires, ce qui influence donc légèrement le temps d'exécution. En ce qui concerne les meilleures performances pour les fichiers rectangles cela montre simplement que ces ensembles de segments ont de meilleures dispositions qui engendrent nombre de free-splits.\\
+En ce qui concerne la taille  des arbres générés, ceux-ci sont de tailles plus réduites pour l'heuristique inorder au niveau des fichiers contenant peu de segments, mais sont plus grand que ceux générés par les heuristique random et free-split plus les fichiers sont de plus grandes tailles (à partir des fichiers de taille moyenne). Pour la hauteur, on a par contre que la hauteur des arbres générés par l'heuristique est toujours la plus grande, en effet beaucoup de ces arbres étant dégénérés, ils ont alors une hauteur très importante. Et enfin, le nombre de segments est relativement constant, toutes heuristiques confondues, à l'exception du fichier random pour lequel les heuristiques random et free-splits génèrent légèrement moins de segments. \\
+
+L'algorithme du peintre parcourant tous les noeuds de l'arbre BSP ainsi que tous les segments contenus dans la ligne de séparation de l'espace de ce noeud, il est naturel que le temps d'exécution de l'algorithme dépende du nombre de noeuds de l'arbre ainsi que du nombre de segments contenus dans l'arbre (la somme du nombre de segments contenus dans chaque noeud). Il convient aussi de remarquer que plus il y aura de segments contenus dans le point de vue, plus il y aura de calculs effectués par la méthode scanConvert. Nous remarquons en effet de manière globale que plus le nombre de segments est élevé, plus l'algorithme du peintre prend du temps. Dans nos résultats nous remarquons que les parcours sur les arbres créés via l'heuristique inordre sont toujours plus long que les deux autres heuristiques (à l'exception de "recanglesHuge" affichant un comportement différent de la normale), montrant bien que ces arbres ne sont pas du tout optimaux. Au niveau de la comparaison pour le temps d'exécution entre les heuristiques random et free-splits, nous pouvons dégager une légère tendance générale à un meilleur temps pour le free-splits mais les résultats n'ayant pas différences significatives et variant au cas par cas dans un sens comme dans un autre, nous ne pouvons confirmer de manière exacte cette affirmation.
+  
 \end{tabular}%
 }
 \end{table}
