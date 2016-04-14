@@ -1,13 +1,12 @@
 package be.ac.umons.cui;
 
 import be.ac.umons.bsp.*;
-import be.ac.umons.gui.Pov;
-import be.ac.umons.gui.SegmentsPainter;
+import be.ac.umons.painter.PaintersAlgorithm;
+import be.ac.umons.painter.Pov;
 
 import java.awt.geom.Line2D;
-import java.io.Console;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.lang.management.*;
 
 /**
  * This class provides a user interface using the user's terminal. It allows to choose a file containing a scene and then
@@ -18,168 +17,261 @@ import java.util.List;
  */
 public class Cui {
 
+    /*TODO :
+     * Faire l'help
+     * Préciser qu'on fait une moyenne
+     * Permettre de recharger un fichier quand on a fini un test
+     */
+
+
+    public enum Heuristics {Inorder, Random, Free_Splits}
+
     public static void main(String [] args) {
-        System.out.println("-BSP Tree comparator-\n When prompted, please enter the path to a file containing " +
-                "a 2d scene. You are currently in the directory "+System.getProperty("user.dir")+".\n");
 
-        Console console = System.console();
-        System.out.print("Please enter the path to a 2d scene:");
-        String path = "assets/rectangles/rectanglesMedium.txt";
-
-        SegmentLoader loader = new SegmentLoader();
-        List<Segment> segmentList = loader.loadAsList(path);
-
-        Heuristic inOrderHeuristic = new InOrderHeuristic();
-        Heuristic randomHeuristic = new RandomHeuristic();
-        Heuristic freeSplitsHeuristic = new FreeSplitsHeuristic();
-
-        Line2D line1 = new Line2D.Double(0,0,0,1);
-        Line2D line2 = new Line2D.Double(0,0,1,1);
+        Heuristics currentHeuristic;
+        int iterations;
+        Line2D line1 = new Line2D.Double(0,0,0,1), line2 = new Line2D.Double(0,0,1,1);
         Pov pov = new Pov(line1,line2);
+        computeResults myThread;
+        boolean canTakeCPUMeasurements = true;
 
-        long start = System.nanoTime();
-        BSPNode inOrderRoot = inOrderHeuristic.createTree(loader.loadAsList(path));
-        double elapsedTimeInSec = (System.nanoTime() - start) * 1.0e-9;
-        int size1 = 0;
-
-        System.out.println("-In order heuristic-");
-        System.out.println("Time to build tree : "+elapsedTimeInSec);
-        double time1 = getAverageTimeTreeCreation(inOrderHeuristic,path,1000,size1);
-        System.out.println("Time to build tree 2 : "+time1);
-
-        double time11 = getAverageTimePaintersAlgo(inOrderRoot,pov,1000);
-        System.out.println("Time to painter : "+time11);
-
-        System.out.println("Number of segments :"+inOrderRoot.getSizeInSegments());
-        System.out.println("Tree size :"+inOrderRoot.getSize());
-        System.out.println("Tree height :"+inOrderRoot.getHeight());
-
-        start = System.nanoTime();
-        BSPNode randomRoot = randomHeuristic.createTree(loader.loadAsList(path));
-        elapsedTimeInSec = (System.nanoTime() - start) * 1.0e-9;
-        int size2 = 0;
-
-        System.out.println("-Random heuristic-");
-        System.out.println("Time to build tree : "+elapsedTimeInSec);
-        double time2 = getAverageTimeTreeCreation(randomHeuristic,path,1000,size2);
-        System.out.println("Time to build tree 2 : "+time2);
-
-        double time21 = getAverageTimePaintersAlgo(randomRoot,pov,1000);
-        System.out.println("Time to painter : "+time21);
-
-        System.out.println("Number of segments :"+randomRoot.getSizeInSegments());
-        System.out.println("Tree size :"+randomRoot.getSize());
-        System.out.println("Tree height :"+randomRoot.getHeight());
-
-        start = System.nanoTime();
-        BSPNode freeSplitsRoot = freeSplitsHeuristic.createTree(loader.loadAsList(path));
-        elapsedTimeInSec = (System.nanoTime() - start) * 1.0e-9;
-        int size3 = 0;
-
-        System.out.println("-Free splits heuristic-");
-        System.out.println("Time to build tree : "+elapsedTimeInSec);
-        double time3 = getAverageTimeTreeCreation(freeSplitsHeuristic,path,1000,size3);
-        System.out.println("Time to build tree 2 : "+time3);
-
-        double time31 = getAverageTimePaintersAlgo(freeSplitsRoot,pov,1000);
-        System.out.println("Time to painter : "+time31);
-
-        System.out.println("Number of segments :"+freeSplitsRoot.getSizeInSegments());
-        System.out.println("Tree size :"+freeSplitsRoot.getSize());
-        System.out.println("Tree height :"+freeSplitsRoot.getHeight());
-
-
-    }
-
-     public static double getAverageTimeTreeCreation(Heuristic heuristic, String path, double repeatCount, int values) {
-         BSPNode root;
-         SegmentLoader loader = new SegmentLoader();
-         long start = System.nanoTime();
-         int i = 0;
-         int height = 0;
-         int segments = 0;
-         while(i < repeatCount) {
-             root = heuristic.createTree(loader.loadAsList(path));
-             values += root.getSize();
-             height += root.getHeight();
-             segments += root.getSizeInSegments();
-             if (i == repeatCount-1) {
-                 System.out.println("Size average : " + (double) values / 1000);
-                 System.out.println("Height average : " + (double) height / 1000);
-                 System.out.println("Segments average : " + (double) segments / 1000);
-             }
-             i++;
-         }
-         double elapsedTimeInSec = (System.nanoTime() - start)*1.0e-9;
-
-         return (elapsedTimeInSec/repeatCount);
-    }
-
-    public static double getAverageTimePaintersAlgo(BSPNode root, Pov pov, double repeatCount) {
-        long start = System.nanoTime();
-        int i = 0;
-        while(i < repeatCount) {
-            paintersAlgorithmForBenchmark(root, pov);
-            i++;
+        //Test if the JVM is able to run methods on the threads
+        try {
+            ThreadMXBean thread = ManagementFactory.getThreadMXBean();
+            if ((!thread.isThreadCpuTimeEnabled()) || !thread.isThreadCpuTimeSupported()){
+                System.out.println("Can't take CPU measurements because thread CPU time measurement is enabled");
+                canTakeCPUMeasurements = false;
+            }
         }
-        double elapsedTimeInSec = (System.nanoTime() - start)*1.0e-9;
+        catch (UnsupportedOperationException Uoe){
+            System.out.println("JVM does not support CPU time measurement for other threads nor for the current thread");
+            canTakeCPUMeasurements = false;
+        }
 
-        return (elapsedTimeInSec/repeatCount);
-    }
+        if (canTakeCPUMeasurements) {
+            try {
+                Console console = System.console();
+                if (console != null) {
+                    System.out.println("-BSP Tree comparator-\n");
 
-    public static void paintersAlgorithmForBenchmark(BSPNode root, Pov pov) {
-        if (root != null) {
-            if (root.isLeaf()) {
-                for(Segment seg : root.getSegmentsInLine() ) {
-                    //
+                    System.out.println("You can choose files from the following ones or enter a relative path to a new one :");
+                    System.out.println("[Current directory : " + System.getProperty("user.dir") + "]");
+                    System.out.println("");
+
+                    System.out.printf(" %-17s || %-17s \n", "octangle", "octogone");
+                    System.out.printf(" %-17s || %-17s || %-17s \n", "ellipsesSmall", "ellipsesMedium", "ellipsesLarge");
+                    System.out.printf(" %-17s || %-17s || %-17s || %-17s \n", "randomSmall", "randomMedium", "randomLarge", "randomHuge");
+                    System.out.printf(" %-17s || %-17s || %-17s || %-17s \n", "rectanglesSmall", "rectanglesMedium", "rectanglesLarge", "rectanglesHuge");
+
+                    System.out.println("");
+                    String response = console.readLine("Please enter what you want : ");
+                    String path = getPath(console, response);
+                    System.out.println("You entered the following path : " + path + "\n");
+                    String test_iter = console.readLine("Please choose a number of iterations for testing : ");
+                    iterations = getIntFromString(console, test_iter);
+                    System.out.println("Here are the results for the chosen file : \n");
+
+                    currentHeuristic = Heuristics.Inorder;
+                    myThread = new computeResults(currentHeuristic, iterations, path, pov);
+                    myThread.start();
+                    myThread.join();
+                    double[] result1 = myThread.getResult();
+
+                    currentHeuristic = Heuristics.Random;
+                    myThread = new computeResults(currentHeuristic, iterations, path, pov);
+                    myThread.start();
+                    myThread.join();
+                    double[] result2 = myThread.getResult();
+
+                    currentHeuristic = Heuristics.Free_Splits;
+                    myThread = new computeResults(currentHeuristic, iterations, path, pov);
+                    myThread.start();
+                    myThread.join();
+                    double[] result3 = myThread.getResult();
+
+                    String header = String.format("  %-22s|  %-9s| %-10s| %-8s| %-8s| %-8s|",
+                            "      [Nom]", " [Size]", " [Height]", "[Segments]", "[BSP creation time (s)]", "[Painter Algorithm (s)]");
+                    String inorder = String.format("%-24s|%11.0f|%11.0f|%11.0f|%24.5f|%24.5f|",
+                            "In order Heuristic", result1[0], result1[1], result1[2], result1[3], result1[4]);
+
+                    String random = String.format("%-24s|%11.0f|%11.0f|%11.0f|%24.5f|%24.5f|",
+                            "Random Heuristic", result2[0], result2[1], result2[2], result2[3], result2[4]);
+
+                    String free_split = String.format("%-24s|%11.0f|%11.0f|%11.0f|%24.5f|%24.5f|",
+                            "Free-Splits Heuristic", result3[0], result3[1], result3[2], result3[3], result3[4]);
+
+                    System.out.println(header);
+                    System.out.println(inorder);
+                    System.out.println(random);
+                    System.out.println(free_split);
                 }
-            } else if (getPovPosition(root, pov).isInfinite()) {
-                paintersAlgorithmForBenchmark(root.getLeftSon(), pov);
-                for(Segment seg : root.getSegmentsInLine() ) {
-                    //
-                }
-                paintersAlgorithmForBenchmark(root.getRightSon(), pov);
-            } else if (getPovPosition(root, pov).isNaN()) {
-                paintersAlgorithmForBenchmark(root.getRightSon(), pov);
-                for(Segment seg : root.getSegmentsInLine() ) {
-                    //
-                }
-                paintersAlgorithmForBenchmark(root.getLeftSon(), pov);
-            } else {
-                paintersAlgorithmForBenchmark(root.getRightSon(), pov);
-                paintersAlgorithmForBenchmark(root.getLeftSon(), pov);
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
     }
 
+    /**
+     * This Thread is used to compute statistics on a specific heuristic on a specific input of segments.
+     */
+    public static class computeResults extends Thread{
+        private Heuristics he;
+        private int iterations;
+        private String path;
+        private Pov pov;
+        private double [] result;
 
-    public static Double getPovPosition(BSPNode root, Pov pov) {
-        double[] line = root.getLine();
-
-        double value;
-
-        double returnValue = 0;
-
-        if(Math.abs(line[0]-1)<= Heuristic.EPSILON && (line[1] == 0)) {
-            value = -(line[0]*pov.getPosition()[0] + line[1]*pov.getPosition()[1] +line[2]);
+        /**
+         * Class constructor
+         * @param he the heuristic we compute results for
+         * @param iterations the number of times we test the heuristic to do an average
+         * @param path the path to the file containing the list of segments
+         * @param pov the point of view used for the painter algorithm
+         */
+        private computeResults(Heuristics he, int iterations, String path, Pov pov){
+            this.he = he;
+            this.iterations = iterations;
+            this.path = path;
+            this.pov = pov;
+            this.result = new double[5];
         }
 
-        else if( line[0] > 0 ) {
-            value = -(line[0]*pov.getPosition()[0] + line[1]*pov.getPosition()[1] +line[2]);
-        }
-        else {
-            value = (line[0]*pov.getPosition()[0] + line[1]*pov.getPosition()[1] +line[2]);
+        public void run(){
+            ThreadMXBean simulatorMx = ManagementFactory.getThreadMXBean();
+            SegmentLoader loader = new SegmentLoader();
+            BSPNode root;
+            Heuristic currentHeuristic;
+            int i = iterations, j = iterations;
+            int size = 0, height = 0, segments = 0;
+
+            switch(this.he){
+                case Inorder:
+                    currentHeuristic = new InOrderHeuristic();
+                    break;
+                case Random:
+                    currentHeuristic = new RandomHeuristic();
+                    break;
+                case Free_Splits:
+                    currentHeuristic = new FreeSplitsHeuristic();
+                    break;
+                default:
+                    System.out.println("Invalid heuristic given to thread ! \n");
+                    return;
+            }
+            long start = simulatorMx.getCurrentThreadCpuTime();
+            while (i > 0){
+                root = currentHeuristic.createTree(loader.loadAsList(path));
+                size += root.getSize();
+                height += root.getHeight();
+                segments += root.getSizeInSegments();
+                i--;
+            }
+            double elapsedTime = ((simulatorMx.getCurrentThreadCpuTime()-start)/iterations)*1.0e-9;
+            result[0]=(double)size/iterations;
+            result[1]=(double)height/iterations;
+            result[2]=(double)segments/iterations;
+            result[3]=elapsedTime;
+
+            PaintersAlgorithm painter = new PaintersAlgorithm();
+            root = currentHeuristic.createTree(loader.loadAsList(path));
+            start = simulatorMx.getCurrentThreadCpuTime();
+            while (j > 0){
+                painter.getSegmentToDraw(root, pov);
+                j--;
+            }
+            elapsedTime = ((simulatorMx.getCurrentThreadCpuTime()-start)/iterations)*1.0e-9;
+            result[4]=elapsedTime;
         }
 
-        if(value > 0) {
-            returnValue = Double.POSITIVE_INFINITY;
+        /**
+         *
+         * @return return in a array of five doubles the average results of the given heuristic
+         * [0] = BSP size ; [1] = BSP height; [2] = BSP number of segments ;
+         * [3] = time to create BSP tree (seconds) ; [4] = time to execute painter algorithm (seconds).
+         */
+        public double [] getResult(){
+            return result;
         }
-
-        else if (value < 0) {
-            returnValue = Double.NaN;
-        }
-
-        return returnValue;
     }
 
+    /**
+     * If the string is an abbreviation of a path, return this path.
+     * Else, checks if the given string is a correct path to a file, if not, ask to the user
+     * to enter a correct path or abbreviation.
+     * @param console the console in use
+     * @param string the string which needs to be transformed in path or to be checked
+     * @return the path associated to the string
+     */
+    public static String getPath(Console console, String string){
+        String answer;
+        switch (string){
+            case("octangle"):
+                answer = "../assets/first/octangle.txt";
+                break;
+            case("octogone"):
+                answer = "../assets/first/octogone.txt";
+                break;
+            case("ellipsesSmall"):
+                answer = "../assets/ellipses/ellipsesSmall.txt";
+                break;
+            case("ellipsesMedium"):
+                answer = "../assets/ellipses/ellipsesMedium.txt";
+                break;
+            case("ellipsesLarge"):
+                answer = "../assets/ellipses/ellipsesLarge.txt";
+                break;
+            case("randomSmall"):
+                answer = "../assets/random/randomSmall.txt";
+                break;
+            case("randomMedium"):
+                answer = "../assets/random/randomMedium.txt";
+                break;
+            case("randomLarge"):
+                answer = "../assets/random/randomLarge.txt";
+                break;
+            case("randomHuge"):
+                answer = "../assets/random/randomHuge.txt";
+                break;
+            case("rectanglesSmall"):
+                answer = "../assets/rectangles/rectanglesSmall.txt";
+                break;
+            case("rectangleMedium"):
+                answer = "../assets/rectangles/rectangleMedium.txt";
+                break;
+            case("rectanglesLarge"):
+                answer = "../assets/rectangles/rectanglesLarge.txt";
+                break;
+            case("rectanglesHuge"):
+                answer = "../assets/rectangles/rectanglesHuge.txt";
+                break;
+            default:
+                File file = new File(string);
+                if (file.isFile()){
+                    answer = string;
+                }
+                else{
+                    String response = console.readLine("Please enter a valid input : ");
+                    return getPath(console, response);
+                }
+                break;
+        }
+        return answer;
+    }
+
+    /**
+     * Check if a string can be transformed in a integer, if not, ask to the user
+     * to enter a good value.
+      * @param console the console in use
+     * @param string the string which needs to be transformed in integer
+     * @return the value of the integer given in the string
+     */
+    public static int getIntFromString(Console console, String string){
+        if(string.matches("\\d+")){
+            return Integer.parseInt(string);
+        }
+        else{
+            String response = console.readLine("Please enter a integer : ");
+            return getIntFromString(console, response);
+        }
+    }
 }
