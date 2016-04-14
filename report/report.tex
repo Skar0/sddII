@@ -802,6 +802,7 @@ L'algorithme du peintre parcourant tous les noeuds de l'arbre BSP ainsi que tous
 
 Nous remarquons que plus le nombre de segments est élevé, plus l'algorithme du peintre prendra du temps.
 
+
 \begin{table}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{|c|c||c|c|c|c|c|}
@@ -812,16 +813,83 @@ Nous remarquons que plus le nombre de segments est élevé, plus l'algorithme du
 \hline 
   & Inorder & 12 & 11 & 14 & 0.26193 & 0.12797 \\ 
 \hline 
-Octangle & Random & 14 & 9 & 16 & 0.13641 & 0.02473 \\ 
+octangle & Random & 14 & 9 & 16 & 0.13641 & 0.02473 \\ 
 \hline 
   & Free-splits & 13 & 10 & 15 & 0.14450 & 0.02000 \\ 
 \hline 
   & Inorder & 8 & 8 & 8 & 0.09030 & 0.01054 \\ 
 \hline 
-Octogone & Random & 8 & 8 & 8 & 0.07308 & 0.00680 \\ 
+octogone & Random & 8 & 8 & 8 & 0.07308 & 0.00680 \\ 
 \hline 
   & Free-splits & 8 & 8 & 8 & 0.04571 & 0.00593 \\ 
+\hline
+  & Inorder & 200 & 200 & 200 & 3.73819 & 0.39579 \\ 
 \hline 
+ellipsesSmall & Random & 210 & 57 & 210 & 1.19927 & 0.14116 \\ 
+\hline 
+  & Free-splits & 211 & 58 & 211 & 1.27632 & 0.09723 \\ 
+\hline
+  & Inorder & 720 & 720 & 720 & 18.58865 & 0.69865 \\ 
+\hline 
+ellipsesMedium & Random & 746 & 132 & 747 & 2.52752 & 0.34774 \\ 
+\hline 
+  & Free-splits & 747 & 132 & 747 & 2.74257 & 0.34303 \\ 
+\hline  
+  & Inorder & 4500 & 4500 & 4500 & 586.34535 & 3.17180 \\ 
+\hline 
+ellipsesLarge & Random & 4555 & 515 & 4556 & 27.83951 & 2.47877 \\ 
+\hline 
+  & Free-splits & 4556 & 515 & 4556 & 35.01424 & 2.45934 \\ 
+\hline
+  & Inorder & 4893 & 53 & 4920 & 14.86430 & 2.95563 \\ 
+\hline 
+randomSmall & Random & 3837 & 27 & 3883 & 8.44489 & 2.06998 \\ 
+\hline 
+  & Free-splits & 3880 & 31 & 3900 & 11.06211 & 2.08854 \\ 
+\hline
+  & Inorder & 17655 & 90 & 17734 & 66.74394 & 9.52736 \\ 
+\hline 
+randomMedium & Random & 13674 & 35 & 13790 & 35.31576 & 7.58419 \\ 
+\hline 
+  & Free-splits & 13826 & 40 & 13858 & 41.93094 & 7.65853 \\ 
+\hline  
+  & Inorder & 36629 & 115 & 36736 & 185.18503 & 20.26115 \\ 
+\hline 
+randomLarge & Random & 28145 & 42 & 28314 & 86.87417 & 16.19512 \\ 
+\hline 
+  & Free-splits & 28376 & 45 & 28405 & 100.36949 & 15.97001 \\ 
+\hline
+  & Inorder & 71650 & 154 & 71810 & 438.97645 & 39.55686 \\ 
+\hline 
+randomHuge & Random & 55539 & 47 & 55842 & 190.77088 & 31.18459 \\ 
+\hline 
+  & Free-splits & 55918 & 50 & 55961 & 222.40136 & 31.56466 \\ 
+\hline
+  & Inorder & 24 & 24 & 660 & 2.67968 & 0.18122 \\ 
+\hline 
+rectanglesSmall & Random & 62 & 11 & 670 & 1.63056 & 0.18955 \\ 
+\hline 
+  & Free-splits & 63 & 11 & 671 & 1.79111 & 0.19341 \\ 
+\hline
+  & Inorder & 20 & 20 & 1800 & 10.14838 & 1.15526 \\ 
+\hline 
+rectanglesMedium & Random & 44 & 10 & 1801 & 5.68746 & 0.50126 \\ 
+\hline 
+  & Free-splits & 45 & 10 & 1801 & 6.16757 & 0.49999 \\ 
+\hline  
+  & Inorder & 44 & 44 & 5940 & 76.50564 & 1.94800 \\ 
+\hline 
+rectanglesLarge & Random & 172 & 15 & 5971 & 27.53147 & 1.84194 \\ 
+\hline 
+  & Free-splits & 174 & 15 & 5971 & 25.69965 & 1.65405 \\ 
+\hline
+  & Inorder & 57 & 45 & 16800 & 622.54697 & 4.30077 \\ 
+\hline 
+rectanglesHuge & Random & 184 & 14 & 16816 & 200.15107 & 4.97284 \\ 
+\hline 
+  & Free-splits & 180 & 14 & 16815 & 190.22075 & 4.91997 \\ 
+\hline
+    
 \end{tabular}%
 }
 \end{table}
