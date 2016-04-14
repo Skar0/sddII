@@ -3,6 +3,11 @@
 \usepackage[french]{babel}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath}
+\usepackage{amsthm}
+\theoremstyle{definition}
+\newtheorem*{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
 \usepackage{float}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -84,39 +89,67 @@
 
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
-Ce projet consiste en l'implémentation d'un outil permettant la représentation, en 2 dimensions, de scènes formées d'un ensemble de segments colorés placés dans un repère orthonormé. Cette représentation comprend deux paramètres ajustables à souhait : un point de vue pouvant se situer à divers endroits dans le repère, et un certain angle de vision $\alpha$ tel que $0 \degree <\alpha<180 \degree$.\\
+Ce projet consiste en l'implémentation d'un outil permettant, à partir d'un point de vue et d'une scène composée de segments colorés placés dans un repère orthonormé, d'afficher la scène telle que perçue par ce point de vue. Ce point de vue pourra être placé dans le repère par l'utilisateur.\\
 
-Pour réaliser cet affichage, nous utiliserons comme décrit dans l'énoncé l'algorithme du peintre. Ce dernier se basant sur des arbres de type BSP (\emph{Binary Spaces Partition}), il nous faut d'abord, à partir d'une liste de segments définis par leurs sommets et leur couleur, construire ces arbres. Leur création peut se faire de différentes manières, nous utiliserons ici 3 techniques : la technique classique "inordre", sa variante "random" et le principe des "free-splits". \\
+Pour réaliser cet affichage, nous utiliserons l'algorithme du peintre tel que décrit dans le Chapitre 12 du livre \textit{Computational Geometry}. Cet algorithme s'applique sur des arbres qui stockent l'ensemble de segments qui compose la scène et qui permettent de trouver un ordre d'affichage correct pour un point de vue quelconque. Ces arbres sont appelés arbres BSP (\emph{Binary Spaces Partition}) et seront construit via différentes techniques à partir d'une liste de segments définis par leurs sommets et leur couleur. Nous présenterons dans ce rapport la technique \textit{in-order}, sa variante \textit{random} et le principe des \textit{free-splits}.\\
 
-Ce rapport a pour but de décrire et expliquer les différentes techniques et algorithmes utilisés lors de la construction des arbres BSP et de la visualitation de ces derniers à l'aide de l'algorithme du peintre. Nous analyserons également la complexité et la performance de tels algorithmes.
+Ce rapport a pour but de décrire les différentes techniques et algorithmes utilisés lors de la construction des arbres BSP et de la visualisation de la scène à l'aide de l'algorithme du peintre. Nous analyserons également la complexité et la performance de ces algorithmes.
 
 \newpage
 
 \section{Arbres BSP}
-\subsection{Principe}
-Un arbre BSP (\emph{Binary Space Partition}), est un arbre binaire permettant de stocker de manière efficace un ensemble d'objets (dans notre cas de segments) situés dans un plan. Rappelons tout de même qu'un arbre binaire est un arbre tel que tout noeud possède au plus deux fils. \\
 
-Le type d'arbre étudié ici consiste donc en une séparation binaire de l'espace, s'effectuant de manière récursive. Chaque noeud possède un ensemble de segments dans le plan et définit une nouvelle séparation binaire de ce dernier, cela sur base d'une droite (choisie selon une technique définie au préalable et dans laquelle sont contenus un ou plusieurs segments), et sépare ainsi le plan en deux sous-espaces contenant chacun une partie des segments restants. Cette méthode est alors appelée récursivement sur chacun des deux sous-espaces nouvellement créés (les deux fils) jusqu'au moment où tous les segments présents dans le plan sont contenus dans les noeuds de l'arbre. L'utilisation de la droite pour définir les nouveaux plans peut néanmoins couper des segments restants en deux, ces segments sont alors supprimés et les segments résultant de la coupure sont alors placés dans le fils leur correspondant en fonction de leur position. Remarquons qu'avec la manière avec laquelle nous définissons chaque nouveau noeud, les feuilles sont également des noeuds définissant deux nouveaux plans, mais ces derniers ne contiendront alors aucun segment (appel récursif alors impossible). \\
+\subsection{Principe et définitions}
+Un arbre BSP (\emph{Binary Space Partition}) est un arbre binaire permettant de stocker de manière efficace un ensemble d'objets (dans notre cas des segments) situés dans un plan. Rappelons tout de même qu'un arbre binaire est un arbre tel que tout nœud possède au plus deux fils.\\
 
-La taille d'un arbre BSP est calculée en fonction du nombre total de segments dans chacun de ses noeuds. Moins il y aura eu de fragmentation lors de la création de l'arbre, moins ce dernier aura de segments et donc moins il sera grand et inversément. Il est donc intéressant de limiter cette fragmentation. \\
+Les arbres BSP étudiés ici consistent en une séparation binaire du plan, s'effectuant de manière récursive. Ce processus sépare donc le plan en plusieurs régions, chacune d'entre elles contenant des segments. La séparation du plan se termine lorsque chaque région ne contient plus qu'un segment.\\
 
-Il existe bien évidemment diverses méthodes afin de construire de tels arbres de manière plus ou moins optimisée (en taille et/ou en temps), nous verrons ci-dessous trois de ces méthodes. 
+Chaque nœud possède un ensemble de segments $i$ dans un hyperplan et définit une nouvelle séparation binaire de ce dernier, cela sur base d'une droite de séparation $s$ (choisie selon une technique définie au préalable et dans laquelle sont contenus un ou plusieurs segments), et sépare ainsi le plan en deux sous-espaces $s^+$ et $s^-$ contenant chacun une partie des segments de $i$ non contenus dans la droite de séparation (les segments contenus dans $s$ étant les segments importants à stocker dans le nœud). Cette méthode de séparation est alors appelée récursivement sur chacun des deux sous-espaces nouvellement créés qui seront stockés dans les deux fils de ce nœud. La droite $s$ utilisée pour séparer le plan peut néanmoins couper des segments en deux, résultant alors dans la création de deux nouveaux segments qui seront contenus dans $s^+$ et $s^-$. Remarquons qu'avec la manière avec laquelle nous définissons chaque nouveau nœud, les feuilles de l'arbre seront des nœuds possédant une droite de séparation $s$ dans laquelle seront contenus un ou plusieurs segments. Ces feuilles ne pourront donc pas avoir de fils, puisqu'elles ne posséderont aucun segments dans $s^+$ et $s^-$.\\
 
-\subsection{Éléments indispensables à la construction}
+\theoremstyle{Definition}
+\begin{definition}{Arbre BSP}\\
+\textit{-Cas de base :} Un arbre BSP vide est un arbre BSP\\
+\textit{-Cas général :} Un arbre BSP est un composé d'un nœud contenant une droite de séparation $s$, une liste chaînée de segments contenus dans cette droite et une liste chaînée $i$ de segments dont ont doit déterminer si ils sont dans $s^+$ ou $s^-$. Il possède aussi deux fils qui sont eux-même des arbres BSP et qui auront pour liste de segments $i$ les segments contenus dans $s^+$ ou $s^-$.
+\end{definition}
+
+\theoremstyle{Definition}
+\begin{definition}{Taille d'un arbre BSP}\\
+La taille d'un arbre BSP est calculée en fonction du nombre total de segments que celui-ci contient. Cette valeur est donc la somme, pour chaque nœud de l'arbre, du nombre de segments contenus dans la droite de séparation $s$ de ce nœud. Ce calcul de taille prend donc en compte le fait que des segments peuvent être coupés en plusieurs fragments.\\
+\end{definition}
+
+Les méthodes de construction des arbres seront présentées plus loin dans ce rapport.
+
+\subsection{Structures de données}
+Afin de représenter les différents éléments du problème, nous avons créé plusieurs objets et structures de données.
 
 \subsubsection{Segment}
-La classe Segment permet, comme son nom l'indique, de représenter un segment dans le plan orthonormé. Son constructeur prend en paramètres ses deux extrémités $(x1,y1)$, $(x2,y2)$ et sa couleur. Un segment possède également trois autres paramètres (\emph{intersected, isFreeSplit, intersection}), nécessaires à l'implémentation de l'heuristique des free-splits. Nous nous attarderons sur ces éléments plus tard. \\
-Ci-dessous sont présentées les méthodes les plus importantes pour la suite des calculs :
+La classe Segment permet, comme son nom l'indique, de représenter un segment dans le plan. Celui-ci est définit à partir de deux extrémités $(x_1,y_1)$, $(x_2,y_2)$ et d'une couleur. Un segment possède également trois autres propriétés (\emph{intersected, isFreeSplit, intersection}), nécessaires à l'implémentation de l'heuristique des free-splits. Nous nous attarderons sur ces éléments plus tard. \\
+
+Ci-dessous sont présentées les méthodes sur ces segments les plus importantes pour la suite des calculs :\\
+
 \begin{itemize}
-\item \emph{computeLine} : Calcule l'équation de la droite générée à partir du segment en question sous la forme $ax + by + c = 0$;
-\item \emph{getSide} : Cette méthode remplace les coordonnées $x$ et $y$ données en paramètres dans la droite également donnée en paramètre et retourne le résultat (donc 0 si le point est sur la droite);
-\item \emph{computePosition} : Retourne la position relative du segment par rapport à la droite donnée en paramètre. Remarquons que pour cette méthode certaines conventions ont été prises. En effet, s'il y a intersection, cette dernière est retournée. Sinon, si le segment est à gauche de la droite, NaN est retourné, s'il est à droite, c'est Infinity qui est renvoyé. Notons également que si nous nous trouvons dans le cas où il y a intersection au niveau d'un sommet du segment, par facilité d'implémentation nous retournons NaN ou Infinity en fonction de sa position et non le point d'intersection. Car en effet, nous aurions sinon création d'un segment qui est en réalité un point lors de la création de l'arbre BSP (ce qui aurait consisté en une segmentation incorrecte). Ces différentes situations sont représentées dans la figure \ref{computePositionExample}
+\item \emph{computeLine} : Calcule l'équation de la droite qui contient le segment sous la forme $ax + by + c = 0$ et la stocke dans un tableau de dimension trois contenant ses coefficients $a,b,c$;
+\item \emph{getSide} : Remplace les coordonnées $x$ et $y$ données en paramètres dans la droite également donnée en paramètre et retourne le résultat (0 si le point est sur la droite). Ceci nous permet de savoir de quel coté de la droite le point se trouve;
+\item \emph{computePosition} : Retourne la position relative du segment par rapport à la droite donnée en paramètre. Remarquons que pour cette méthode certaines conventions ont été prises. En effet, si il y a une intersection entre le segment et la droite, cette dernière est retournée dans un tableau à deux dimensions représentant un point. Sinon si le segment est à gauche de la droite, NaN est retourné, si il est à droite, Infinity qui est retourné. Notons également que si nous nous trouvons dans le cas où il y a intersection au niveau d'un sommet du segment, par facilité d'implémentation nous retournerons que celui-ci est à gauche ou à droite en ignorant l'intersection.
 \end{itemize}
 
-\subsubsection{BSPNode} 
-Cette classe est utile pour le stockage des arbres BSP. Sa conception est très proche des structures utilisées pour la représentation de simples arbre binaire. Des adaptations ont uniquement été faites pour stocker dans chaque noeud le ou les segment(s) présent(s) dans la droite le caractérisant via une liste chainée, et une autre liste chainée pour les segments présents dans l'hyperplan défini par le père (tous les segments s'il s'agit de la racine). 
+\subsubsection{Nœud BSP} 
+La classe BSPNode permet de représenter un nœud d'un arbre BSP définit de manière récursive. Un nœud possède une droite de séparation $s$ stockée sous la forme d'un tableau de dimension trois contenant ses coefficients $a,b,c$ de l'équation $ax + by + c = 0$ de la droite. Bien évidemment, chaque nœud contient aussi une référence vers son fils gauche $leftSon$ et son fils droit $rightSon$. 
+Le nœud contient aussi deux listes chaînées de segments :\\
+
+\begin{itemize}
+\item \emph{segmentsInLine} : stocke les segments contenus dans la droite $s$;
+\item \emph{segmentsInHyperplane} : stocke les segments contenus dans la région du plan obtenue en suivant les séparations successives effectuée par chaque nœud à partir de la racine de l'arbre;
+\end{itemize}
+
+\subsubsection{Listes chaînées}
+
+Nous avons fait le choix d'utiliser les listes chaînées pour stocker des segments.\\
+L'avantage de ces structures de données est la récupération du premier élément et sa suppression en O(1). En effet, une référence au début de la liste étant toujours gardée, il est très peu coûteux d'y accéder et de le supprimer. Étant donné que les segments sont traités dans l'ordre de la liste dans le but de créer une ligne de séparation $s$, il est intéressant de pouvoir facilement accéder au premier segment.\\
+Dans un second temps, il est utile de remarquer que l'ajout d'un segment dans une liste chaînée se fait aussi en O(1) via l'utilisation d'une référence vers le dernier élément de la liste. Ceci est très utile vu que des segments sont ajoutés à des listes chaînées constamment (notamment les fragments ajoutés à ces listes suite à la coupure d'un segment).
 
 \subsection{Construction}
+
 \subsubsection{Heuristique "in-order"}
 
 \paragraph{Méthode}
@@ -464,11 +497,6 @@ Au niveau du code présent aux lignes 20-32, il s'agit de la recherche de free-s
 Pour les instructions 42-59, il s'agit simplement d'une vérification permettant de savoir si des free-splits sont présent dans la liste des segments pour le fils gauche et le fils droit. Si c'est le cas, le noeud est créé avec le segment résultant du free-split comme base pour une nouvelle droite de séparation, un booléen est mis à vrai et il n'y aura donc pas de choix aléatoire comme dans l'heuristique précédente. Et cela grâce aux conditions ajoutée en 62,68,74-75 et 81-82. Si aucun free-split n'est trouvé, le premier segment de l'hyperplan en question est choisi comme nouvelle "splitting-line", comme dans l'heuristique précédente. 
 
 \subsection{Complexité}
-
-\subsection{Structures de données utilisées}
-Outre nos structures de données pour représenter les arbres BSP, nous avont fait le choix d'utiliser des listes chainées de Java contenir les segments (que ce soient les segments contenus dans la ligne de séparation $s$ ou ceux compris dans les séparations de l'espace $s^+$ et $s^-$). 
-L'avantage de ces structures de données est la récupération du premier élément et sa suppression en O(1). En effet, une référence au début de la liste étant toujours gardée, il est très peu couteux d'y accéder et de la supprimer. Etant donné que les segments sont traités dans l'ordre de la liste dans le but de créer une ligne de séparation $s$, il est intéressant de pouvoir facilement accéder au premier segment. 
-Dans un second temps, il est utile de remarquer que l'ajout d'un segment dans une liste chainée se fait aussi en O(1) via l'utilisation d'une référence au dernier élément de la liste. Ceci est très utile vu que des segments sont ajouté à des listes chainées constamment (que ce soit un segment qui se trouve dans $s^+$ ou $s^-$ et qui doit donc être placé dans la liste chainée correspondante ou que ce soit les fragments ajoutés à ces listes suite à la coupure d'un segment).
 
 \subsection{Tests \& Résultats}
 
