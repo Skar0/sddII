@@ -8,6 +8,7 @@
 \newtheorem*{definition}{Definition}
 \theoremstyle{remark}
 \newtheorem*{remark}{Remark}
+\setcounter{secnumdepth}{3}
 \usepackage{float}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -154,52 +155,59 @@ Dans un second temps, il est utile de remarquer que l'ajout d'un segment dans un
 
 \paragraph{Méthode}
 
-Cette heuristique est très intuitive et met simplement en pratique le principe des arbres BSP. Étudions son fonctionnement à l'aide de l'exemple représenté à la Figure \ref{scene_inordre} : 
+Cette heuristique est très intuitive et met simplement en pratique le principe des arbres BSP. Étudions son fonctionnement à l'aide de l'exemple représenté à la Figure \ref{scene_inordre}. 
 
-\begin{figure}[!h]
+\begin{figure}[H]
 \centering
-\includegraphics[scale=0.6]{bsp_ex_1.png}
-\caption{Scène 2D}
+\includegraphics[scale=0.5]{bsp_ex_1.png}
+\caption{Scène de segments}
 \label{scene_inordre}
 \end{figure}
 
-Nous pouvons remarquer que cette scène contient 6 segments distincts, dont deux (les segments S3 et S4) se situant sur une même droite. Nous avons également des segments qui s'intersectent, ce qui va inexorablement mener à la création de nouveaux segments. Nous allons maintenant appliquer et expliquer le fonctionnement de l'heuristique "inordre", celui-ci étant représenté dans le plan à la Figure \ref{bsp_inordre} et l'arbre BSP correspondant est construit à la Figure \ref{bsp_tree}. \\
+Nous pouvons remarquer que cette scène contient 6 segments distincts, dont deux (les segments S3 et S4) se situant sur une même droite. Nous avons également des segments qui s'intersectent, ce qui va inexorablement mener à la création de nouveaux segments. Nous allons maintenant appliquer l'heuristique "in-ordre" sur l'exemple de la figure \ref{scene_inordre} et en expliquer le fonctionnement. L'arbre BSP correspondant est construit à la Figure \ref{bsp_tree}. \\
 
-Cette heuristique travaille avec la liste des segments telle qu'elle a été fournie par l'utilisateur, c'est à dire que la création de l'arbre se fait dans l'ordre par lequel les segments ont été définis. \\
+Cette heuristique travaille avec la liste des segments telle qu'elle a été fournie par l'utilisateur, c'est à dire que la création de l'arbre se fait dans l'ordre par lequel les segments ont été définis. Dans notre exemple, la liste de segment initiale $i$ contient les segments dans l'ordre suivant : $\{S1,S2,S3,S4,S5,S6\}$ \\
 
-Nous commençons donc par une division du plan à l'aide de S1, et nous remarquons d'ores et déjà que S5 est alors coupé en deux segments S5A et S5B, en effet S5 intersecte la droite issue du prolongement de S1. Nous obtenons donc maintenant deux sous-ensembles de segments : 
-$$S1^+ = \{S2, S5A\}$$
-$$S1^- = \{S3,S4,S5B,S6\}$$
+Nous commençons donc par une division du plan à l'aide de la droite qui contient S1 que nous noterons $s_1$. Nous remarquons d'ores et déjà que S5 est coupé en deux segments S5A et S5B. Nous obtenons donc maintenant deux sous-ensembles de $i$, qui sont les segments contenus dans les régions $s_1^+$ et $s_1^-$: \\
+$$s_1^+ \quad contient\quad \{S2, S5A\}$$
+$$s_1^- \quad contient\quad \{S3,S4,S5B,S6\}$$
 
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.6]{bsp_ex_2.png}
-\caption{Application de l'heuristique sur le noeud dont la droite est construire via $S_1$}
+\caption{Application de l'heuristique sur le nœud dont la droite est construite via $S1$}
 \label{bsp_inordre}
-\end{figure}
+\end{figure}\\
+\newpage
 
-Récursivement, l'algorithme va être appelé sur deux noeuds contenant les segments $S1^+$ et $S1^-$. Et c'est le premier segment de la liste qui sera utilisé comme nouvelle droite définissant les nouveaux plans. 
-\begin{itemize}
-\item Pour $S1^+$ on a donc ainsi $S_2$ comme segment de base pour la nouvelle droite. Il ne restera ainsi plus que $S5A$ comme feuille, comme indiqué sur la figure \ref{bsp_ex_4}.
+Le nœud va donc contenir le segment $S1$ dans la liste de segments contenus dans sa droite de séparation $s_1$. L'algorithme va être appelé récursivement sur deux nœuds dont les listes de segments sont celles définie précédemment. Là encore, le premier segment de chacune de ces listes sera utilisé pour construire la droite de séparation.\\
+
+La première liste contiendra ainsi les segments $\{S2, S5A\}$. Le segment $S2$ sera utilisé pour créer la ligne de séparation $s_2$, le nœud contiendra dans sa liste de segments contenus dans la droite le segment $S2$. Nous remarquons alors que suite à la séparation du plan par la droite $s_2$, $s_2^+$ et $s_2^-$ contiennent les segments suivants:\\
+$$s_2^+ \quad \text{ne contient pas de segments}$$
+$$s_2^- \quad contient\quad \{S5A\}$$
+\\
+Le nœud actuel ne possédera alors pas de fils droit et aura un fils gauche qui sera une feuille (puisqu'il contiendra uniquement $S5A$).\\
+
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.6]{bsp_ex_4.png}
-\caption{Application de l'heuristique sur le noeud dont la droite est construire via $S_2$}
+\caption{Application de l'heuristique sur le nœud dont la droite est construite via $S2$}
 \label{bsp_ex_4}
 \end{figure}
+\newpage
 
-\item Pour $S1^-$ on a $S_3$ comme origine de la nouvelle droite et on remarque que $S_4$ est également inclu à la droite, donc ces deux segments font alors partie du même noeud. Nous avons également que $S_3$ intersecte $S5_B$ et $S_6$ ce qui engendre la création des segments : $S5_C$, $S6_A$, $S6_B$, la suppression du segment $S6$ et la modification de $S5_B$ (qui se traduira néanmoins techniquement par la suppression et la création d'un segment avec les coordonnées mises à jour) ceci est représenté à la figure \ref{bsp_ex_5}
-\end{itemize}
-
+La deuxième liste contiendra ainsi les segments $\{S3,S4,S5B,S6\}$. Le segment $S3$ sera utilisé pour créer la ligne de séparation $s_3$, nous remarquons que le segment $S4$ est lui aussi compris dans cette droite. Nous avons également que $s_3$ intersecte $S5B$ et $S6$ ce qui engendre la création des fragments : $S5C$, $S6A$, $S6B$ comme indiqué sur la figure \ref{bsp_ex_5.png}. Les régions $s_3^+$ et $s_3^-$ contiennent les segments suivants:\\
+$$s_3^+ \quad contient\quad \{S6B, S5C\}$$
+$$s_3^- \quad contient\quad \{S5B,S6A\}$$
 
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.6]{bsp_ex_5.png}
-\caption{Application de l'heuristique sur le noeud dont la droite est construire via $S_3$}
+\caption{Application de l'heuristique sur le nœud dont la droite est construite via $S3$}
 \label{bsp_ex_5}
 \end{figure}
 
-Suite aux appels récursifs, nous obtiendrons ainsi l'arbre suivant :
+La construction se poursuit récursivement pour donner l'arbre à la figure \ref{bsp_tree}.
 
 \begin{figure}[H]
 \centering
@@ -208,25 +216,37 @@ Suite aux appels récursifs, nous obtiendrons ainsi l'arbre suivant :
 \label{bsp_tree}
 \end{figure}
 
-\paragraph{Implémentation}
+\paragraph{Pseudo-code}
 
-Afin d'implémenter cette heuristique, nous utilisons principalement les 2 algorithmes suivants :
+Afin d'implémenter cette heuristique, nous utilisons principalement les deux algorithmes suivants :\\
+
 \begin{itemize}
-\item createTree : permet de lancer la création de l'arbre;
-\item createRoot : assure la construction récursive de l'arbre à partir d'un noeud;
+\item createTree : permet de lancer la création de l'arbre en initialisant la racine;
+\item createRoot : assure la construction récursive de l'arbre à partir d'un nœud;
+\end{itemize}\\
+\bigskip
+
+Notons que nous utilisons les conventions suivantes :\\
+
+\begin{itemize}
+\item La création d'un nœud nécessite 4 paramètres : fils droit, fils gauche, la liste de segments à traiter et la droite effectuant la séparation du plan (appelée \emph{splitting line}).
+\item Rappelons qu'un nœud possède cinq attributs :
+\begin{itemize}
+	\item rightSon
+	\item leftSon
+	\item segmentsInHyperplane : liste des segments dans l'hyperplan défini par le droite de séparation du père.
+	\item segmentsInLine : segments dans la ligne de séparation.
+	\item line : tableau de trois doubles étant les coefficients a, b et c de l'équation de sa droite de séparation.
+\end{itemize}
+\item Un nœud possède entre autres les deux méthodes setLeftSon et setRightSon permettant d'ajouter respectivement un fils gauche et/ou un fils droit au nœud. 
 \end{itemize}
 
-Notons que nous utilisons les conventions suivantes :
-\begin{itemize}
-\item La création d'un noeud nécessite 4 paramètres : fils droit, fils gauche, la liste de segments de l'hyperplan et la droite effectuant la définition des deux nouveaux hyperplans (communément appelée "splitting line").
-\item Un noeud possède 5 attributs : rightSon, leftSon, segmentsInHyperplane (liste des segments dans l'hyperplan défini par le droite de séparation du père), segmentsInLine (segments dans la ligne de séparation), line (tableau de trois doubles étant les facteurs a, b et c de l'équation de sa droite de séparation).
-\item Un noeud possède entre autres les deux méthodes setLeftSon et setRightSon permettant d'ajouter respectivement un fils gauche et/ou un fils droit au noeud. 
-\end{itemize}
+\newpage
 
 \begin{alltt}
 \textbf{createTree}
 Entrée : segList, liste de segments d'origine pour la création 
-de l'arbre BSP
+de l'arbre BSP (issue du fichier).
 Sortie : racine de l'arbre BSP généré
 
 1: \(line \leftarrow segList[0]\)
@@ -240,9 +260,11 @@ Sortie : racine de l'arbre BSP généré
 \textbf{createRoot}
 Entrée : noeud, étant un noeud incomplet de l'arbre BSP ne
 disposant que de sa ligne de séparation et sa liste de
-segments contenus dans son hyperplan.
+segments à traiter.
 Sortie : /
-Effet : ajoute les fils au noeud s'il en a et dans ce cas 
+Effet : ajoute les segments contenus dans la 
+droite de séparation dans la liste adéquate.
+Ajoute les fils au nœud s'il en a et dans ce cas 
 appelle l'algorithme récursivement sur ces derniers en 
 choisissant une nouvelle droite de séparation et en 
 donnant les nouvelles listes de segments adaptées.
@@ -298,23 +320,21 @@ donnant les nouvelles listes de segments adaptées.
 49:   createRoot(\(rightNode\))
 \end{alltt}
 
-Pour effectuer la création d'un arbre BSP avec l'heuristique "inordre" nous appelons simplement createTree avec la liste des segments devant former l'arbre. Cet algortihme va alors se charger d'initialiser le premier noeud en utilisant le premier segment de la liste comme droite de séparation. Ensuite l'algorithme createRoot est appelé avec ce premier noeud, c'est cet algorithme qui se charge ensuite de la construction récursive de l'arbre. \\
+Pour effectuer la création d'un arbre BSP avec l'heuristique "in-order" nous appelons simplement createTree avec la liste des segments devant former l'arbre. Cet algorithme va alors se charger d'initialiser le premier nœud en utilisant le premier segment de la liste comme droite de séparation. Ensuite l'algorithme createRoot est appelé avec ce premier nœud, c'est cet algorithme qui se charge ensuite de la construction récursive de l'arbre. \\
 
-Tout d'abord, l'instruction 1 permet de ne faire fonctionner l'algorithme que s'il a du sens, c'est à dire que le noeud sur lequel il est appelé est non nul. Nous pouvons ensuite effectuer une analyse en deux parties : 
+Tout d'abord, l'instruction 1 permet de ne faire fonctionner l'algorithme que s'il a du sens, c'est à dire que le nœud sur lequel il est appelé est non nul. Nous pouvons ensuite effectuer une analyse en deux parties : 
 
-La première partie, constituée des instructions 2 à 25, consiste en la création de deux nouveaux hyperplans $s^+$ et $s^-$ en fonction de la "splitting line", ou droite de division de l'espace $s$ du noeud. On regarde d'abord si des segments de l'hyperplan du noeud sont contenus dans cette droite et, s'ils existent, on les ajoute à la liste des segments contenus dans la droite. Ensuite, avec les segments restants, on va regarder s'ils se situent à gauche ou à droite de la "splitting line", donc $s^+$ ou $s^-$ pour ensuite pouvoir les répartir correctement (dans le cas où il y a intersection, on crée deux nouveaux segments et on les ajoute au bon nouvel hyperplan en fonction de leur position). 
+La première partie, constituée des instructions 2 à 25, consiste en la création de deux nouveaux hyperplans $s^+$ et $s^-$ en fonction de la "splitting line", ou droite de division de l'espace $s$ du nœud. On regarde d'abord si des segments de l'hyperplan du nœud sont contenus dans cette droite et, s'ils existent, on les ajoute à la liste des segments contenus dans la droite. Ensuite, avec les segments restants, on va regarder s'ils se situent à gauche ou à droite de la "splitting line", donc $s^+$ ou $s^-$ pour ensuite pouvoir les répartir correctement (dans le cas où il y a intersection, on crée deux nouveaux segments et on les ajoute au bon nouvel hyperplan en fonction de leur position). 
 
-La seconde partie permet la création de la structure d'arbre en tant que tel, constituée des instructions 26 à 49. Elle va simplement attribuer au noeud un fils gauche et un fils droit si de tels fils existent. En effet, on peut se trouver dans le cas d'une feuille, ou on a juste un ou plusieurs segments dans $segmentsInLine$ qui définissent une "`splitting line"' mais aucuns segments dans "`segmentsInHyperPlane". Nous pouvons aussi nous trouver dans le cas ou il n'y a aucun segment compris dans $s^+$ ou $s^-$, ce qui revient à ne pas avoir de fils droit ou gauche. L'hyperplan correspondant au noeud, calculé dans la première partie, leur est attribué et une nouvelle droite de séparation (générée à partir du premier segment de l'hyperplan) leur est donnée. Ensuite l'algorithme est appelé récursivement sur ces deux fils (pouvant résulter sur un appel récursif sur un fils Null qui sera écartée par l'instruction 1. 
-
-\paragraph{Complexité}
+La seconde partie permet la création de la structure d'arbre en tant que telle, constituée des instructions 26 à 49. Elle va simplement attribuer au nœud un fils gauche et un fils droit si de tels fils existent. En effet, on peut se trouver dans le cas d'une feuille, ou on a juste un ou plusieurs segments dans $segmentsInLine$ qui définissent une "splitting line" mais aucuns segments dans "segmentsInHyperPlane". Nous pouvons aussi nous trouver dans le cas ou il n'y a aucun segment compris dans $s^+$ ou $s^-$, ce qui revient à ne pas avoir de fils droit ou gauche. L'hyperplan correspondant au nœud, calculé dans la première partie, leur est attribué et une nouvelle droite de séparation (générée à partir du premier segment de l'hyperplan) leur est donnée. Ensuite l'algorithme est appelé récursivement sur ces deux fils (pouvant résulter sur un appel récursif sur un fils Null qui sera écartée par l'instruction 1). 
 
 \subsubsection{Heuristique "random"}
 
 \paragraph{Méthode}
 
-Cette heuristique utilise la même méthode que l'heuristique "inordre" pour la création de l'arbre BSP, à la seule différence près que la liste des segments est mélangée avant de commencer la construction. La différence d'un point de vue algorithmique avec l'heuristique précédente étant nulle, nous ne attardons donc pas sur ce point. 
+Cette heuristique utilise la même méthode que l'heuristique "in-order" pour la création de l'arbre BSP, à la seule différence près que la liste des segments est mélangée avant de commencer la construction. Ceci va donc changer l'ordre de création des lignes de séparation et donc la structure de l'arbre. Cette utilisation aléatoire du mélange de la liste a pour conséquence que l'algorithme n'est plus déterministe. La différence d'un point de vue algorithmique avec l'heuristique précédente étant nulle, nous ne attardons donc pas sur ce point. 
 
-\paragraph{Implémentation}
+\paragraph{Pseudo-code}
 
 L'implémentation de cette heuristique est identique à la précédente à l'exception d'une ligne effectuant le mélange de la liste des segments avant utilisation. On va donc ici mélanger la liste des segments, puis appeler l'algorithme précédent :
 
@@ -331,7 +351,7 @@ Sortie : racine de l'arbre BSP généré
 
 \paragraph{Complexité}
 
-N'ayant effectué qu'un mélange de liste en \emph{O(n)} en dehors de toute boucle ou appel récursif, cela n'aucun impact au niveau de la complexité asymptotique. 
+N'ayant effectué qu'un mélange de liste en \emph{O(n)} en dehors de toute boucle ou appel récursif, cela n'a aucun impact au niveau de la complexité asymptotique. 
 
 \subsubsection{Heuristique "free-splits"}
 
@@ -371,7 +391,7 @@ Notons que lorsqu'aucun "free-split" n'est présent, c'est l'algorithme classiqu
 
 \paragraph{Implémentation}
 
-L'implémentation de l'heuristique des "free-splits" paraît à première vue fort semblable par rapport à celle "inorder", ce qui est normal étant donné qu'elles possèdent le même squelette, "free-splits" n'apportant que quelques améliorations se basant sur des conditions supplémentaires. Nous allons donc ici présenter un pseudo-code très semblable au précédent, c'est pourquoi les numéros de lignes présentant un changement seront mises en gras.\\
+L'implémentation de l'heuristique des "free-splits" paraît à première vue fort semblable par rapport à celle "inorder", ce qui est normal étant donné qu'elles possèdent la même structure, "free-splits" n'apportant que quelques améliorations se basant sur des conditions supplémentaires. Nous allons donc ici présenter un pseudo-code très semblable au précédent, c'est pourquoi les numéros de lignes présentant un changement seront mises en gras.\\
 
 Pour les besoins de l'heuristique nous introduisons les attributs suivants aux objets de type segment : un booléen isIntersected indiquand si le segment a déjà été intersecté ou non, un tableau de deux nombres nommé intersection contenant cette intersection si elle existe et un booléen isFreeSplit indiquant si le segment est un "free-split". Notons également les deux abréviations suivantes : a et b pour désigner les deux extrémités du segment.\\
 
@@ -496,18 +516,16 @@ Au niveau du code présent aux lignes 20-32, il s'agit de la recherche de free-s
 
 Pour les instructions 42-59, il s'agit simplement d'une vérification permettant de savoir si des free-splits sont présent dans la liste des segments pour le fils gauche et le fils droit. Si c'est le cas, le noeud est créé avec le segment résultant du free-split comme base pour une nouvelle droite de séparation, un booléen est mis à vrai et il n'y aura donc pas de choix aléatoire comme dans l'heuristique précédente. Et cela grâce aux conditions ajoutée en 62,68,74-75 et 81-82. Si aucun free-split n'est trouvé, le premier segment de l'hyperplan en question est choisi comme nouvelle "splitting-line", comme dans l'heuristique précédente. 
 
-\subsection{Complexité}
-
-\subsection{Tests \& Résultats}
-
-Dans cette section nous allons analyser les performances des différentes heurisitiques pour la création des arbres BSP. \\
+\newpage
 
 \section{Algorithme du peintre}
 
-Notre implémentation de l'algorithme du peintre est similaire à celle présentée dans le livre de référence. Son principe est le suivant : chaque noeud de l'arbre BSP est parcouru dans un certain ordre et les segments qu'il contient sont alors affichés.
+Notre implémentation de l'algorithme du peintre est similaire à celle présentée dans le livre de référence. Son principe est le suivant : chaque nœud de l'arbre BSP est parcouru dans un certain ordre et les segments qu'il contient sont alors affichés si ils sont visibles par le point de vue.
 
 \subsection{Algorithme principal}
 \subsubsection{Pseudo-code}
+Le pseudo code suivant part du principe que les segments sont directement affichés par l'algorithme du peintre. En réalité, l'algorithme du peintre ajoute les segments à dessiner dans le bon ordre dans une liste chaînée qui sera ensuite utilisée par l'interface graphique. Ce détail d'implémentation ne changeant rien à la complexité et gênant la bonne compréhension de l'algorithme, nous l'ignorons ici.\\
+
 \begin{lstlisting}
 paintersAlgorithm
 Entrées : N la racine d'un arbre BSP, P un point de vue
@@ -520,12 +538,12 @@ Sortie : / (les segments sont dessinés dans le bon ordre)
  5:
  6:    si $P \in N_{s^+}$ alors
  7:       paintersAlgorithm($N_{filsGauche}$,$P$)
- 8:       drawSegments($N_{liste}$)
+ 8:       scanConvert($N_{liste}$)
  9:       paintersAlgorithm($N_{filsDroit}$,$P$)
 10:
 11:    si $P \in N_{s^-}$ alors
 12:       paintersAlgorithm($N_{filsDroit}$,$P$)
-13:       drawSegments($N_{liste}$)
+13:       scanConvert($N_{liste}$)
 14:       paintersAlgorithm($N_{filsGauche}$,$P$)
 15:
 16:    sinon
@@ -533,17 +551,14 @@ Sortie : / (les segments sont dessinés dans le bon ordre)
 17:       paintersAlgorithm($N_{filsGauche}$,$P$)
 \end{lstlisting}
 
-\subsection{Complexité}
-Nous remarquons tout d'abord que l'algorithme va parcourir tous les noeuds de l'arbre, la méthode scanConvert va quant à elle parcourir tous les segments contenus dans ces noeuds. Pour une entrée d'un arbre avec $n$ noeuds et $m$ segments, nous obtenons une complexité à un appel récursif $i_k$ telle quel O($i_k$) avec $i_1 + i_2 + ... + i_k + ... + i_n$ =$m$. On a donc pour les n noeuds une complexité en 
+\subsubsection{Méthode}
+Cet algorithme permet de parcourir l'arbre BSP pour afficher les segments par ordre de distance avec le point de vue (les segments les plus éloignés étant dessinés en premier).\\
 
+Nous vérifions tout d'abord si la racine $N$ de l'arbre n'est pas vide Ce cas peut résulter d'un appel récursif sur l'algorithme avec un nœud $N$ qui n'a pas de fils gauche et/ou de fils droit. L'appel se fera donc avec un nœud null et ne résultera en aucun calcul.\\
 
-\subsubsection{Explications}
-Cet algorithme permet de parcourir l'arbre BSP pour afficher les segments par ordre de distance avec le point de vue (les segments les plus éloignés étant dessinés en premier).
-Nous vérifions tout d'abord si la racine de l'arbre N n'est pas vide, ceci peut résulter d'un appel récursif sur l'algorithme avec un noeud $N$ qui n'a pas de fils gauche ou droit. L'appel se fera donc avec un noeud null et ne résultera en aucun calcul.
+Ensuite, il est évident que si le nœud $N^$ est une feuille, nous ne pouvons plus parcourir récursivement l'arbre et nous appelons donc la méthode \textbf{scanConvert} qui permet d'afficher les segments contenus dans le nœud $N$ si ceux-ci sont visibles par le point de vue $P$. Il est utile de rappeler que les segments potentiellement affichés sont ceux contenus dans la droite de séparation du nœud $N$, stockés dans $N_{liste}$.\\
 
-Ensuite, il est évident que si le noeud $N^$ est une feuille, nous ne pouvons plus parcourir récursivement l'arbre et nous appellons la méthode qui permet d'afficher les segments contenus dans le noeud $N$ via $N_{liste}$. Cette méthode déterminera si ces segments sont compris dans la vue et les dessinera le cas échéant.
-
-Si le point de vue $P$ appartient à $N_{s^+}$, nous nous voulons d'abord afficher les segments plus distants que ceux de $N_{liste}$, 
+Si le point de vue $P$ appartient à $N_{s^+}$, nous voulons d'abord afficher les segments plus distants que ceux de $N_{liste}$, 
 ceux si seront ceux du fils gauche qui appartient à $N_{s^-}$ et possède donc des segments plus distants du point de vue comme détaillé sur la figure \ref{ordre_1}. Le même principe s'applique pour le cas ou $P$ appartient à $N_{s^-}$.
 
 \begin{figure}[!h]
@@ -553,17 +568,14 @@ ceux si seront ceux du fils gauche qui appartient à $N_{s^-}$ et possède donc 
 \label{ordre_1}
 \end{figure}
 
-Si $P$ n'appartient pas à $N_{s^+}$ ni à $N_{s^-}$ alors $P \in N_s$ et les segments du noeud $N$ ne doivent pas être affichés et le parcours est continué.
+Si $P$ n'appartient pas à $N_{s^+}$ ni à $N_{s^-}$ alors $P \in N_s$ et les segments de $N_{liste}$ ne doivent pas être affichés car ils ne sont forcément pas visible par le point de vue et le parcours est continué.
+
+\subsubsection{Complexité}
+Nous remarquons tout d'abord que l'algorithme va parcourir tous les noeuds de l'arbre, la méthode scanConvert va quant à elle parcourir tous les segments contenus dans ces noeuds. Pour une entrée d'un arbre avec $n$ noeuds et $m$ segments, nous obtenons une complexité à un appel récursif $i_k$ telle quel O($i_k$) avec $i_1 + i_2 + ... + i_k + ... + i_n$ =$m$. On a donc pour les n noeuds une complexité en 
 
 \subsection{Algorithme de projection}
 
 \subsubsection{Pseudo-code}
-
-\begin{lstlisting}
-drawSegments
-Entrées : L une liste d'objets segments
-Sortie : / (les segments sont dessinés via l'objet g2)
-\end{lstlisting}
 
 Les figure \ref{painter_notations} et \ref{painter_notations_2} rend compte des notations utilisées dans l'algorithme.
 \\
@@ -583,9 +595,14 @@ Les figure \ref{painter_notations} et \ref{painter_notations_2} rend compte des 
 \end{figure}
 \\
 
-\newpage
+\begin{lstlisting}
+scanConvert
+Entrées : L une liste d'objets segments
+Sortie : / (les segments sont dessinés)
+\end{lstlisting}
 
 \newgeometry{margin=0.4in}
+
 \begin{lstlisting}
  1: $l_1$ $\leftarrow$ calcDroite($x_1,y_1,x_2,y_2$)
  2: $l_2$ $\leftarrow$ calcDroite($x_1,y_1,x_3,y_3$)
@@ -644,13 +661,11 @@ Les figure \ref{painter_notations} et \ref{painter_notations_2} rend compte des 
 53:   |      $liste$ $\leftarrow$ nouvelleListe()
 54:   |      $s'$ $\leftarrow$ Segment($i_1$,$i_2$,$s_{couleur}$)
 54:   |      $L'$.ajouterSegment($s'$)
-55:   |      drawSegments($L'$)
+55:   |      scanConvert($L'$)
 \end{lstlisting}
 \restoregeometry
 
-\subsubsection{Complexité}
-
-\subsubsection{Explications}
+\subsubsection{Méthode}
 Dans cette section, nous détaillerons le fonctionnement général de l'algorithme ainsi qu'un exemple.
 Nous connaissons les valeurs de $(x_1,y_1)$,$(x_2,y_2)$,$(x_3,y_3)$ grâce au point de vue, ceci nous permet de calculer les droites $l_1$ et $l_2$.
 Le vecteur directeur est la bisectrice de $l_1$ et $l_2$, le segment sur lequel nous projetons la vue relie les deux points $(x_2,y_2)$,$(x_3,y_3)$ qui deviennent alors les "`limites"' de ce segment (et ausii les projections de tout point sur $l_1$ et $l_2$)
@@ -729,7 +744,6 @@ Ces deux cas sont représentés sur les figure \ref{exp_5} et \ref{exp_6}.
 \caption{cas spécial ou il y a deux intersections devant}
 \label{exp_5}
 \end{figure}
-\subsection{Tests \& Résultats}
 
 \begin{figure}[!h]
 \centering
@@ -738,11 +752,11 @@ Ces deux cas sont représentés sur les figure \ref{exp_5} et \ref{exp_6}.
 \label{exp_6}
 \end{figure}
 
+\subsubsection{Complexité}
+Les calculs effectués dans cette méthode sont en O($m$) avec $m$ le nombre de segments contenus dans la liste de segments pris en entrée. Dans le pire des cas, chaque segment traverse complètement le point de vue et nécessite un deuxième appel récursif sur la méthode \textbf{scanConvert}. Chaque segment de la liste résulte en deux appels de la méthode, donnant une complexité en O(2$m$) = O(m).
 
-\subsection{Tests \& Résultats}
+\section{Tests et Résultats}
 L'algorithme du peintre parcourant tous les noeuds de l'arbre BSP ainsi que tous les segments contenus dans la ligne de séparation de l'espace de ce noeud, il est naturel que le temps d'exécution de l'algorithme dépendra du nombre de noeuds de l'arbre ainsi que du nombre de segments contenus dans l'arbre (la somme du nombre de segments contenus dans chaque noeud). Le tableau suivant nous donne les valeurs de temps pour chaque arbre créé via une heuristique ainsi que le temps pris par l'algorithme du peintre. Il convient aussi de remarquer que plus il y aura de segments contenus dans le point de vue, plus il y aura de calculs effectués par la méthode scanConvert
-
-
 
 Nous remarquons que plus le nombre de segments est élevé, plus l'algorithme du peintre prendra du temps.
 
