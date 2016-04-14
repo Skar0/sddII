@@ -111,7 +111,7 @@ public class Cui {
                 segments += root.getSizeInSegments();
                 i--;
             }
-            double elapsedTime = ((simulatorMx.getCurrentThreadCpuTime()-start)/iterations)*1.0e-9;
+            double elapsedTime = ((simulatorMx.getCurrentThreadCpuTime()-start)/iterations)*1.0e-6;
             result[0]=(double)size/iterations;
             result[1]=(double)height/iterations;
             result[2]=(double)segments/iterations;
@@ -124,7 +124,7 @@ public class Cui {
                 painter.getSegmentToDraw(root, pov);
                 j--;
             }
-            elapsedTime = ((simulatorMx.getCurrentThreadCpuTime()-start)/iterations)*1.0e-9;
+            elapsedTime = ((simulatorMx.getCurrentThreadCpuTime()-start)/iterations)*1.0e-6;
             result[4]=elapsedTime;
         }
 
@@ -263,14 +263,14 @@ public class Cui {
             double[] result3 = myThread.getResult();
 
             String header = String.format("  %-22s|  %-9s| %-10s| %-8s| %-8s| %-8s|",
-                    "      [Nom]", " [Size]", " [Height]", "[Segments]", "[BSP creation time (s)]", "[Painter Algorithm (s)]");
-            String inorder = String.format("%-24s|%11.0f|%11.0f|%11.0f|%24.5f|%24.5f|",
+                    "      [Nom]", " [Size]", " [Height]", "[Segments]", "[BSP creation time (ms)]", "[Painter Algorithm (ms)]");
+            String inorder = String.format("%-24s|%11.0f|%11.0f|%11.0f|%25.5f|%25.5f|",
                     "In order Heuristic", result1[0], result1[1], result1[2], result1[3], result1[4]);
 
-            String random = String.format("%-24s|%11.0f|%11.0f|%11.0f|%24.5f|%24.5f|",
+            String random = String.format("%-24s|%11.0f|%11.0f|%11.0f|%25.5f|%25.5f|",
                     "Random Heuristic", result2[0], result2[1], result2[2], result2[3], result2[4]);
 
-            String free_split = String.format("%-24s|%11.0f|%11.0f|%11.0f|%24.5f|%24.5f|",
+            String free_split = String.format("%-24s|%11.0f|%11.0f|%11.0f|%25.5f|%25.5f|",
                     "Free-Splits Heuristic", result3[0], result3[1], result3[2], result3[3], result3[4]);
 
             System.out.println(header);
