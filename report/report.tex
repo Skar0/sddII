@@ -326,7 +326,7 @@ Tout d'abord, l'instruction 1 permet de ne faire fonctionner l'algorithme que s'
 
 La première partie, constituée des instructions 2 à 25, consiste en la création de deux nouveaux hyperplans $s^+$ et $s^-$ en fonction de la "splitting line", ou droite de division de l'espace $s$ du nœud. On regarde d'abord si des segments de l'hyperplan du nœud sont contenus dans cette droite et, s'ils existent, on les ajoute à la liste des segments contenus dans la droite. Ensuite, avec les segments restants, on va regarder s'ils se situent à gauche ou à droite de la "splitting line", donc $s^+$ ou $s^-$ pour ensuite pouvoir les répartir correctement (dans le cas où il y a intersection, on crée deux nouveaux segments et on les ajoute au bon nouvel hyperplan en fonction de leur position). 
 
-La seconde partie permet la création de la structure d'arbre en tant que telle, constituée des instructions 26 à 49. Elle va simplement attribuer au nœud un fils gauche et un fils droit si de tels fils existent. En effet, on peut se trouver dans le cas d'une feuille, ou on a juste un ou plusieurs segments dans $segmentsInLine$ qui définissent une "splitting line" mais aucuns segments dans "segmentsInHyperPlane". Nous pouvons aussi nous trouver dans le cas ou il n'y a aucun segment compris dans $s^+$ ou $s^-$, ce qui revient à ne pas avoir de fils droit ou gauche. L'hyperplan correspondant au nœud, calculé dans la première partie, leur est attribué et une nouvelle droite de séparation (générée à partir du premier segment de l'hyperplan) leur est donnée. Ensuite l'algorithme est appelé récursivement sur ces deux fils (pouvant résulter sur un appel récursif sur un fils Null qui sera écartée par l'instruction 1). 
+La seconde partie permet la création de la structure d'arbre en tant que telle, constituée des instructions 26 à 49. Elle va simplement attribuer au nœud un fils gauche et un fils droit si de tels fils existent. En effet, on peut se trouver dans le cas d'une feuille, ou on a juste un ou plusieurs segments dans $segmentsInLine$ qui définissent une "splitting line" mais aucuns segments dans "segmentsInHyperPlane". Nous pouvons aussi nous trouver dans le cas ou il n'y a aucun segment compris dans $s^+$ ou $s^-$, ce qui revient à ne pas avoir de fils droit ou gauche. La liste de segments correspondant au nœud, calculé dans la première partie, leur est attribué et une nouvelle droite de séparation (générée à partir du premier segment de cette liste) leur est donnée. Ensuite l'algorithme est appelé récursivement sur ces deux fils (pouvant résulter sur un appel récursif sur un fils Null qui sera écartée par l'instruction 1). 
 
 \subsubsection{Heuristique "random"}
 
@@ -577,7 +577,7 @@ Nous remarquons tout d'abord que l'algorithme va parcourir tous les noeuds de l'
 
 \subsubsection{Pseudo-code}
 
-Les figure \ref{painter_notations} et \ref{painter_notations_2} rend compte des notations utilisées dans l'algorithme.
+Les figures \ref{painter_notations} et \ref{painter_notations_2} rendent compte des notations utilisées dans l'algorithme.
 \\
 \begin{figure}[!htbp]
   \centering
@@ -666,11 +666,9 @@ Sortie : / (les segments sont dessinés)
 \restoregeometry
 
 \subsubsection{Méthode}
-Dans cette section, nous détaillerons le fonctionnement général de l'algorithme ainsi qu'un exemple.
-Nous connaissons les valeurs de $(x_1,y_1)$,$(x_2,y_2)$,$(x_3,y_3)$ grâce au point de vue, ceci nous permet de calculer les droites $l_1$ et $l_2$.
-Le vecteur directeur est la bisectrice de $l_1$ et $l_2$, le segment sur lequel nous projetons la vue relie les deux points $(x_2,y_2)$,$(x_3,y_3)$ qui deviennent alors les "`limites"' de ce segment (et ausii les projections de tout point sur $l_1$ et $l_2$)
+Dans cette section, nous détaillerons le fonctionnement général de l'algorithme ainsi qu'un exemple.\\
 
-La situation de base est détaillée dans les figures \ref{exp_1} et \ref{exp_2}.
+Nous connaissons les valeurs de $(x_1,y_1)$, $(x_2,y_2)$, $(x_3,y_3)$ grâce au point de vue, ceci nous permet de calculer les droites $l_1$ et $l_2$, le vecteur directeur (qui joint $(x_1,y_1)$ au point situé entre $(x_2,y_2)$ et $(x_3,y_3)$), le segment sur lequel nous projetons la vue relie les deux points $(x_2,y_2)$, $(x_3,y_3)$ qui deviennent alors les $limites$ de ce segment (et aussi les projections de tout point sur $l_1$ et $l_2$). Nous calculons aussi le "demis angle" qui est l'angle entre le vecteur directeur et la droite $l_1$. Ceci nous donne le demis angle de vue. La situation de base est détaillée dans les figures \ref{exp_1} et \ref{exp_2}.
 
 \begin{figure}[!h]
 \centering
@@ -686,9 +684,11 @@ La situation de base est détaillée dans les figures \ref{exp_1} et \ref{exp_2}
 \label{exp_2}
 \end{figure}
 
-Pour chaque segment dans la liste, nous allons déterminer si celui ci est visible par le point de vue (entièrement ou non) et l'afficher si c'est le cas.
+\newpage
 
-Pour chaque segment, nous calculons les droites partant de point de vue et allant jusqu'à ses deux extrémités ainsi que les angles que ces droites forment avec le vecteur directeur. Ces angles nous permettent de déterminer si le segment est bien compris dans la vue ou non. Les droites en poitillé sur la figure \ref{exp_3} montre cette situation (les angles ne sont pas représentés).
+Pour chaque segment dans la liste, nous allons déterminer si celui-ci est visible par le point de vue (entièrement ou non) et l'afficher si c'est le cas.\\
+
+Pour chaque segment, nous calculons les droites partant du point du vue et allant jusqu'aux deux extrémités de ce segment ainsi que les angles que ces droites forment avec le vecteur directeur. Ces angles nous permettent de déterminer si le segment est bien compris dans la vue ou non. Les droites en pointillé sur la figure \ref{exp_3} montrent cette situation (les angles ne sont pas représentés).
 
 \begin{figure}[H]
 \centering
@@ -697,12 +697,11 @@ Pour chaque segment, nous calculons les droites partant de point de vue et allan
 \label{exp_3}
 \end{figure}
 
-16 à 18 
-Si les deux angles sont plus petit que le demis angle, il est évident que le segment est complètement compris dans la vue (fig1) nous l'affichons donc en entier. Pour ce faire nous projetons ses extrémités sur la droite de projection (pointillés) et dessinons le segment reliant ces intersections comme sur la figure \ref{cas1}
+Si, pour un segment, ses deux angles calculés comme présenté ci-dessus sont plus petit que le demis angle, il est évident que le segment est complètement compris dans la vue. Nous l'affichons donc en entier. Pour ce faire nous projetons ses extrémités sur la droite de projection, ce qui revient à calculer l'intersection entre les droites qui relient le point de vue aux extrémités du segment et le segment sur lequel on veut projeter. Nous dessinons donc le segment reliant ces deux nouvelles intersections comme sur la figure \ref{cas1}.
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.6]{cas1.png}
+\includegraphics[scale=0.5]{cas1.png}
 \caption{Cas du segment complètement dans la projection}
 \label{cas1}
 \end{figure}
