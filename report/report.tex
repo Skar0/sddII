@@ -587,7 +587,27 @@ ceux si seront ceux du fils gauche qui appartient à $N_{s^-}$ et possède donc 
 Si $P$ n'appartient pas à $N_{s^+}$ ni à $N_{s^-}$ alors $P \in N_s$ et les segments de $N_{liste}$ ne doivent pas être affichés car ils ne sont forcément pas visible par le point de vue et le parcours est continué.
 
 \subsubsection{Complexité}
-Nous remarquons tout d'abord que l'algorithme va parcourir tous les noeuds de l'arbre, la méthode scanConvert va quant à elle parcourir tous les segments contenus dans ces noeuds. Pour une entrée d'un arbre avec $n$ noeuds et $m$ segments, nous obtenons une complexité à un appel récursif $i_k$ telle quel O($i_k$) avec $i_1 + i_2 + ... + i_k + ... + i_n$ =$m$. On a donc pour les n noeuds une complexité en 
+La complexité dans le pire des cas d'un algorithme sur un arbre se fait de la manière suivante :
+\begin{center}
+(nombre de nœuds visités $\times$ complexité pour un nœud) \\
+$+$ \\
+(nombre de références vides $\times$ complexité pour une référence vide)
+\end{center}
+Il est utile de rappeler qu'un arbre binaire possédant $n$ nœuds a $n+1$ références vides.\\
+
+Nous remarquons d'abord que l'algorithme du peintre est un parcours d'un arbre BSP dans un certain ordre. Tous les nœuds de l'arbre sont donc parcourus. Pour chaque nœud, la méthode \textbf{scanConvert} est appelée sauf si le point de vue est sur la droite de séparation de ce nœud. Dans le pire des cas, nous aurons toujours un appel à \textbf{scanConvert} pour chaque nœud.\\
+
+Comme indiqué dans la section $2.3.3$, la complexité de \textbf{scanConvert} pour un nœud dépend de la taille de la liste de segments de ce nœud. Un appel à cette méthode pour une liste entrée de taille $m$ sera en $O(m)$. \\
+
+Tout ceci nous permet de déduire que la complexité de l'algorithme du peintre dépend du nombre total de segments contenu dans l'arbre. En effet, chaque nœud de l'arbre sera visité et tous les segments contenus dans sa droite de séparation seront parcourus. Pour un arbre contenant $n$ nœuds et de taille $m$ (donc contenant $m$ segments), nous obtenons la complexité suivante :\\
+
+Complexité pour chaque nœud :\\
+Chaque nœud sera noté $k_1, k_2, ... , k_n$;\\
+Pour chaque nœud, la taille de sa liste de segments sera notée $t_1, t_2, ... , t_n$ et nous savons que $t_1 + t_2 + ... + t_n = \text{taille de l'arbre}$\\
+Chaque appel sur un nœud $k_i$ aura une complexité en $O(t_i)$. En effet chacun des segments contenus dans ce nœud seront parcourus.
+
+L'algorithme est appelé sur les $n$ nœuds de l'arbre, donc sur $k_1, k_2, ... , k_n$ et chacun de ces appels aura une complexité en $O( t_1), O(t_2), ... , O(t_n)$.\\
+La complexité totale pour l'arbre sera alors de $O(t_1 + t_2 + ... + t_n) = O(m)$. La complexité de l'algorithme du peintre dépend donc de la taille de l'arbre BSP.
 
 \subsection{Algorithme de projection}
 
