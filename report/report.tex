@@ -105,7 +105,7 @@ Un arbre BSP (\emph{Binary Space Partition}) est un arbre binaire permettant de 
 
 Les arbres BSP étudiés ici consistent en une séparation binaire du plan, s'effectuant de manière récursive. Ce processus sépare donc le plan en plusieurs régions, chacune d'entre elles contenant des segments. La séparation du plan se termine lorsque chaque région ne contient plus qu'un segment.\\
 
-Chaque nœud possède un ensemble de segments $i$ contenu dans un hyperplan et définit une nouvelle séparation binaire pour ceux de ses fils, et cela à l'aide d'une droite $s$ (choisie selon une technique définie au préalable et dans laquelle sont contenus un ou plusieurs segments). Le plan est alors divisé en deux sous-espaces $s^+$ et $s^-$ contenant chacun une partie des segments de $i$ non contenus dans la droite de séparation (les segments contenus dans $s$ étant les segments importants à stocker dans le nœud). Cette méthode de séparation est alors appelée récursivement sur chacun des deux sous-espaces nouvellement créés qui seront stockés dans les deux fils de ce nœud. La droite $s$ utilisée pour séparer le plan peut néanmoins couper des segments en deux, résultant alors dans la création de deux nouveaux segments qui seront contenus dans $s^+$ et $s^-$. Remarquons qu'avec la manière avec laquelle nous définissons chaque nouveau nœud, les feuilles de l'arbre seront des nœuds possédant une droite de séparation $s$ dans laquelle seront contenus un ou plusieurs segments mais sans segments dans leur hyperplan. Ces feuilles ne pourront donc pas avoir de fils, puisqu'elles ne posséderont aucun segments dans $s^+$ et $s^-$.\\
+Chaque nœud possède un ensemble de segments $i$ contenu dans un hyperplan et définit une nouvelle séparation binaire une nouvelle séparation binaire de ce dernier, et cela à l'aide d'une droite $s$ (choisie selon une technique définie au préalable et dans laquelle sont contenus un ou plusieurs segments). Le plan est alors divisé en deux sous-espaces $s^+$ et $s^-$ contenant chacun une partie des segments de $i$ non contenus dans la droite de séparation (les segments contenus dans $s$ étant les segments importants à stocker dans le nœud). Cette méthode de séparation est alors appelée récursivement sur chacun des deux sous-espaces nouvellement créés qui seront stockés dans les deux fils de ce nœud. La droite $s$ utilisée pour séparer le plan peut néanmoins couper des segments en deux, résultant alors dans la création de deux nouveaux segments qui seront contenus dans $s^+$ et $s^-$. Remarquons qu'avec la manière avec laquelle nous définissons chaque nouveau nœud, les feuilles de l'arbre seront des nœuds possédant une droite de séparation $s$ dans laquelle seront contenus un ou plusieurs segments et aucun autres segments en dehors de ceux-là. Ces feuilles ne pourront donc pas avoir de fils, puisqu'elles ne posséderont aucun segments dans $s^+$ et $s^-$.\\
 
 \theoremstyle{Definition}
 \begin{definition}{Arbre BSP}\\
@@ -126,10 +126,10 @@ Afin de représenter les différents éléments du problème, nous avons créé 
 \subsubsection{Segment}
 La classe Segment permet, comme son nom l'indique, de représenter un segment dans le plan. Celui-ci est défini à partir de deux extrémités $(x_1,y_1)$, $(x_2,y_2)$ et d'une couleur. Un segment possède également trois autres propriétés (\emph{intersected, isFreeSplit, intersection}), nécessaires à l'implémentation de l'heuristique des free-splits. Nous nous attarderons sur ces éléments plus tard. \\
 
-Ci-dessous sont présentées les méthodes les plus importantes pour la suite des calculs, appliquées sur ces segments  :\\
+Ci-dessous sont présentées les méthodes appliquées sur ces segments les plus importantes pour la suite des calculs :\\
 
 \begin{itemize}
-\item \emph{computeLine} : Calcule l'équation de la droite qui contient le segment, sous la forme $ax + by + c = 0$ et la stocke dans un tableau de dimension trois contenant ses coefficients $a,b,c$;
+\item \emph{computeLine} : Calcule l'équation de la droite qui contient le segment sous la forme $ax + by + c = 0$ et la stocke dans un tableau de dimension trois contenant ses coefficients $a,b,c$;
 \item \emph{getSide} : Remplace les coordonnées $x$ et $y$ données en paramètres dans la droite également donnée en paramètre et retourne le résultat (0 si le point est sur la droite). Ceci nous permet de savoir de quel coté de la droite le point se trouve;
 \item \emph{computePosition} : Retourne la position relative du segment par rapport à la droite donnée en paramètre. Remarquons que pour cette méthode certaines conventions ont été prises. En effet, si il y a une intersection entre le segment et la droite, cette dernière est retournée dans un tableau à deux dimensions représentant un point. Sinon si le segment est à gauche de la droite, NaN est retourné, s'il est à droite, Infinity est retourné. Notons également que si nous nous trouvons dans le cas où il y a intersection au niveau d'un sommet du segment, par facilité d'implémentation nous retournerons que celui-ci est à gauche ou à droite en ignorant l'intersection.
 \end{itemize}
@@ -147,7 +147,7 @@ Le nœud contient aussi deux listes chaînées de segments :\\
 
 Nous avons fait le choix d'utiliser les listes chaînées pour stocker des segments.\\
 L'avantage de ces structures de données est la récupération du premier élément et sa suppression en O(1). En effet, une référence au début de la liste étant toujours gardée, il est très peu coûteux d'y accéder et de le supprimer. Étant donné que les segments sont traités dans l'ordre de la liste dans le but de créer une ligne de séparation $s$, il est intéressant de pouvoir facilement accéder au premier segment.\\
-Dans un second temps, il est utile de remarquer que l'ajout d'un segment dans une liste chaînée se fait aussi en O(1) via l'utilisation d'une référence vers le dernier élément de la liste. Ceci est très utile vu des segments ajoutés constamment aux listes chaînées (notamment les fragments ajoutés à ces listes suite à la coupure d'un segment).
+Dans un second temps, il est utile de remarquer que l'ajout d'un segment dans une liste chaînée se fait aussi en O(1) via l'utilisation d'une référence vers le dernier élément de la liste. Ceci est très utile vu que des segments sont constamment ajoutés aux listes chaînées (notamment les fragments ajoutés à ces listes suite à la coupure d'un segment).
 
 \subsection{Construction}
 
@@ -892,15 +892,12 @@ Ensuite nous avons le temps construction des arbres pour les free-splits qui est
 En ce qui concerne la taille  des arbres générés, ceux-ci sont de tailles plus réduites pour l'heuristique inorder au niveau des fichiers contenant peu de segments, mais sont plus grand que ceux générés par les heuristique random et free-split plus les fichiers sont de plus grandes tailles (à partir des fichiers de taille moyenne). Pour la hauteur, on a par contre que la hauteur des arbres générés par l'heuristique est toujours la plus grande, en effet beaucoup de ces arbres étant dégénérés, ils ont alors une hauteur très importante. Et enfin, le nombre de segments est relativement constant, toutes heuristiques confondues, à l'exception du fichier random pour lequel les heuristiques random et free-splits génèrent légèrement moins de segments. \\
 
 L'algorithme du peintre parcourant tous les noeuds de l'arbre BSP ainsi que tous les segments contenus dans la ligne de séparation de l'espace de ce noeud, il est naturel que le temps d'exécution de l'algorithme dépende du nombre de noeuds de l'arbre ainsi que du nombre de segments contenus dans l'arbre (la somme du nombre de segments contenus dans chaque noeud). Il convient aussi de remarquer que plus il y aura de segments contenus dans le point de vue, plus il y aura de calculs effectués par la méthode scanConvert. Nous remarquons en effet de manière globale que plus le nombre de segments est élevé, plus l'algorithme du peintre prend du temps. Dans nos résultats nous remarquons que les parcours sur les arbres créés via l'heuristique inordre sont toujours plus long que les deux autres heuristiques (à l'exception de "recanglesHuge" affichant un comportement différent de la normale), montrant bien que ces arbres ne sont pas du tout optimaux. Au niveau de la comparaison pour le temps d'exécution entre les heuristiques random et free-splits, nous pouvons dégager une légère tendance générale à un meilleur temps pour le free-splits mais les résultats n'ayant pas différences significatives et variant au cas par cas dans un sens comme dans un autre, nous ne pouvons confirmer de manière exacte cette affirmation.
-<<<<<<< HEAD
   
 \end{tabular}%
 }
 \end{table}
+
 \section{Mode d'emploi}
-=======
-\section{Mode d'emplois}
->>>>>>> d235c10a09d199b61e66838bd0b877d6dce6979c
 
 \subsection{Interface graphique}
 
