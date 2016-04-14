@@ -180,7 +180,7 @@ public class Cui {
             case("rectanglesSmall"):
                 answer = "../assets/rectangles/rectanglesSmall.txt";
                 break;
-            case("rectangleMedium"):
+            case("rectanglesMedium"):
                 answer = "../assets/rectangles/rectangleMedium.txt";
                 break;
             case("rectanglesLarge"):
