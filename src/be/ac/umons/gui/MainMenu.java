@@ -20,7 +20,7 @@ public class MainMenu extends JFrame {
 
 
     public MainMenu() {
-        this.setTitle("Heuristic simulator 2016");
+        this.setTitle("Scene viewer");
         ImageIcon img = new ImageIcon("assets/img/eye.png");
         this.setIconImage(img.getImage());
         this.setSize(250, 200);
