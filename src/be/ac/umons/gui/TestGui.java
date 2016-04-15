@@ -15,7 +15,7 @@ import java.util.List;
  * Project launcher for the graphical user interface
  * @author Clément Tamines
  */
-public class Gui extends JFrame{
+public class TestGui extends JFrame{
 
     public static void main(String[] args) {
         MainMenu menu = new MainMenu();

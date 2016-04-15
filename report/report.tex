@@ -602,10 +602,10 @@ Complexité pour chaque nœud :\\
 	\item Chaque nœud sera noté $k_1, k_2, ... , k_n$;
 	\item Pour chaque nœud, la taille de sa liste de segments sera notée $t_1, t_2, ... , t_n$ et nous savons que $t_1 + t_2 + ... + t_n = \text{taille de l'arbre}$
 \end{itemize}
-\vspace{20}
+\vspace{5}
 Chaque appel sur un nœud $k_i$ aura une complexité en $O(t_i)$. En effet chacun des segments contenus dans ce nœud sera parcouru par \textbf{scanConvert}.
 L'algorithme est appelé sur les $n$ nœuds de l'arbre, donc sur $k_1, k_2, ... , k_n$ et chacun de ces appels aura une complexité en $O( t_1), O(t_2), ... , O(t_n)$.\\
-La complexité totale pour l'arbre sera alors de $O(t_1 + t_2 + ... + t_n) = O(m)$. La complexité de l'algorithme du peintre dépend donc de la taille de l'arbre BSP.
+La complexité totale pour l'arbre sera alors de $O(t_1 + t_2 + ... + t_n) = O(m)$. Le nombre d'appels sur des références vides est de $n+1$ et la complexité pour une référence vide est de $O(1)$ car seul un test est effectué. La complexité de l'algorithme du peintre est donc de $O(m)+ n\times O(1)$ = $O(m)+ O(n)$ = $O(m)$ car la taille $m$ d'un arbre BSP est toujours plus grande ou égale à son nombre de nœuds $n$ (chaque nœud comprenant au minimum un segment). La complexité de l'algorithme du peintre dépend donc de la taille de l'arbre BSP.
 
 \subsection{Algorithme de projection}
 
@@ -908,7 +908,7 @@ Ensuite nous avons le temps construction des arbres pour les free-splits qui est
 La taille des arbres générés est en général légèrement plus grande pour les heuristiques random et free-splits que pour l'heuristique in-order. Sur les fichiers random, nous remarquons que les heuristiques random et free-splits fournissent des arbres de tailles similaires et beaucoup plus réduites que celles des arbres créés par l'heuristique in-order.
 Pour la hauteur, on a par contre que la hauteur des arbres générés par l'heuristique in-order est toujours la plus grande, en effet beaucoup de ces arbres étant dégénérés, ils ont alors une hauteur très importante. Les heuristiques random et free-splits permettent donc d'avoir une hauteur réduite pour l'arbre.\\
 
-L'algorithme du peintre parcourant tous les nœuds de l'arbre BSP ainsi que tous les segments contenus dans la droite de séparation de ces nœuds, il est naturel que le temps d'exécution de l'algorithme dépende de la taille de l'arbre. Il convient aussi de remarquer que plus il y aura de segments contenus dans le point de vue, plus il y aura de calculs effectués par la méthode \textbf{scanConvert}. Nous remarquons donc que plus le nombre de segments est élevé, plus l'algorithme du peintre prend du temps. Dans nos résultats nous remarquons que les parcours sur les arbres créés via l'heuristique in-order sont toujours plus long que les deux autres heuristiques (à l'exception de "recanglesHuge" affichant un comportement différent de la normale), montrant bien que ces arbres ne sont pas du tout optimaux. Au niveau de la comparaison pour le temps d'exécution entre les heuristiques random et free-splits, nous pouvons dégager une légère tendance générale à un meilleur temps pour le free-splits mais les résultats n'ayant pas différences significatives et variant au cas par cas dans un sens comme dans un autre, nous ne pouvons confirmer de manière exacte cette affirmation.
+L'algorithme du peintre parcourant tous les nœuds de l'arbre BSP ainsi que tous les segments contenus dans la droite de séparation de ces nœuds, il est naturel que le temps d'exécution de l'algorithme dépende de la taille de l'arbre. Il convient aussi de remarquer que plus il y aura de segments contenus dans le point de vue, plus il y aura de calculs effectués par la méthode \textbf{scanConvert}. Nous remarquons donc que plus la taille de l'arbre est élevée, plus l'algorithme du peintre prend du temps. Dans nos résultats nous remarquons que les appels à l'algorithme du peintre sur les arbres créés via l'heuristique in-order sont toujours plus long que pour les arbres créés avec les deux autres heuristiques (à l'exception de "recanglesHuge" affichant un comportement différent de la normale). Ceci s'explique par le fait que les hauteurs des arbres sont plus réduites pour ces deux heuristiques. Au niveau de la comparaison pour le temps d'exécution entre les heuristiques random et free-splits, nous pouvons dégager une légère tendance générale à un meilleur temps pour le free-splits mais les résultats n'ayant pas différences significatives et variant au cas par cas dans un sens comme dans un autre, nous ne pouvons confirmer cette affirmation.
   
 \end{tabular}%
 }
@@ -918,7 +918,7 @@ L'algorithme du peintre parcourant tous les nœuds de l'arbre BSP ainsi que tous
 
 \subsection{Interface graphique}
 
-Afin de lancer l'interface graphique, la classe \textit{TestGui.java} du package \textit{be.umons.ac.gui} doit être lancée à partir du dossier \textbf{src} via \textbf{javac be\textbackslash ac\textbackslash umons\textbackslash gui\textbackslash Gui.java} et \textbf{java be.ac.umons.gui.Gui}. L'interface graphique fonctionne comme suit : \\
+Afin de lancer l'interface graphique, la classe \textit{TestGui.java} du package \textit{be.ac.umons.gui} doit être lancée à partir du dossier \textbf{src} via \textbf{javac be\textbackslash ac\textbackslash umons\textbackslash gui\textbackslash TestGui.java} et \textbf{java be.ac.umons.gui.TestGui}. L'interface graphique fonctionne comme suit : \\
 
 Lors du lancement de l'interface graphique, il est demandé à l'utilisateur de choisir un fichier contenant une scène et une heuristique de construction de l'arbre. Suite à ce choix, une fenêtre montrant la représentation de la scène est ouverte. La barre de menu en haut de cette fenêtre permet de choisir un fichier ou une heuristique différente. Elle permet aussi de choisir le monde de  saisie de l'angle de vue.\\
 
@@ -932,7 +932,7 @@ L'algorithme du peintre est appliqué une fois un point de vue valide choisi par
 
 \subsection{Mode console}
 
-Pour lancer le mode console, la classe \textit{TestCui.java} du package \textit{be.umons.ac.cui} doit être lancée à partir du dossier\textbf{src} via \textbf{javac be\textbackslash ac\textbackslash umons\textbackslash cui\textbackslash Cui.java} et \textbf{java be.ac.umons.cui.Cui}. Le mode console fonctionne comme suit :\\
+Pour lancer le mode console, la classe \textit{TestCui.java} du package \textit{be.umons.ac.cui} doit être lancée à partir du dossier\textbf{src} via \textbf{javac be\textbackslash ac\textbackslash umons\textbackslash cui\textbackslash TestCui.java} et \textbf{java be.ac.umons.cui.TestCui}. Le mode console fonctionne comme suit :\\
 
 Il est tout d'abord demandé à l'utilisateur de choisir un fichier. Il doit pour cela choisir un des fichiers proposés (les fichiers de base de l'énoncé) ou introduire le chemin complet d'un fichier contenant une scène. L'utilisateur doit ensuite choisir un nombre d'itérations, effectuant ainsi une batterie de test pour le calcul des temps. En effet, les algorithmes de création étant non déterministes, il est intéressant de pouvoir les lancer plusieurs fois et faire une moyenne des résultats et temps obtenus. Cette moyenne n'affectera pas les résultats des algorithmes déterministes. Suite au choix d'un fichier et d'un nombre d'itérations, un tableau reprenant les résultats obtenus pour les heuristiques et algorithme du peintre sont affichés dans la console.
 

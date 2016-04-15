@@ -15,7 +15,7 @@ import java.lang.management.*;
  *
  * @author Clément Tamines
  */
-public class Cui {
+public class TestCui {
     
     private enum Heuristics {Inorder, Random, Free_Splits}
     private static Heuristics currentHeuristic;
