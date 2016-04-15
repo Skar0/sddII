@@ -105,7 +105,7 @@ Un arbre BSP (\emph{Binary Space Partition}) est un arbre binaire permettant de 
 
 Les arbres BSP étudiés ici consistent en une séparation binaire du plan, s'effectuant de manière récursive. Ce processus sépare donc le plan en plusieurs régions, chacune d'entre elles contenant des segments. La séparation du plan se termine lorsque chaque région ne contient plus qu'un segment.\\
 
-Chaque nœud possède un ensemble de segments $i$ contenu dans un hyperplan et définit une nouvelle séparation binaire une nouvelle séparation binaire de ce dernier, et cela à l'aide d'une droite $s$ (choisie selon une technique définie au préalable et dans laquelle sont contenus un ou plusieurs segments). Le plan est alors divisé en deux sous-espaces $s^+$ et $s^-$ contenant chacun une partie des segments de $i$ non contenus dans la droite de séparation (les segments contenus dans $s$ étant les segments importants à stocker dans le nœud). Cette méthode de séparation est alors appelée récursivement sur chacun des deux sous-espaces nouvellement créés qui seront stockés dans les deux fils de ce nœud. La droite $s$ utilisée pour séparer le plan peut néanmoins couper des segments en deux, résultant alors dans la création de deux nouveaux segments qui seront contenus dans $s^+$ et $s^-$. Remarquons qu'avec la manière avec laquelle nous définissons chaque nouveau nœud, les feuilles de l'arbre seront des nœuds possédant une droite de séparation $s$ dans laquelle seront contenus un ou plusieurs segments et aucun autres segments en dehors de ceux-là. Ces feuilles ne pourront donc pas avoir de fils, puisqu'elles ne posséderont aucun segments dans $s^+$ et $s^-$.\\
+Chaque nœud possède un ensemble de segments $i$ contenus dans un hyperplan et définit une nouvelle séparation binaire de ce dernier, et cela à l'aide d'une droite $s$ (choisie selon une technique définie au préalable et dans laquelle sont contenus un ou plusieurs segments). Le plan est alors divisé en deux sous-espaces $s^+$ et $s^-$ contenant chacun une partie des segments de $i$ non contenus dans la droite de séparation (les segments contenus dans $s$ étant les segments importants à stocker dans le nœud). Cette méthode de séparation est alors appelée récursivement sur les deux ensembles de segments contenus dans chacun des sous-espaces nouvellement créés, ceux-ci seront stockés dans les deux fils de ce nœud. La droite $s$ utilisée pour séparer le plan peut néanmoins couper des segments en deux, résultant alors dans la création de deux nouveaux segments qui seront contenus dans $s^+$ et $s^-$. Remarquons qu'avec la manière avec laquelle nous définissons chaque nouveau nœud, les feuilles de l'arbre seront des nœuds possédant une droite de séparation $s$ dans laquelle seront contenus un ou plusieurs segments et aucun autres segments en dehors de ceux-là. Ces feuilles ne pourront donc pas avoir de fils, puisqu'elles ne posséderont aucun segments dans $s^+$ et $s^-$.\\
 
 \theoremstyle{Definition}
 \begin{definition}{Arbre BSP}\\
@@ -126,12 +126,12 @@ Afin de représenter les différents éléments du problème, nous avons créé 
 \subsubsection{Segment}
 La classe Segment permet, comme son nom l'indique, de représenter un segment dans le plan. Celui-ci est défini à partir de deux extrémités $(x_1,y_1)$, $(x_2,y_2)$ et d'une couleur. Un segment possède également trois autres propriétés (\emph{intersected, isFreeSplit, intersection}), nécessaires à l'implémentation de l'heuristique des free-splits. Nous nous attarderons sur ces éléments plus tard. \\
 
-Ci-dessous sont présentées les méthodes appliquées sur ces segments les plus importantes pour la suite des calculs :\\
+Ci-dessous sont présentées les méthodes les plus importantes appliquées sur ces segments :\\
 
 \begin{itemize}
-\item \emph{computeLine} : Calcule l'équation de la droite qui contient le segment sous la forme $ax + by + c = 0$ et la stocke dans un tableau de dimension trois contenant ses coefficients $a,b,c$;
+\item \emph{computeLine} : Calcule l'équation de la droite qui contient le segment, sous la forme $ax + by + c = 0$ et la stocke dans un tableau de dimension trois contenant ses coefficients $a,b,c$;
 \item \emph{getSide} : Remplace les coordonnées $x$ et $y$ données en paramètres dans la droite également donnée en paramètre et retourne le résultat (0 si le point est sur la droite). Ceci nous permet de savoir de quel coté de la droite le point se trouve;
-\item \emph{computePosition} : Retourne la position relative du segment par rapport à la droite donnée en paramètre. Remarquons que pour cette méthode certaines conventions ont été prises. En effet, si il y a une intersection entre le segment et la droite, cette dernière est retournée dans un tableau à deux dimensions représentant un point. Sinon si le segment est à gauche de la droite, NaN est retourné, s'il est à droite, Infinity est retourné. Notons également que si nous nous trouvons dans le cas où il y a intersection au niveau d'un sommet du segment, par facilité d'implémentation nous retournerons que celui-ci est à gauche ou à droite en ignorant l'intersection.
+\item \emph{computePosition} : Retourne la position relative du segment par rapport à la droite donnée en paramètre. Remarquons que pour cette méthode certaines conventions ont été prises. En effet, si il y a une intersection entre le segment et la droite, cette dernière est retournée dans un tableau à deux dimensions représentant un point. Sinon si le segment est à gauche de la droite, Infinity est retourné, s'il est à droite, NaN est retourné. Notons également que si nous nous trouvons dans le cas où il y a intersection au niveau d'un sommet du segment, par facilité d'implémentation nous retournerons que celui-ci est à gauche ou à droite en ignorant l'intersection.
 \end{itemize}
 
 \subsubsection{Nœud BSP} 
@@ -159,12 +159,12 @@ Cette heuristique est très intuitive et met simplement en pratique le principe 
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.5]{bsp_ex_1.png}
+\includegraphics[scale=0.4]{bsp_ex_1.png}
 \caption{Scène de segments}
 \label{scene_inordre}
 \end{figure}
 
-Nous pouvons remarquer que cette scène contient 6 segments distincts, dont deux (les segments S3 et S4) se situant sur une même droite. Nous avons également des segments qui s'intersectent, ce qui va inexorablement mener à la création de nouveaux segments. Nous allons maintenant appliquer l'heuristique "in-ordre" sur l'exemple de la figure \ref{scene_inordre} et en expliquer le fonctionnement. L'arbre BSP correspondant est construit à la Figure \ref{bsp_tree}. \\
+Nous pouvons remarquer que cette scène contient 6 segments distincts, dont deux (les segments S3 et S4) se situant sur une même droite. Nous avons également des segments qui s'intersectent, ce qui va inexorablement mener à la création de nouveaux segments. Nous allons maintenant appliquer l'heuristique "in-order" sur l'exemple de la figure \ref{scene_inordre} et en expliquer le fonctionnement. L'arbre BSP correspondant est construit à la Figure \ref{bsp_tree}. \\
 
 Cette heuristique travaille avec la liste des segments telle qu'elle a été fournie par l'utilisateur, c'est à dire que la création de l'arbre se fait dans l'ordre par lequel les segments ont été définis. Dans notre exemple, la liste de segment initiale $i$ contient les segments dans l'ordre suivant : $\{S1,S2,S3,S4,S5,S6\}$ \\
 
@@ -180,9 +180,9 @@ $$s_1^- \quad contient\quad \{S3,S4,S5B,S6\}$$
 \end{figure}\\
 \newpage
 
-Le nœud va donc contenir le segment $S1$ dans la liste de segments contenus dans sa droite de séparation $s_1$. L'algorithme va être appelé récursivement sur deux nœuds dont les listes de segments sont celles définie précédemment. Là encore, le premier segment de chacune de ces listes sera utilisé pour construire la droite de séparation.\\
+Le nœud va donc contenir le segment $S1$ dans la liste de segments contenus dans sa droite de séparation $s_1$. L'algorithme va être appelé récursivement sur deux nœuds fils dont les listes de segments $i$ sont celles définie précédemment. Là encore, le premier segment de chacune de ces listes sera utilisé pour construire la droite de séparation.\\
 
-La première liste contiendra ainsi les segments $\{S2, S5A\}$. Le segment $S2$ sera utilisé pour créer la ligne de séparation $s_2$, le nœud contiendra dans sa liste de segments contenus dans la droite le segment $S2$. Nous remarquons alors que suite à la séparation du plan par la droite $s_2$, $s_2^+$ et $s_2^-$ contiennent les segments suivants:\\
+Le premier nœud contiendra ainsi la liste de segments $\{S2, S5A\}$. Le segment $S2$ sera utilisé pour créer la ligne de séparation $s_2$, le nœud contiendra dans sa liste de segments contenus dans la droite le segment $S2$. Nous remarquons alors que suite à la séparation du plan par la droite $s_2$, $s_2^+$ et $s_2^-$ contiennent les segments suivants:\\
 $$s_2^+ \quad \text{ne contient pas de segments}$$
 $$s_2^- \quad contient\quad \{S5A\}$$
 \\
@@ -196,7 +196,7 @@ Le nœud actuel ne possédera alors pas de fils droit et aura un fils gauche qui
 \end{figure}
 \newpage
 
-La deuxième liste contiendra ainsi les segments $\{S3,S4,S5B,S6\}$. Le segment $S3$ sera utilisé pour créer la ligne de séparation $s_3$, nous remarquons que le segment $S4$ est lui aussi compris dans cette droite. Nous avons également que $s_3$ intersecte $S5B$ et $S6$ ce qui engendre la création des fragments : $S5C$, $S6A$, $S6B$ comme indiqué sur la figure \ref{bsp_ex_5}. Les régions $s_3^+$ et $s_3^-$ contiennent les segments suivants:\\
+La deuxième nœud contiendra ainsi la liste de segments $\{S3,S4,S5B,S6\}$. Le segment $S3$ sera utilisé pour créer la ligne de séparation $s_3$, nous remarquons que le segment $S4$ est lui aussi compris dans cette droite et sera donc lui aussi dans la liste de segments contenus dans $s_3$. Nous avons également que $s_3$ intersecte $S5B$ et $S6$ ce qui engendre la création des fragments : $S5C$, $S6A$, $S6B$ comme indiqué sur la figure \ref{bsp_ex_5}. \\Les régions $s_3^+$ et $s_3^-$ contiennent les segments suivants:\\
 $$s_3^+ \quad contient\quad \{S6B, S5C\}$$
 $$s_3^- \quad contient\quad \{S5B,S6A\}$$
 
@@ -234,7 +234,7 @@ Notons que nous utilisons les conventions suivantes :\\
 \begin{itemize}
 	\item rightSon
 	\item leftSon
-	\item segmentsInHyperplane : liste des segments dans l'hyperplan défini par le droite de séparation du père.
+	\item segmentsInHyperplane : liste des segments dans l'hyperplan défini par la droite de séparation du père.
 	\item segmentsInLine : segments dans la ligne de séparation.
 	\item line : tableau de trois doubles étant les coefficients a, b et c de l'équation de sa droite de séparation.
 \end{itemize}
@@ -526,15 +526,15 @@ La structure de données Pov (\emph{Point Of View}) permet de représenter un po
 
 \begin{itemize}
 	\item \emph{position :} le point de départ du point de vue, stocké sous forme d'un tableau de doubles à deux dimensions.
-	\item \emph{line1 :} le premier vecteur qui définit le point de vue, stocké sous forme d'un objet qui comprend les deux points composant ce segment.
-	\item \emph{line2 :} le deuxième vecteur qui définit le point de vue, stocké sous forme d'un objet qui comprend les deux points composant ce segment.
-	\item \emph{directorVector :} le vecteur directeur du point de vue, reliant le point stocké dans \emph{position} et le point entre les extrémités des deux segments qui définissent le point de vue. Ce vecteur directeur est essentiellement la bissectrice du point de vue et est stocké de la même façon que précédemment.
+	\item \emph{$line1$ :} le premier vecteur qui définit le point de vue, stocké sous forme d'un objet qui comprend les deux points composant ce segment.
+	\item \emph{$line2$ :} le deuxième vecteur qui définit le point de vue, stocké sous forme d'un objet qui comprend les deux points composant ce segment.
+	\item \emph{directorVector :} le vecteur directeur du point de vue, reliant le point stocké dans \emph{position} et le point situé entre les extrémités des deux segments qui définissent le point de vue. Ce vecteur directeur est essentiellement la bissectrice du point de vue et est stocké de la même façon que précédemment.
 	\item \emph{projectionLine :} la ligne sur laquelle seront projetés les segments vu par le point de vue, stockée de la même façon que précédemment.
 \end{itemize}
 
 \subsection{Algorithme principal}
 \subsubsection{Pseudo-code}
-Le pseudo code suivant part du principe que les segments sont directement affichés par l'algorithme du peintre. En réalité, l'algorithme du peintre ajoute les segments à dessiner dans le bon ordre dans une liste chaînée qui sera ensuite utilisée par l'interface graphique. Ce détail d'implémentation ne changeant rien à la complexité et gênant la bonne compréhension de l'algorithme, nous l'ignorons ici.\\
+Le pseudo code suivant part du principe que les segments sont directement affichés par l'algorithme du peintre. En réalité, l'algorithme du peintre ajoute les segments à dessiner, dans le bon ordre, dans une liste chaînée qui sera ensuite utilisée par l'interface graphique. Ce détail d'implémentation ne changeant rien à la complexité et gênant la bonne compréhension de l'algorithme, nous l'ignorons ici.\\
 
 \newpage
 
@@ -546,7 +546,7 @@ Sortie : / (les segments sont dessinés dans le bon ordre)
  1: si !vide(N) alors
  2
  3:    si feuille(N) alors
- 4:       drawSegments($N_{liste}$)
+ 4:       scanConvert($N_{liste}$)
  5:
  6:    si $P \in N_{s^+}$ alors
  7:       paintersAlgorithm($N_{filsGauche}$,$P$)
@@ -573,7 +573,7 @@ Ensuite, il est évident que si le nœud $N^$ est une feuille, nous ne pouvons p
 Si le point de vue $P$ appartient à $N_{s^+}$, nous voulons d'abord afficher les segments plus distants que ceux de $N_{liste}$, 
 ceux si seront ceux du fils gauche qui appartient à $N_{s^-}$ et possède donc des segments plus distants du point de vue comme détaillé sur la figure \ref{ordre_1}. Le même principe s'applique pour le cas ou $P$ appartient à $N_{s^-}$.
 
-\begin{figure}[!h]
+\begin{figure}[H]
 \centering
 \includegraphics[scale=0.5]{painter_ordre_1.png}
 \caption{Ordre de parcours si $P \in N_{s^+}$ }
@@ -598,10 +598,12 @@ Comme indiqué dans la section $2.3.3$, la complexité de \textbf{scanConvert} p
 Tout ceci nous permet de déduire que la complexité de l'algorithme du peintre dépend du nombre total de segments contenu dans l'arbre. En effet, chaque nœud de l'arbre sera visité et tous les segments contenus dans sa droite de séparation seront parcourus. Pour un arbre contenant $n$ nœuds et de taille $m$ (donc contenant $m$ segments), nous obtenons la complexité suivante :\\
 
 Complexité pour chaque nœud :\\
-Chaque nœud sera noté $k_1, k_2, ... , k_n$;\\
-Pour chaque nœud, la taille de sa liste de segments sera notée $t_1, t_2, ... , t_n$ et nous savons que $t_1 + t_2 + ... + t_n = \text{taille de l'arbre}$\\
-Chaque appel sur un nœud $k_i$ aura une complexité en $O(t_i)$. En effet chacun des segments contenus dans ce nœud seront parcourus.
-
+\begin{itemize}
+	\item Chaque nœud sera noté $k_1, k_2, ... , k_n$;
+	\item Pour chaque nœud, la taille de sa liste de segments sera notée $t_1, t_2, ... , t_n$ et nous savons que $t_1 + t_2 + ... + t_n = \text{taille de l'arbre}$
+\end{itemize}
+\vspace{20}
+Chaque appel sur un nœud $k_i$ aura une complexité en $O(t_i)$. En effet chacun des segments contenus dans ce nœud sera parcouru par \textbf{scanConvert}.
 L'algorithme est appelé sur les $n$ nœuds de l'arbre, donc sur $k_1, k_2, ... , k_n$ et chacun de ces appels aura une complexité en $O( t_1), O(t_2), ... , O(t_n)$.\\
 La complexité totale pour l'arbre sera alors de $O(t_1 + t_2 + ... + t_n) = O(m)$. La complexité de l'algorithme du peintre dépend donc de la taille de l'arbre BSP.
 
@@ -700,7 +702,7 @@ Sortie : / (les segments sont dessinés)
 \subsubsection{Méthode}
 Dans cette section, nous détaillerons le fonctionnement général de l'algorithme ainsi qu'un exemple.\\
 
-Nous connaissons les valeurs de $(x_1,y_1)$, $(x_2,y_2)$, $(x_3,y_3)$ grâce au point de vue, ceci nous permet de calculer les droites $l_1$ et $l_2$, le vecteur directeur (qui joint $(x_1,y_1)$ au point situé entre $(x_2,y_2)$ et $(x_3,y_3)$), le segment sur lequel nous projetons la vue relie les deux points $(x_2,y_2)$, $(x_3,y_3)$ qui deviennent alors les $limites$ de ce segment (et aussi les projections de tout point sur $l_1$ et $l_2$). Nous calculons aussi le "demis angle" qui est l'angle entre le vecteur directeur et la droite $l_1$. Ceci nous donne le demis angle de vue (lignes 1 à 8). La situation de base est détaillée dans les figures \ref{exp_1} et \ref{exp_2}.
+Nous connaissons les valeurs de $(x_1,y_1)$, $(x_2,y_2)$, $(x_3,y_3)$ grâce au point de vue, ceci nous permet de calculer les droites $l_1$ et $l_2$, le vecteur directeur (qui joint $(x_1,y_1)$ au point situé entre $(x_2,y_2)$ et $(x_3,y_3)$), le segment sur lequel nous projetons la vue relie les deux points $(x_2,y_2)$, $(x_3,y_3)$ qui deviennent alors les $limites$ de ce segment (et aussi les projections de tout point sur $l_1$ et $l_2$). Nous calculons aussi le "demi-angle" qui est l'angle entre le vecteur directeur et la droite $l_1$. Ceci nous donne le demis angle de vue (lignes 1 à 8). La situation de base est détaillée dans les figures \ref{exp_1} et \ref{exp_2}.
 
 \begin{figure}[!h]
 \centering
@@ -729,7 +731,7 @@ Pour chaque segment, nous calculons les droites partant du point du vue et allan
 \label{exp_3}
 \end{figure}
 
-Si, pour un segment, ses deux angles calculés comme présenté ci-dessus sont plus petits que le demis angle, il est évident que le segment est complètement compris dans la vue. Nous l'affichons donc en entier. Pour ce faire nous projetons ses extrémités sur la droite de projection, ce qui revient à calculer l'intersection entre les droites qui relient le point de vue aux extrémités du segment et le segment sur lequel on veut projeter (lignes 16 à 18). Nous dessinons donc le segment reliant ces deux nouvelles intersections comme sur la figure \ref{cas1}.
+Si, pour un segment, ses deux angles calculés comme présenté ci-dessus sont plus petits que le demi-angle, il est évident que le segment est complètement compris dans la vue. Nous l'affichons donc en entier. Pour ce faire nous projetons ses extrémités sur la droite de projection, ce qui revient à calculer l'intersection entre les droites qui relient le point de vue aux extrémités du segment et le segment sur lequel on veut projeter (lignes 16 à 18). Nous dessinons donc le segment reliant ces deux nouvelles intersections comme sur la figure \ref{cas1}.
 
 \begin{figure}[H]
 \centering
@@ -738,7 +740,7 @@ Si, pour un segment, ses deux angles calculés comme présenté ci-dessus sont p
 \label{cas1}
 \end{figure}
 
-Si un des deux angles est plus grand que le demis angle et l'autre plus petit, nous savons qu'une des deux extrémités du segment est dans la vue. Cette extrémité est celle qui forme la droite dont l'angle avec le vecteur directeur est plus petit que le demis angle. Nous devons dès lors déterminer l'autre extrémité du segment à projeter, qui se trouvera sur une des droites $l_1$ ou $l_2$ (le segment original étant coupé par une de ces droites). Pour déterminer cela, nous procédons comme suit :\\
+Si un des deux angles est plus grand que le demi-angle et l'autre plus petit, nous savons qu'une des deux extrémités du segment est dans la vue. Cette extrémité est celle qui forme la droite dont l'angle avec le vecteur directeur est plus petit que le demi-angle. Nous devons dès lors déterminer l'autre extrémité du segment à projeter, qui se trouvera sur une des droites $l_1$ ou $l_2$ (le segment original étant coupé par une de ces droites). Pour déterminer cela, nous procédons comme suit :\\
 
 Nous calculons la position du segment par rapport aux droites $l_1$ et $l_2$ (qui peut nous donner trois résultats : une intersection, à gauche de la droite ou à droite de la droite) et nous en déduirons la position de la deuxième extrémité du segment à projeter (lignes 21 et 22). \\
 
@@ -760,7 +762,7 @@ Si nous n'avons qu'une seule intersection avec $l_1$ ou $l_2$, la ligne $l_1$ ou
 \label{cas2}
 \end{figure}
 
-Enfin, si nous avons deux angles plus grands que demis angle, qu'on a une droite qui relie le point de vue aux extrémités du segment de chaque coté du point de vue et qu'on moins une de ces droites est devant le point de vue (c'est à dire forme un angle inférieur à 90 degrés avec le vecteur directeur), il est possible que le segment coupe complètement le point de vue. Dès lors, nous calculons les intersections avec $l_1$ et $l_2$. Si nous obtenons deux intersections, le segment coupé reliera ces deux intersections et la méthode sera appelée récursivement sur ce segment coupé (lignes 46 à 55). Ceci débouche sur deux cas :\\
+Enfin, si nous avons deux angles plus grands que demi-angle, qu'on a une droite qui relie le point de vue aux extrémités du segment de chaque coté du point de vue et qu'on moins une de ces droites est devant le point de vue (c'est à dire forme un angle inférieur à 90 degrés avec le vecteur directeur), il est possible que le segment coupe complètement le point de vue. Dès lors, nous calculons les intersections avec $l_1$ et $l_2$. Si nous obtenons deux intersections, le segment coupé reliera ces deux intersections et la méthode sera appelée récursivement sur ce segment coupé (lignes 46 à 55). Ceci débouche sur deux cas :\\
 
 \begin{itemize}
 	\item Le segment coupait bien le point de vue, le segment coupé sur lequel l'appel récursif est effectué est donc complètement compris dans le point de vue et sera affiché par le premier cas (figure \ref{exp_5}).
@@ -791,11 +793,11 @@ Grâce à l'ordre des appels sur cette méthode donné par l'algorithme du peint
 \end{figure}
 
 \subsubsection{Complexité}
-Les calculs effectués dans cette méthode sont en O($m$) avec $m$ le nombre de segments contenus dans la liste de segments pris en entrée. Dans le pire des cas, chaque segment traverse complètement le point de vue et nécessite un deuxième appel récursif sur la méthode \textbf{scanConvert}. Chaque segment de la liste résulte en deux appels de la méthode, donnant une complexité en O(2$m$) = O(m).
+La complexité de cette méthode est en $O(m)$ avec $m$ le nombre de segments contenus dans la liste de segments pris en entrée (en effet, on parcours chaque segment et faisons des calculs en $O(1)$. Dans le pire des cas, chaque segment traverse complètement le point de vue et nécessite un deuxième appel récursif sur la méthode \textbf{scanConvert}. Chaque segment de la liste résulte en deux appels de la méthode, donnant une complexité en $O(2m)$ = O(m).
 
 \section{Tests et Résultats}
 
-Voici un tableau reprenant les différents résultats après exécution pour les trois heuristiques. Ces résultats sont des moyennes effectuées sur 200 itérations de constructions d'arbres pour les heuristiques et d'exécution de parcours pour l'algorithme du peintre. 
+Voici un tableau reprenant les différents résultats après exécution pour les trois heuristiques. Ces résultats sont des moyennes effectuées sur 200 itérations de construction d'arbres pour les heuristiques et d'exécution de parcours pour l'algorithme du peintre. 
 
 \begin{table}[H]
 \resizebox{\columnwidth}{!}{%
@@ -803,7 +805,8 @@ Voici un tableau reprenant les différents résultats après exécution pour les
 \hline 
   &  &  &  & BSP &  & Painter \\ 
 \hline 
-\textbf{Fichier} & \textbf{Heuristique} & \textbf{Taille} & \textbf{Hauteur} & \textbf{Segments} & \textbf{Temps création (ms)} & \textbf{Temps parcours(ms)} \\ 
+\textbf{Fichier} & \textbf{Heuristique} & \textbf{Nœuds} & \textbf{Hauteur} & \textbf{Taille} & \textbf{Temps création (ms)} & \textbf{Temps parcours(ms)} \\ 
+\hline 
 \hline 
   & Inorder & 12 & 11 & 14 & 0.26193 & 0.12797 \\ 
 \hline 
@@ -811,41 +814,48 @@ octangle & Random & 14 & 9 & 16 & 0.13641 & 0.02473 \\
 \hline 
   & Free-splits & 13 & 10 & 15 & 0.14450 & 0.02000 \\ 
 \hline 
+\hline 
   & Inorder & 8 & 8 & 8 & 0.09030 & 0.01054 \\ 
 \hline 
 octogone & Random & 8 & 8 & 8 & 0.07308 & 0.00680 \\ 
 \hline 
   & Free-splits & 8 & 8 & 8 & 0.04571 & 0.00593 \\ 
 \hline
+\hline 
   & Inorder & 200 & 200 & 200 & 3.73819 & 0.39579 \\ 
 \hline 
 ellipsesSmall & Random & 210 & 57 & 210 & 1.19927 & 0.14116 \\ 
 \hline 
   & Free-splits & 211 & 58 & 211 & 1.27632 & 0.09723 \\ 
 \hline
+\hline 
   & Inorder & 720 & 720 & 720 & 18.58865 & 0.69865 \\ 
 \hline 
 ellipsesMedium & Random & 746 & 132 & 747 & 2.52752 & 0.34774 \\ 
 \hline 
   & Free-splits & 747 & 132 & 747 & 2.74257 & 0.34303 \\ 
 \hline  
+\hline 
   & Inorder & 4500 & 4500 & 4500 & 586.34535 & 3.17180 \\ 
 \hline 
 ellipsesLarge & Random & 4555 & 515 & 4556 & 27.83951 & 2.47877 \\ 
 \hline 
   & Free-splits & 4556 & 515 & 4556 & 35.01424 & 2.45934 \\ 
 \hline
+\hline 
   & Inorder & 4893 & 53 & 4920 & 14.86430 & 2.95563 \\ 
 \hline 
 randomSmall & Random & 3837 & 27 & 3883 & 8.44489 & 2.06998 \\ 
 \hline 
   & Free-splits & 3880 & 31 & 3900 & 11.06211 & 2.08854 \\ 
 \hline
+\hline 
   & Inorder & 17655 & 90 & 17734 & 66.74394 & 9.52736 \\ 
 \hline 
 randomMedium & Random & 13674 & 35 & 13790 & 35.31576 & 7.58419 \\ 
 \hline 
   & Free-splits & 13826 & 40 & 13858 & 41.93094 & 7.65853 \\ 
+\hline 
 \hline  
   & Inorder & 36629 & 115 & 36736 & 185.18503 & 20.26115 \\ 
 \hline 
@@ -853,30 +863,35 @@ randomLarge & Random & 28145 & 42 & 28314 & 86.87417 & 16.19512 \\
 \hline 
   & Free-splits & 28376 & 45 & 28405 & 100.36949 & 15.97001 \\ 
 \hline
+\hline 
   & Inorder & 71650 & 154 & 71810 & 438.97645 & 39.55686 \\ 
 \hline 
 randomHuge & Random & 55539 & 47 & 55842 & 190.77088 & 31.18459 \\ 
 \hline 
   & Free-splits & 55918 & 50 & 55961 & 222.40136 & 31.56466 \\ 
 \hline
+\hline 
   & Inorder & 24 & 24 & 660 & 2.67968 & 0.18122 \\ 
 \hline 
 rectanglesSmall & Random & 62 & 11 & 670 & 1.63056 & 0.18955 \\ 
 \hline 
   & Free-splits & 63 & 11 & 671 & 1.79111 & 0.19341 \\ 
 \hline
+\hline 
   & Inorder & 20 & 20 & 1800 & 10.14838 & 1.15526 \\ 
 \hline 
 rectanglesMedium & Random & 44 & 10 & 1801 & 5.68746 & 0.50126 \\ 
 \hline 
   & Free-splits & 45 & 10 & 1801 & 6.16757 & 0.49999 \\ 
 \hline  
+\hline 
   & Inorder & 44 & 44 & 5940 & 76.50564 & 1.94800 \\ 
 \hline 
 rectanglesLarge & Random & 172 & 15 & 5971 & 27.53147 & 1.84194 \\ 
 \hline 
   & Free-splits & 174 & 15 & 5971 & 25.69965 & 1.65405 \\ 
 \hline
+\hline 
   & Inorder & 57 & 45 & 16800 & 622.54697 & 4.30077 \\ 
 \hline 
 rectanglesHuge & Random & 184 & 14 & 16816 & 200.15107 & 4.97284 \\ 
@@ -887,11 +902,13 @@ rectanglesHuge & Random & 184 & 14 & 16816 & 200.15107 & 4.97284 \\
 }
 \end{table}
 \\
-Au niveau des BSP, nous pouvons remarquer un comportement constant entre les différents temps d'exécution pour la construction des arbres. En effet, l'heuristique inordre est toujours la plus longue à exécuter, ce qui paraît logique étant donné que c'est l'algorithme de construction le plus simple et basique n'effectuant aucune action pour essayer d'optimiser la construction. 
-Ensuite nous avons le temps construction des arbres pour les free-splits qui est très proche de celui pour l'heuristique random, néanmoins ce dernier reste légèrement toujours plus performant (à l'exception des fichiers "rectanglesLarge et rectanglesHuge"). Cette constatation s'explique du fait que l'algorithme des free-splits se base sur le random et lui ajoute quelques améliorations se traduisant par des instructions supplémentaires, ce qui influence donc légèrement le temps d'exécution. En ce qui concerne les meilleures performances pour les fichiers rectangles cela montre simplement que ces ensembles de segments ont de meilleures dispositions qui engendrent nombre de free-splits.\\
-En ce qui concerne la taille  des arbres générés, ceux-ci sont de tailles plus réduites pour l'heuristique inorder au niveau des fichiers contenant peu de segments, mais sont plus grand que ceux générés par les heuristique random et free-split plus les fichiers sont de plus grandes tailles (à partir des fichiers de taille moyenne). Pour la hauteur, on a par contre que la hauteur des arbres générés par l'heuristique est toujours la plus grande, en effet beaucoup de ces arbres étant dégénérés, ils ont alors une hauteur très importante. Et enfin, le nombre de segments est relativement constant, toutes heuristiques confondues, à l'exception du fichier random pour lequel les heuristiques random et free-splits génèrent légèrement moins de segments. \\
+Au niveau des BSP, nous pouvons remarquer un comportement répété entre les différents temps d'exécution pour la construction des arbres. En effet, l'heuristique in-order est toujours la plus longue à exécuter. Ceci paraît logique étant donné que c'est l'algorithme de construction le plus simple et basique n'effectuant aucune action pour essayer d'optimiser la construction (en effet, il prend les segments dans l'ordre défini par le fichier et est donc totalement dépendant de la qualité de cet ordre qui n'est en général pas très bon). 
+Ensuite nous avons le temps construction des arbres pour les free-splits qui est très proche de celui pour l'heuristique random, néanmoins cette dernière reste légèrement toujours plus performante (à l'exception des fichiers "rectanglesLarge et rectanglesHuge"). Cette constatation s'explique par le fait que l'algorithme des free-splits se base sur le random et lui ajoute quelques améliorations se traduisant par des instructions supplémentaires, ce qui influence donc légèrement le temps d'exécution. En ce qui concerne les meilleures performances pour les fichiers rectangles, cela montre simplement que ces ensembles de segments ont de meilleures dispositions qui engendrent nombre un de free-splits.\\
 
-L'algorithme du peintre parcourant tous les noeuds de l'arbre BSP ainsi que tous les segments contenus dans la ligne de séparation de l'espace de ce noeud, il est naturel que le temps d'exécution de l'algorithme dépende du nombre de noeuds de l'arbre ainsi que du nombre de segments contenus dans l'arbre (la somme du nombre de segments contenus dans chaque noeud). Il convient aussi de remarquer que plus il y aura de segments contenus dans le point de vue, plus il y aura de calculs effectués par la méthode scanConvert. Nous remarquons en effet de manière globale que plus le nombre de segments est élevé, plus l'algorithme du peintre prend du temps. Dans nos résultats nous remarquons que les parcours sur les arbres créés via l'heuristique inordre sont toujours plus long que les deux autres heuristiques (à l'exception de "recanglesHuge" affichant un comportement différent de la normale), montrant bien que ces arbres ne sont pas du tout optimaux. Au niveau de la comparaison pour le temps d'exécution entre les heuristiques random et free-splits, nous pouvons dégager une légère tendance générale à un meilleur temps pour le free-splits mais les résultats n'ayant pas différences significatives et variant au cas par cas dans un sens comme dans un autre, nous ne pouvons confirmer de manière exacte cette affirmation.
+La taille des arbres générés est en général légèrement plus grande pour les heuristiques random et free-splits que pour l'heuristique in-order. Sur les fichiers random, nous remarquons que les heuristiques random et free-splits fournissent des arbres de tailles similaires et beaucoup plus réduites que celles des arbres créés par l'heuristique in-order.
+Pour la hauteur, on a par contre que la hauteur des arbres générés par l'heuristique in-order est toujours la plus grande, en effet beaucoup de ces arbres étant dégénérés, ils ont alors une hauteur très importante. Les heuristiques random et free-splits permettent donc d'avoir une hauteur réduite pour l'arbre.\\
+
+L'algorithme du peintre parcourant tous les nœuds de l'arbre BSP ainsi que tous les segments contenus dans la droite de séparation de ces nœuds, il est naturel que le temps d'exécution de l'algorithme dépende de la taille de l'arbre. Il convient aussi de remarquer que plus il y aura de segments contenus dans le point de vue, plus il y aura de calculs effectués par la méthode \textbf{scanConvert}. Nous remarquons donc que plus le nombre de segments est élevé, plus l'algorithme du peintre prend du temps. Dans nos résultats nous remarquons que les parcours sur les arbres créés via l'heuristique in-order sont toujours plus long que les deux autres heuristiques (à l'exception de "recanglesHuge" affichant un comportement différent de la normale), montrant bien que ces arbres ne sont pas du tout optimaux. Au niveau de la comparaison pour le temps d'exécution entre les heuristiques random et free-splits, nous pouvons dégager une légère tendance générale à un meilleur temps pour le free-splits mais les résultats n'ayant pas différences significatives et variant au cas par cas dans un sens comme dans un autre, nous ne pouvons confirmer de manière exacte cette affirmation.
   
 \end{tabular}%
 }
