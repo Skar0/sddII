@@ -930,14 +930,21 @@ Lors du lancement de l'interface graphique, il est demandé à l'utilisateur de 
 
 L'algorithme du peintre est appliqué une fois un point de vue valide choisi par l'utilisateur. Le résultat de l'algorithme est représenté deux fois pour une meilleure compréhension : une fois sur la droite de projection du point de vue, telle que définie implicitement par l'utilisateur et une autre fois au dessus de la fenêtre, mis à l'échelle. Cette représentation mise à l'échelle permet une meilleure visualisation pour de grosses scènes.
 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.55]{gui.png}
+\caption{Interface graphique}
+\label{gui_1}
+\end{figure}
+
 \subsection{Mode console}
 
-Pour lancer le mode console, la classe \textit{TestCui.java} du package \textit{be.umons.ac.cui} doit être lancée à partir du dossier\textbf{src} via \textbf{javac be\textbackslash ac\textbackslash umons\textbackslash cui\textbackslash TestCui.java} et \textbf{java be.ac.umons.cui.TestCui}. Le mode console fonctionne comme suit :\\
+Pour lancer le mode console, la classe \textit{TestCui.java} du package \textit{be.umons.ac.cui} doit être lancée à partir du dossier  \textbf{src} via \textbf{javac be\textbackslash ac\textbackslash umons\textbackslash cui\textbackslash TestCui.java} et \textbf{java be.ac.umons.cui.TestCui}. Le mode console fonctionne comme suit :\\
 
 Il est tout d'abord demandé à l'utilisateur de choisir un fichier. Il doit pour cela choisir un des fichiers proposés (les fichiers de base de l'énoncé) ou introduire le chemin complet d'un fichier contenant une scène. L'utilisateur doit ensuite choisir un nombre d'itérations, effectuant ainsi une batterie de test pour le calcul des temps. En effet, les algorithmes de création étant non déterministes, il est intéressant de pouvoir les lancer plusieurs fois et faire une moyenne des résultats et temps obtenus. Cette moyenne n'affectera pas les résultats des algorithmes déterministes. Suite au choix d'un fichier et d'un nombre d'itérations, un tableau reprenant les résultats obtenus pour les heuristiques et algorithme du peintre sont affichés dans la console.
-
+\newpage
 \section*{Conclusion}
-Lors de ce projet, nous avons connus quelques difficultés que nous n'avions encore jamais rencontrées, comme la gestion d'erreurs de précision lors du calcul de droites, d'intersections ou d'angles. Nous avons également réalisé ce projet en prenant en compte la complexité des algorithmes et des structures de données que nous devions créer.\\
+Lors de ce projet, nous avons connu quelques difficultés que nous n'avions encore jamais rencontrées, comme la gestion d'erreurs de précision lors du calcul de droites, d'intersections ou d'angles. Ce projet nous a aussi permis d'utiliser algorithmiquement des principes mathématiques pour les calculs de droites ou des calculs d'angles entre des vecteurs. Nous avons également réalisé ce projet en prenant en compte la complexité des algorithmes et des structures de données que nous devions créer.\\
 
 Ce projet nous a permis de nous familiariser avec les arbres BSP et leur utilisation pour stocker des scènes de segments. Nous avons trouvé le principe de leur utilisation et de la représentation de ces scènes via l'algorithme du peintre très intéressant puisque celui-ci a beaucoup d'applications. 
 \addcontentsline{toc}{section}{Conclusion}
